@@ -16,7 +16,7 @@ export default function ShowPage({
       title={packages.title}
       createdAt={packages.created_at}
       updatedAt={packages.updated_at}
-      imageUrl={packages.image_url || ""}
+      imageUrl={packages.image_banner || ""}
       slug={packages.slug}
     >
       <Head title={packages.title} />

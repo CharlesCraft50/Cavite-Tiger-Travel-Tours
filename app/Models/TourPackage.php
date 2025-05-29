@@ -26,7 +26,8 @@ class TourPackage extends Model
         'pax_adult',
         'available_from',
         'available_until',
-        'image_url',
+        'image_overview',
+        'image_banner',
         'slug',
     ];
 

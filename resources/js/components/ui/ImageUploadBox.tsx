@@ -19,15 +19,15 @@ export default function ImageUploadBox({ imagePreview, setImagePreview }: ImageU
     return (
     <div className="relative">
         <input
-            id="image-upload"
+            id="image-overview"
             type="file"
             accept="image/*"
             className="hidden"
             onChange={handleImageUpload}
         />
         <label
-            htmlFor="image-upload"
-            className={clsx("bg-gray-200 border border-gray-600 w-48 h-48 flex items-center justify-center cursor-pointer text-center",
+            htmlFor="image-overview"
+            className={clsx("bg-gray-200 border border-gray-600 w-48 h-48 flex items-center justify-center cursor-pointer text-center dark:bg-gray-950 text-black dark:text-white",
                 !imagePreview && "border-dashed"
             )}
         >

@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
             'pax_adult' => 4,
             'available_from' => now(),
             'available_until' => now()->addMonths(3),
-            'image_url' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/Calaguas_Island.jpg',
+            'image_banner' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/Calaguas_Island.jpg',
             'slug' => Str::slug('Calaguas Island Getaway'),
         ]);
 
@@ -69,7 +69,7 @@ class DatabaseSeeder extends Seeder
             'pax_adult' => 3,
             'available_from' => now(),
             'available_until' => now()->addMonths(2),
-            'image_url' => 'tagaytay.jpg',
+            'image_banner' => 'tagaytay.jpg',
             'slug' => Str::slug('Chill and Dine Tagaytay'),
         ]);
 

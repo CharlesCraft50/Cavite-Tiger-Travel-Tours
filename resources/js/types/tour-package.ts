@@ -17,7 +17,8 @@ export interface TourPackage {
     pax_adult?: number | null;
     available_from?: string | null; // ISO date string, e.g. "2025-06-01"
     available_until?: string | null;
-    image_url?: string | null;
+    image_overview?: string | null;
+    image_banner?: string | null;
 
     created_at: string;
     updated_at: string;

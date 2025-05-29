@@ -1,9 +1,10 @@
+import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 
 
 export default function test() {
   return (
     <>
-        <p className="test-sass">Test</p>
+        <SimpleEditor />
     </>
   )
 }

@@ -18,13 +18,14 @@ export default function Index({ cities }: { cities: City[] }) {
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         subtitle: '',
-        imageUrl: '',
         overview: '',
         location: '',
         city_id: 0,
         content: ''
     });
     const [imagePreview, setImagePreview] = useState<string | undefined>(undefined);
+    const [imageBanner, setImageBanner] = useState<string | undefined>(undefined);
+    
 
     const processContent = (input: string) => {
 
@@ -96,14 +97,7 @@ export default function Index({ cities }: { cities: City[] }) {
                     <Label>Overview</Label>
                     <div className="flex flex-row gap-4 items-center">
                         <div className="grid gap-2">
-                            {data.imageUrl && data.imageUrl.trim() !== "" ? (
-                            <div className="border border-gray-300 w-42 h-26">
-                                <img src={data.imageUrl} />
-                            </div>
-                            ):
-                            (
-                                <ImageUploadBox imagePreview={imagePreview} setImagePreview={setImagePreview} />
-                            )}
+                            <ImageUploadBox imagePreview={imagePreview} setImagePreview={setImagePreview} />
                         </div>
                         <div className="flex flex-col gap-2 flex-1">
                             <div className="flex flex-col gap-1">
@@ -113,7 +107,7 @@ export default function Index({ cities }: { cities: City[] }) {
                             <Textarea
                                 name="overview"
                                 className={clsx("w-full max-w-xl sm:max-w-lg md:max-w-xl lg:max-w-2xl h-22 overflow-hidden resize-none text-sm",
-                                    data.overview ? "bg-white" : "border bg-gray-100 focus:bg-blue-100 hover:shadow"
+                                    data.overview ? "bg-white" : "border bg-gray-100 focus:bg-blue-100 hover:shadow dark:bg-gray-900 text-black dark:text-white"
                                 )}
                                 placeholder="📝 This is a placeholder overview. Please enter a concise summary of the tour package here to give customers a quick insight into what your package offers. - Change this"
                                 maxLength={250}
@@ -142,32 +136,56 @@ export default function Index({ cities }: { cities: City[] }) {
                             setData('content', cleanedInput ?? '');
                             setData('overview', shortDescription ?? '');
                         }}
+                        title={data.title}
+                        imageBanner={imageBanner}
+                        setImageBanner={setImageBanner}
                     />
                     { contentError && (<InputError message={contentError} className="mt-2" />) }
                 </div>
 
-                <select
-                    id="cities"
-                    name="cities"
-                    value={data.city_id}
-                    onChange={(e) => {
-                        const selectedCityId = Number(e.target.value);
-                        const selectedCity = cities.find(city => city.id === selectedCityId);
-                        setData('city_id', Number(selectedCityId));
-                        setData('location', selectedCity?.name ?? '');
-                    }}
-                    disabled={processing}
-                    className="border rounded p-2"
-                    required
-                >
-                    <option value="">Choose a City</option>
-                    {cities.map((city: City) => (
-                        <option value={city.id} key={city.id} data-name={city.name}>{city.name}</option>
-                    ))
+                <div className="grid gap-2">
+                    <Label htmlFor="cities">City</Label>
+                    <select
+                        id="cities"
+                        name="cities"
+                        value={data.city_id}
+                        onChange={(e) => {
+                            const selectedCityId = Number(e.target.value);
+                            const selectedCity = cities.find(city => city.id === selectedCityId);
+                            setData('city_id', Number(selectedCityId));
+                            setData('location', selectedCity?.name ?? '');
+                        }}
+                        disabled={processing}
+                        className="border rounded p-2 dark:bg-gray-950 text-black dark:text-white"
+                        required
+                    >
+                        <option value="">Choose a City</option>
+                        {cities.map((city: City) => (
+                            <option value={city.id} key={city.id} data-name={city.name}>{city.name}</option>
+                        ))
 
-                    }
-                </select>
-                <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
+                        }
+                    </select>
+                </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="duration">Duration</Label>
+                    <Input
+                        type="text"
+                        list="durations"
+                        name="duration"
+                        placeholder="e.g. 3D2N"
+                    />
+
+                    <datalist id="durations">
+                        <option value="2D1N" />
+                        <option value="3D2N" />
+                        <option value="4D3N" />
+                        <option value="5D4N" />
+                    </datalist>
+                </div>
+                
+                <Button type="submit" className="mt-2 w-full btn-primary cursor-pointer" tabIndex={5} disabled={processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     Create
                 </Button>

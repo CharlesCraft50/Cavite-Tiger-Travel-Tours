@@ -29,12 +29,12 @@ export default function PackagHeaderLayout({
                 className="absolute inset-0 w-full h-full object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center p-6">
-                <div className="w-[30%] text-white">
-                    <p className="text-sm md:text-base text-white mb-1 uppercase">{title}</p>
-                    <h1 className="text-4xl md:text-6xl font-bold leading-tight uppercase">
-                        Package Tours
-                    </h1>
-                </div>
+                  <div className="w-[30%] text-white">
+                      <p className="text-sm md:text-base text-white mb-1 uppercase">{title}</p>
+                      <h1 className="text-4xl md:text-6xl font-bold leading-tight uppercase">
+                          Package Tours
+                      </h1>
+                  </div>
                 </div>
             </div>
             )}

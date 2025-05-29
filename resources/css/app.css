@@ -171,9 +171,9 @@
         transition: background-color 0.3s ease;  /* Smooth transition for hover */
     }
 
-    .btn-primary:hover {
-        background-color: #d41944; /* Darken primary color for hover */
-        color: var(--color-primary-foreground); /* Keep text color */
+    .btn-primary {
+        background-color: var(--color-primary); /* ← switches value in dark mode */
+        color: var(--color-primary-foreground);
     }
 
     .btn-primary:focus {

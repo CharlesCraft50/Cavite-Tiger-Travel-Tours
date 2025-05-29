@@ -23,7 +23,8 @@ return new class extends Migration
             $table->integer('pax_adult')->nullable();
             $table->date('available_from')->nullable();
             $table->date('available_until')->nullable();
-            $table->string('image_url')->nullable(); // path to image in /storage
+            $table->string('image_overview')->nullable(); // path to image_overview in /storage
+            $table->string('image_banner')->nullable(); // path to image_banner in /storage
             $table->string('slug')->unique();
 
             $table->timestamps();
