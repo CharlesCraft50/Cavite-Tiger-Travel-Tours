@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
+use App\Models\City;
 
 class PackageController extends Controller
 {
@@ -20,7 +21,10 @@ class PackageController extends Controller
     }
 
     public function create() {
-        return (Inertia::render('packages/create'));
+        $cities = City::all();
+        return (Inertia::render('packages/create', [
+            'cities' => $cities
+        ]));
     }
 
     /**

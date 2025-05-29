@@ -180,4 +180,8 @@
         outline: 2px solid var(--color-primary-foreground); /* Focus outline */
         outline-offset: 2px;
     }
+
+    .image-preview {
+        @apply w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-110;
+    }
 }

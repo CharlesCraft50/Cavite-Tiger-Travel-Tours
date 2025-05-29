@@ -11,9 +11,11 @@ export default function FormLayout({ children, title, description, ...props }: F
     return (
         <>
             <Navbar />
-            <FormSimpleLayout title={title} description={description} {...props}>
-                {children}
-            </FormSimpleLayout>
+            <div className="p-4 md:p-6">
+                <FormSimpleLayout title={title} description={description} {...props}>
+                    {children}
+                </FormSimpleLayout>
+            </div>
         </>
     );
 }

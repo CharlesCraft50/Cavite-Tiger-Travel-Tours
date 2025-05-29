@@ -1,0 +1,91 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "attrs": { "textAlign": null },
+      "content": [
+        {
+          "type": "text",
+          "text": "Embark on an unforgettable tropical escape designed for adventure seekers and relaxation lovers alike. This 4-day, 3-night tour takes you to the pristine shores of Calaguas Island where crystal-clear waters, white sandy beaches, and unforgettable sunsets await. Whether you're after peace and quiet or fun-filled island activities, this package offers the perfect balance for your ideal getaway."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": { "textAlign": null, "level": 2 },
+      "content": [{ "type": "text", "text": "What's Included" }]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Roundtrip transportation" }] }]
+        },
+        {
+          "type": "listItem",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "3 nights tent accommodation" }] }]
+        },
+        {
+          "type": "listItem",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "All meals during the tour" }] }]
+        },
+        {
+          "type": "listItem",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Island hopping and activities" }] }]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": { "textAlign": null, "level": 2 },
+      "content": [{ "type": "text", "text": "Sample Itinerary" }]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Day 1: Departure and Arrival at Island\nDay 2: Island Hopping\nDay 3: Free Time / Activities\nDay 4: Return to Manila"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": { "textAlign": null, "level": 2 },
+      "content": [{ "type": "text", "text": "Things to Bring" }]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Valid ID" }] }]
+        },
+        {
+          "type": "listItem",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Sunblock and toiletries" }] }]
+        },
+        {
+          "type": "listItem",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Extra clothes and swimwear" }] }]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": { "textAlign": null, "level": 2 },
+      "content": [{ "type": "text", "text": "Reminders" }]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Please confirm your booking at least 1 week before the scheduled departure. Downpayment is required to reserve slots."
+        }
+      ]
+    }
+  ]
+}

@@ -25,6 +25,7 @@ class Booking extends Model
         'travel_insurance',
         'notes',
         'payment_method',
+        'is_confirmed',
         'status',
     ];
 

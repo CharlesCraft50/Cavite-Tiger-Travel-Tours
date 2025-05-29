@@ -24,6 +24,7 @@ export default function ShowPage({
         <div>{packages.content}</div>
 
         <CategoryTabLayout categories={categories} slug={packages.slug} />
+        <button className="bg-secondary">Test</button>
       </div>
     </PackageShowLayout>
   )
