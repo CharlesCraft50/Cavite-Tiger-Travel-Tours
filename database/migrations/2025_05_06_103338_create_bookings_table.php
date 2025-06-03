@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('tour_package_id')->constrained()->onDelete('cascade');
-            $table->foreignId('package_category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('package_category_id')->nullable()->constrained()->onDelete('set null');
 
             // Customer Details
             $table->string('first_name');

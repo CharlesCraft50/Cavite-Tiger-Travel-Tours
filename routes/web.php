@@ -30,7 +30,7 @@ Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packag
 Route::post('/book-now/booked', [BookingController::class, 'store'])->name('booking.store');
 
 Route::get('/test', function () {
-    return Inertia::render('packages/test');
+    return Inertia::render('success-page');
 });
 
 require __DIR__.'/settings.php';

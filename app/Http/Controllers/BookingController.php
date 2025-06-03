@@ -39,7 +39,7 @@ class BookingController extends Controller
 
         Booking::create($validated);
 
-        return Inertia::render('book-now/success', [
+        return Inertia::render('success-page', [
             'title' => 'Booking Confirmed!',
             'description' => 'Thank you for booking. Please check your email for confirmation and details.',
         ]);

@@ -4,15 +4,17 @@ import { FilePlus } from 'lucide-react'
 type ImageUploadBoxProps = {
  imagePreview?: string;
  setImagePreview?: (e: string) => void;
+ setImageFile?: (file: File) => void;
 }
 
-export default function ImageUploadBox({ imagePreview, setImagePreview }: ImageUploadBoxProps) {
+export default function ImageUploadBox({ imagePreview, setImagePreview, setImageFile }: ImageUploadBoxProps) {
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
 
         if(file && setImagePreview) {
             const url = URL.createObjectURL(file);
             setImagePreview(url);
+            setImageFile?.(file);
         }
     }
   

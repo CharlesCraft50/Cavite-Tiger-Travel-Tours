@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use App\Models\City;
 use App\Models\PackageCategory;
 use App\Models\Comment;
@@ -36,6 +37,13 @@ class TourPackage extends Model
         'available_until' => 'date',
         'price_per_head' => 'float',
     ];
+
+    protected static function booted() 
+    {
+        static::creating(function ($package) {
+            $package->slug = Str::slug($package->title);
+        });
+    }
 
     public function city()
     {

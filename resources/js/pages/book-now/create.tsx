@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Head, useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useEffect } from "react";
 import InputError from "@/components/input-error";
 
 export default function Create({ packages }: { packages: TourPackage }) {
@@ -48,15 +48,19 @@ export default function Create({ packages }: { packages: TourPackage }) {
         });
     }
 
+    useEffect(() => {
+        document.body.style.overflow = 'auto';
+    }, []);
+
     return (
         <FormLayout>
             <Head title="Book Now" />
             <form onSubmit={submit} className="flex flex-col gap-6">
                 {/* Hero Image Header */}
-                {packages.image_url && (
+                {packages.image_banner && (
                     <div className="relative w-full h-64 md:h-96 overflow-hidden rounded-xl mb-6">
                         <img
-                            src={packages.image_url}
+                            src={packages.image_banner}
                             alt="Tour Package Banner"
                             className="absolute inset-0 w-full h-full object-cover object-center"
                         />
@@ -65,8 +69,8 @@ export default function Create({ packages }: { packages: TourPackage }) {
                                 <h1 className="text-2xl md:text-4xl font-bold mb-2 text-gray-900">
                                     Book Now - {packages.title}
                                 </h1>
-                                {packages.content && (
-                                    <p className="text-gray-700 text-sm md:text-base">{packages.content}</p>
+                                {packages.overview && (
+                                    <p className="text-gray-700 text-sm md:text-base">{packages.overview}</p>
                                 )}
                             </div>
                         </div>
