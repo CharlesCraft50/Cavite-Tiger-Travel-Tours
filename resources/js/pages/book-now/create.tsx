@@ -47,18 +47,18 @@ export default function Create({ packages, categories, selectedCategoryId }: Boo
     });
 
     useEffect(() => {
-    const url = new URL(window.location.href);
-    const segments = url.pathname.split('/').filter(Boolean);
+        const url = new URL(window.location.href);
+        const segments = url.pathname.split('/').filter(Boolean);
 
-    const categoryIndex = segments.indexOf('category');
-        if (categoryIndex !== -1 && segments.length > categoryIndex + 1) {
-            const slugFromUrl = segments[categoryIndex + 1];
+        const categoryIndex = segments.indexOf('category');
+            if (categoryIndex !== -1 && segments.length > categoryIndex + 1) {
+                const slugFromUrl = segments[categoryIndex + 1];
 
-            const matchedCategory = categories.find(cat => cat.slug === slugFromUrl);
-            if (matchedCategory) {
-                setData('package_category_id', matchedCategory.id);
+                const matchedCategory = categories.find(cat => cat.slug === slugFromUrl);
+                if (matchedCategory) {
+                    setData('package_category_id', matchedCategory.id);
+                }
             }
-        }
     }, [categories, setData]);
 
 
