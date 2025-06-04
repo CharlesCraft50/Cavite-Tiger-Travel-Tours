@@ -1,3 +1,5 @@
+import React from 'react';
+
 type CategoryTabProps = {
   name: string;
   className?: string;
@@ -29,49 +31,25 @@ export default function CategoryTab({
       {...props}
     >
       {editable ? (
-        <div
-          contentEditable
-          suppressContentEditableWarning
-          className="cursor-text title text-1xl p-4 border border-red-400 bg-transparent outline-none whitespace-pre-wrap overflow-hidden text-ellipsis w-full min-h-[1.5em] break-words"
+        <input
+          type="text"
+          className="cursor-text title text-1xl p-4 border border-red-400 bg-transparent outline-none w-full"
           style={{
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            overflowWrap: 'break-word'
+            whiteSpace: 'pre',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden'
           }}
-          onInput={(e) => {
-            const text = e.currentTarget.textContent || '';
-            if (text.length <= 70) {
-              setTitle?.(text);
-            } else {
-              // Prevent further input if max length exceeded
-              e.currentTarget.textContent = text.slice(0, 70);
-              // Move cursor to end
-              const range = document.createRange();
-              const sel = window.getSelection();
-              range.selectNodeContents(e.currentTarget);
-              range.collapse(false);
-              sel?.removeAllRanges();
-              sel?.addRange(range);
-            }
-          }}
-          onFocus={(e) => {
-            // Select all text on focus
-            const range = document.createRange();
-            const sel = window.getSelection();
-            range.selectNodeContents(e.currentTarget);
-            sel?.removeAllRanges();
-            sel?.addRange(range);
-          }}
+          maxLength={70}
+          value={title || ''}
+          onChange={(e) => setTitle?.(e.target.value)}
+          onFocus={(e) => e.target.select()}
           onKeyDown={(e) => {
-            // Handle Enter key to prevent new lines if desired
             if (e.key === 'Enter') {
               e.preventDefault();
               e.currentTarget.blur();
             }
           }}
-        >
-          {title}
-        </div>
+        />
       ) : (
         <span className="title text-1xl p-4">{name}</span>
       )}

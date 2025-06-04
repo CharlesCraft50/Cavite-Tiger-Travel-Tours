@@ -24,10 +24,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::post('/image/upload', [ImageController::class, 'store'])->name('image.store');
 Route::get('/image/{id}', [ImageController::class, 'show'])->name('image.show');
 
-Route::resource('/packages', PackageController::class);
+
 Route::get('/book-now/{slug}', [BookingController::class, 'create'])->name('booking.create');
-Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');
+Route::get('/book-now/{slug}/category/{categorySlug?}', [BookingController::class, 'create'])->name('book-now.create');
 Route::post('/book-now/booked', [BookingController::class, 'store'])->name('booking.store');
+
+Route::resource('/packages', PackageController::class);
+Route::get('/packages/{packageSlug}/category/{categorySlug}', [PackageController::class, 'showCategory'])
+    ->name('packages.category.show');
+Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');
 
 Route::get('/test', function () {
     return Inertia::render('success-page');

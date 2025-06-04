@@ -41,7 +41,9 @@ class TourPackage extends Model
     protected static function booted() 
     {
         static::creating(function ($package) {
-            $package->slug = Str::slug($package->title);
+            $slug = Str::slug($package->title);
+            $count = static::where('slug', 'like', "{$slug}%")->count();
+            $package->slug = $count ? "{$slug}-{$count}" : $slug;
         });
     }
 

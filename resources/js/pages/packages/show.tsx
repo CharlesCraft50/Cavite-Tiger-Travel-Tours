@@ -17,9 +17,11 @@ import AddCategories from '@/components/add-categories';
 export default function ShowPage({
   packages,
   categories,
+  category
 }: {
   packages: TourPackage
   categories: PackageCategory[]
+  category: string
 }) {
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export default function ShowPage({
         <AddCategories 
             categories={categories} 
             slug={packages.slug}
+            selectedCategory={category}
         />
         
       </div>

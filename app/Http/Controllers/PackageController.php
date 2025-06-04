@@ -65,6 +65,7 @@ class PackageController extends Controller
                         'name' => $category['name'] ?? '',
                         'content' => $category['content'] ?? '',
                         'has_button' => $category['has_button'] ?? 0,
+                        'button_text' => $category['button_text'] ?? 'Book Now',
                     ]);
                 }
             }
@@ -97,6 +98,22 @@ class PackageController extends Controller
             'categories' => $package->categories
         ]));
     }
+
+    public function showCategory($packageSlug, $categorySlug)
+    {
+        $packages = TourPackage::where('slug', $packageSlug)->firstOrFail();
+
+        $category = $packages->categories()
+            ->where('slug', $categorySlug)
+            ->firstOrFail();
+
+        return Inertia::render('packages/show', [
+            'packages' => $packages,
+            'categories' => $packages->categories,
+            'category' => $category,
+        ]);
+    }
+
 
     /**
      * Show the form for editing the specified resource.

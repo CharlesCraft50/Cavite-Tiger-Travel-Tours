@@ -10,6 +10,7 @@ import DOMPurify from 'dompurify';
 import { isEffectivelyEmptyHtml } from './package-content-editor';
 import clsx from 'clsx';
 import { Link } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 
 type AddCategoriesProps = {
     categories: PackageCategory[];
@@ -18,6 +19,7 @@ type AddCategoriesProps = {
     onUpdateCategory?: (id: number, data: string, value: string | number | boolean) => void;
     editable?: boolean;
     slug?: string;
+    selectedCategory?: PackageCategory;
 }
 
 export default function AddCategories({ 
@@ -26,22 +28,37 @@ export default function AddCategories({
     onRemoveCategory, 
     onUpdateCategory, 
     editable = false,
-    slug
+    slug,
+    selectedCategory
 }: AddCategoriesProps ) {
 
-    const [ activeTab, setActiveTab ] = useState(0);
+    const initialTab = categories.findIndex(cat => cat.slug === selectedCategory?.slug);
+    console.log(selectedCategory?.slug);
+    const [activeTab, setActiveTab] = useState(initialTab === -1 ? 0 : initialTab); 
     const [ nextCategoryIndex, setNextCategoryIndex ] = useState(1);
 
     const handleTabClick = (index: number) => {
         setActiveTab(index);
-    }
+
+        if (!editable) {
+            const packageSlug = slug ?? '';
+            const categorySlug = categories[index]?.slug ?? '';
+            const newPath = categorySlug 
+                ? `/packages/${packageSlug}/category/${categorySlug}` 
+                : `/packages/${packageSlug}`;
+
+            window.history.replaceState({}, '', newPath);
+        }
+    };
+
 
     const handleAdd = () => {
         onAddCategory?.({
             tour_package_id: nextCategoryIndex,
             name: 'New Category ' + nextCategoryIndex,
             content: '',
-            has_button: 1
+            has_button: 1,
+            button_text: ''
         });
         setNextCategoryIndex(prev => prev + 1);
     }
@@ -161,13 +178,27 @@ export default function AddCategories({
                                     {categories[activeTab]?.has_button ? (
                                         <div className="relative w-full sm:w-auto">
                                             {editable ? (
-                                                <Button type="button" className="mt-2 w-full btn-primary cursor-pointer">Book Now</Button>
+                                                <Button type="button" className="mt-2 w-full btn-primary cursor-pointer">
+                                                    <input 
+                                                        type="text" 
+                                                        value={categories[activeTab]?.button_text} 
+                                                        onChange={(e) => onUpdateCategory?.(categories[activeTab]?.id, 'button_text', e.target.value)} 
+                                                        className="border text-lg text-center" 
+                                                        maxLength={20}
+                                                        onFocus={(e) => e.target.select()}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            e.currentTarget.blur();
+                                                            }
+                                                        }}
+                                                    />
+                                                </Button>
                                             ) : (
                                                 <Link href={route('booking.create', {
-                                                    slug: slug ?? '',
-                                                    category_id: categories[activeTab]?.id
+                                                    slug: slug ?? ''
                                                 })}>
-                                                    <Button className="mt-2 w-full btn-primary cursor-pointer">Book Now</Button>
+                                                    <Button className="mt-2 w-full btn-primary cursor-pointer">{categories[activeTab]?.button_text}</Button>
                                                 </Link>
                                             )}
                                             {editable && (
@@ -205,7 +236,7 @@ export default function AddCategories({
                                                                 Show "Book Now" button
                                                             </span>
                                                             <p className="text-xs text-gray-500">
-                                                                When enabled, visitors can book this package category directly
+                                                                When enabled, visitors can book this package category directly. Text can be changed.
                                                             </p>
                                                         </div>
                                                     </label>

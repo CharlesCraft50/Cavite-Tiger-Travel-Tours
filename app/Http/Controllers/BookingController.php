@@ -22,12 +22,25 @@ class BookingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($slug) {
+    public function create(Request $request, $slug, $categorySlug = null) {
         $packages = TourPackage::where('slug', $slug)->firstOrFail();
 
-        return (Inertia::render('book-now/create', [
+        $packages->load(['categories' => function ($query) {
+            $query->where('has_button', true);
+        }]);
+
+        // Find selected category by slug (from URL), fallback null if none
+        $selectedCategoryId = null;
+        if ($categorySlug) {
+            $category = $packages->categories->firstWhere('slug', $categorySlug);
+            $selectedCategoryId = $category ? $category->id : null;
+        }
+
+        return Inertia::render('book-now/create', [
             'packages' => $packages,
-        ]));
+            'categories' => $packages->categories,
+            'selectedCategoryId' => $selectedCategoryId,
+        ]);
     }
 
     /**

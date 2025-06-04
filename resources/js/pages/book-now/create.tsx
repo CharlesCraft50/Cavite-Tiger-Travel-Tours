@@ -1,5 +1,5 @@
 import FormLayout from "@/layouts/form-layout";
-import { TourPackage } from "@/types";
+import { PackageCategory, TourPackage } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,19 @@ import { Head, useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import { FormEventHandler, useEffect } from "react";
 import InputError from "@/components/input-error";
+import { Select } from "@headlessui/react";
 
-export default function Create({ packages }: { packages: TourPackage }) {
+type BookNowCreateProps = {
+    packages: TourPackage;
+    categories: PackageCategory[];
+    selectedCategoryId: number;
+}
+
+export default function Create({ packages, categories, selectedCategoryId }: BookNowCreateProps) {
     const { data, setData, post, processing, errors } = useForm<{
         package_title: string;
         tour_package_id: number;
+        package_category_id: number | null;
         first_name: string;
         last_name: string;
         departure_date: string;
@@ -25,6 +33,7 @@ export default function Create({ packages }: { packages: TourPackage }) {
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
+        package_category_id: selectedCategoryId ?? null,
         first_name: '',
         last_name: '',
         departure_date: '',
@@ -36,6 +45,22 @@ export default function Create({ packages }: { packages: TourPackage }) {
         travel_insurance: true,
         notes: '',
     });
+
+    useEffect(() => {
+    const url = new URL(window.location.href);
+    const segments = url.pathname.split('/').filter(Boolean);
+
+    const categoryIndex = segments.indexOf('category');
+        if (categoryIndex !== -1 && segments.length > categoryIndex + 1) {
+            const slugFromUrl = segments[categoryIndex + 1];
+
+            const matchedCategory = categories.find(cat => cat.slug === slugFromUrl);
+            if (matchedCategory) {
+                setData('package_category_id', matchedCategory.id);
+            }
+        }
+    }, [categories, setData]);
+
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -51,6 +76,26 @@ export default function Create({ packages }: { packages: TourPackage }) {
     useEffect(() => {
         document.body.style.overflow = 'auto';
     }, []);
+
+    const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const val = e.target.value;
+        setData('package_category_id', val === '' ? null : Number(val));
+
+        const baseSlug = packages.slug; // package slug from props
+        const categorySlug = val === ''
+            ? ''
+            : categories.find(cat => cat.id === Number(val))?.slug ?? '';
+
+        let newUrl = `/book-now/${baseSlug}`;
+
+        if (categorySlug) {
+            newUrl += `/category/${categorySlug}`;
+        }
+
+        window.history.replaceState({}, '', newUrl);
+    }
+
+
 
     return (
         <FormLayout>
@@ -76,6 +121,32 @@ export default function Create({ packages }: { packages: TourPackage }) {
                         </div>
                     </div>
                 )}
+
+                <div className="grid gap-4">
+                    <Label htmlFor="package_title">Selected Package</Label>
+                    <p id="package_title" className="p-2 border rounded bg-gray-100">
+                        {packages.title}
+                    </p>
+                </div>
+
+                <div className="grid gap-4">
+                    <Label htmlFor="package_category_id">Select Package Option</Label>
+                    <Select
+                        id="package_category_id"
+                        value={data.package_category_id ?? ''}
+                        className="border p-2 rounded cursor-pointer"
+                        onChange={handleCategorySelect}                 
+                    >
+                        <option value="">No option selected</option>
+                        {
+                            categories.map((category) => (
+                                <option key={category.id} value={category.id} data-slug={category.slug}>
+                                    {category.name}
+                                </option>
+                            ))
+                        }
+                    </Select>
+                </div>
 
                 {/* Form Inputs */}
                 <div className="grid grid-cols-1 gap-6">
@@ -116,7 +187,7 @@ export default function Create({ packages }: { packages: TourPackage }) {
                 {/* Other Fields */}
                 <div className="grid grid-cols-2 gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="contact_number">Contact No</Label>
+                        <Label htmlFor="contact_number">Contact No.</Label>
                         <Input
                             id="contact_number"
                             type="number"
@@ -176,7 +247,7 @@ export default function Create({ packages }: { packages: TourPackage }) {
                 {/* Pax (Adults and Kids) */}
                 <div className="grid grid-cols-2 gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="pax_kids">No of Pax (Kids)</Label>
+                        <Label htmlFor="pax_kids">No. of Pax (Kids)</Label>
                         <Input
                             id="pax_kids"
                             type="number"
@@ -190,7 +261,7 @@ export default function Create({ packages }: { packages: TourPackage }) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="pax_adult">No of Pax (Adults)</Label>
+                        <Label htmlFor="pax_adult">No. of Pax (Adults)</Label>
                         <Input
                             id="pax_adult"
                             type="number"
@@ -249,7 +320,7 @@ export default function Create({ packages }: { packages: TourPackage }) {
                     <InputError message={errors.notes} className="mt-2" />
                 </div>
 
-                <Button type="submit" className="mt-2 w-full btn-primary" tabIndex={5} disabled={processing}>
+                <Button type="submit" className="mt-2 w-full btn-primary text-md cursor-pointer" tabIndex={5} disabled={processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     SUBMIT
                 </Button>

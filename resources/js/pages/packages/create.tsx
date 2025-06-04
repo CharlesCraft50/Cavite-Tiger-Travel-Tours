@@ -59,7 +59,7 @@ export default function Index({ cities }: { cities: City[] }) {
     const [categories, setCategories] = useState<PackageCategory[]>([]);
     const [categoriesContentError, setCategoriesContentError] = useState('');
 
-    const addCategory = (newCategory: Omit<PackageCategory, 'id' | 'has_button' | 'created_at' | 'updated_at'>) => {
+    const addCategory = (newCategory: Omit<PackageCategory, 'id' | 'has_button' | 'button_text' | 'created_at' | 'updated_at'>) => {
         setCategories(prev => {
             const newId = prev.length > 0 ? Math.max(...prev.map(c => c.id)) + 1 : 1;
             
@@ -67,6 +67,7 @@ export default function Index({ cities }: { cities: City[] }) {
                 ...newCategory,
                 id: newId,
                 has_button: 0,
+                button_text: 'Book Now',
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             }];
@@ -112,6 +113,25 @@ export default function Index({ cities }: { cities: City[] }) {
                 setCategoriesContentError(`Content is required in category "${categories[i].name}"`);
                 return;
             }
+        }
+
+        const trimmedNames = new Set<string>();
+
+        for (let i = 0; i < categories.length; i++) {
+            const trimmedName = categories[i].name.trim();
+
+            if (!trimmedName) {
+                setCategoriesContentError(`Category name at position ${i + 1} is empty.`);
+                return;
+            }
+
+            if (trimmedNames.has(trimmedName.toLowerCase())) {
+                setCategoriesContentError(`Duplicate category name "${trimmedName}" is not allowed.`);
+                return;
+            }
+
+            trimmedNames.add(trimmedName.toLowerCase());
+            categories[i].name = trimmedName; // sanitize
         }
 
         const formData = new FormData();

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->longText('content')->nullable();
             $table->boolean('has_button')->default(true);
+            $table->string('button_text')->default('Book Now');
+            $table->string('slug', 100)->unique();
             
             $table->timestamps();
         });

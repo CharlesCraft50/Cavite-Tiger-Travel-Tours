@@ -46,9 +46,9 @@ export default function PackageHeader({
                 <div className="absolute inset-0 bg-black/40 flex items-center p-6">
                     <div
                         className={clsx(
-                        textSize === "small" && "w-[50%]",
-                        textSize === "large" && "w-[30%]",
-                        "text-white"
+                            textSize === "small" && "w-full md:w-[50%]",
+                            textSize === "large" && "w-full md:w-[30%]",
+                            "text-white"
                         )}
                     >
                         <p className="text-sm md:text-base text-white mb-1 uppercase">
