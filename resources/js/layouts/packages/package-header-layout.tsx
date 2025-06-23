@@ -18,7 +18,7 @@ export default function PackagHeaderLayout({
         created_at={packages.created_at} 
         updated_at={packages.updated_at}
         textSize="large"
-        bookingLink={"/book-now/" + packages.slug}
+        slug={packages.slug}
       />
 
       <div className="flex flex-col lg:flex-row gap-6">

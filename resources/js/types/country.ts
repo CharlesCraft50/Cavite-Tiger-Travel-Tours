@@ -1,4 +1,5 @@
 export interface Country {
-    name: string
+    name: string,
+    image_url: string
 }
   

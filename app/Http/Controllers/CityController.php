@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\City;
+use App\Http\Requests\UpdateCityRequest;
 
 class CityController extends Controller
 {
@@ -47,12 +49,28 @@ class CityController extends Controller
         //
     }
 
+    private function storeGetImage($request, $id) {
+        $file = $request->file($id);
+        $path = $file->store('packages', 'public');
+        return $path;
+    }
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCityRequest $request, string $id)
     {
         //
+        $city = City::findOrFail($id);
+        $validated = $request->validated();
+
+        if ($request->hasFile('image_url')) {
+            $validated['image_url'] = asset('storage/' . $this->storeGetImage($request, 'image_url'));
+        }
+        
+        $city->update($validated);
+
+        return response()->noContent();
     }
 
     /**

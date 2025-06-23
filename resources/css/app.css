@@ -172,6 +172,7 @@
     }
 
     .btn-primary {
+        @apply transition-opacity duration-300 ease-in-out hover:opacity-90;
         background-color: var(--color-primary); /* ← switches value in dark mode */
         color: var(--color-primary-foreground);
     }
@@ -182,7 +183,7 @@
     }
 
     .image-preview {
-        @apply w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-110;
+        @apply w-full h-full object-cover;
     }
 
     .gray-card {
@@ -191,5 +192,15 @@
 
     .gray-card label {
         @apply flex items-center gap-2 mt-2 p-3 bg-gray-50 rounded border cursor-pointer;
+    }
+
+    .label-sm {
+        @apply text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50;
+    }
+}
+
+@layer utilities {
+    .text-primary {
+        color: var(--color-primary);
     }
 }

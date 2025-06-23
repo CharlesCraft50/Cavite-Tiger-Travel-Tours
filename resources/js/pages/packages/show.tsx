@@ -21,7 +21,7 @@ export default function ShowPage({
 }: {
   packages: TourPackage
   categories: PackageCategory[]
-  category: string
+  category: PackageCategory
 }) {
 
   useEffect(() => {

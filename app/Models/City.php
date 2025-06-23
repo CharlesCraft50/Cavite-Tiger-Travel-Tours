@@ -15,6 +15,7 @@ class City extends Model
         'country_id',
         'name',
         'overview',
+        'image_url',
     ];
 
     public function country()

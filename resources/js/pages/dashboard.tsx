@@ -1,6 +1,6 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { Booking, type BreadcrumbItem } from '@/types';
+import { Booking, SharedData, type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -11,6 +11,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard({ bookingCount }) {
+    const { auth } = usePage<SharedData>().props;
+    const isAdmin = auth.user.is_admin;
+
 return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />

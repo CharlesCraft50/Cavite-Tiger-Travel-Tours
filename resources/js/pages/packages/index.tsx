@@ -1,15 +1,56 @@
-// Components
-import { TourPackage } from '@/types';
+import { City, SharedData, TourPackage } from '@/types';
+import PackagesIndexHeaderLayout from '@/layouts/packages/packages-index-header-layout';
+import { useState } from 'react';
+import ModalLarge from '@/components/ui/modal-large';
+import PackagesOverview from '@/components/packages-overview';
+import CardImageBackground from '@/components/ui/card-image-bg';
+import { usePage } from '@inertiajs/react';
 
-export default function index({ packages }: { packages: TourPackage[] }) {
+const ITEMS_PER_PAGE = 2;
+
+export default function Index({ packages, cities }: { packages: TourPackage[]; cities: City[] }) {
+
+    const { auth } = usePage<SharedData>().props;
+    const isAdmin = auth.user?.is_admin;
+  
+    const [ activeCityId, setActiveCityId ] = useState(0);
+
+    const [ activeModal, setActiveModal ] = useState(false);
+
+    const [ currentPage, setCurrentPage ] = useState(0);
+
+    const handleCityClick = (cityId: number) => {
+        setActiveCityId(cityId);
+        setActiveModal(true);
+        setCurrentPage(0);
+    }
+
+    const filteredPackages = packages.filter(p => p.city_id === activeCityId);
+    const totalPages = Math.ceil(filteredPackages.length / ITEMS_PER_PAGE);
+    const currentPackages = filteredPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE);
+
     return (
-        <div className="p-8">
-            {packages.map(pkg => (
-                <div key={pkg.id}>
-                    <h2 className="text-xl font-semibold">{pkg.title}</h2>
-                </div>
-            ))}
-        </div>
+        <PackagesIndexHeaderLayout>
+            <div className="flex flex-wrap gap-4 p-4">
+                {cities.map((city: City) => (
+                    <CardImageBackground
+                        id={city.id}
+                        key={city.id}
+                        onClick={() => handleCityClick(city.id)}
+                        title={city.name}
+                        editable={isAdmin}
+                    />
+                ))}
+            </div>
+            <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
+                <PackagesOverview 
+                    currentPackages={currentPackages}
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                />
+            </ModalLarge>
+
+        </PackagesIndexHeaderLayout>
     );
 }
-

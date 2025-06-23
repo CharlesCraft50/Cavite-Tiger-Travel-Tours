@@ -18,7 +18,8 @@ class PackageController extends Controller
      */
     public function index() {
         return (Inertia::render('packages/index', [
-            'packages' => TourPackage::all()
+            'packages' => TourPackage::all(),
+            'cities' => City::all()
         ]));
     }
 

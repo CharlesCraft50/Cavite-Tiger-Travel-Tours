@@ -24,7 +24,7 @@ class StorePackageRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:70'],
             'subtitle' => ['nullable', 'string', 'max:50'],
-            'overview' => ['nullable', 'string', 'max:250'],
+            'overview' => ['nullable', 'string', 'max:262'],
             'location' => ['nullable', 'string', 'max:255'],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'content' => ['required', 'string'],

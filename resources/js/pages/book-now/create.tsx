@@ -13,9 +13,10 @@ type BookNowCreateProps = {
     packages: TourPackage;
     categories: PackageCategory[];
     selectedCategoryId: number;
+    categorySlug: string;
 }
 
-export default function Create({ packages, categories, selectedCategoryId }: BookNowCreateProps) {
+export default function Create({ packages, categories, selectedCategoryId, categorySlug }: BookNowCreateProps) {
     const { data, setData, post, processing, errors } = useForm<{
         package_title: string;
         tour_package_id: number;
@@ -94,6 +95,8 @@ export default function Create({ packages, categories, selectedCategoryId }: Boo
 
         window.history.replaceState({}, '', newUrl);
     }
+
+    console.log("Selected category: " + categorySlug);
 
 
 

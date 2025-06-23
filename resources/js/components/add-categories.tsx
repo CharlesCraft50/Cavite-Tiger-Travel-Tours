@@ -9,8 +9,7 @@ import SimpleEditorModal from './simple-editor-modal';
 import DOMPurify from 'dompurify';
 import { isEffectivelyEmptyHtml } from './package-content-editor';
 import clsx from 'clsx';
-import { Link } from '@inertiajs/react';
-import { router } from '@inertiajs/react';
+import LinkLoading from './link-loading';
 
 type AddCategoriesProps = {
     categories: PackageCategory[];
@@ -114,7 +113,7 @@ export default function AddCategories({
                                 <div className="relative w-full sm:w-auto" key={category.id}>
                                     <CategoryTab className={
                                         `${activeTab === index
-                                            ? 'bg-[#fb2056] text-white font-semibold'
+                                            ? 'bg-[#fb2056] hover:opacity-90 text-white font-semibold'
                                             : 'bg-gray-500 text-white'
                                         } w-full sm:w-auto cursor-pointer px-4 sm:px-6 py-2 sm:py-2 flex items-center gap-2 text-sm font-bold uppercase text-center justify-center`} 
                                         name={category.name} 
@@ -149,7 +148,7 @@ export default function AddCategories({
                         {editable && (
                             <Button
                                 type="button"
-                                className="btn-primary rounded-r-full p-4 cursor-pointer transition-color hover:bg-red-400"
+                                className="btn-primary rounded-r-full p-4 cursor-pointer"
                                 onClick={handleAdd}
                             >
                                 <Plus className="w-8 h-8 text-sm text-white" />
@@ -160,7 +159,7 @@ export default function AddCategories({
 
                 {/* Tab Content */}
                 <div className="tab-content mt-4">
-                    <div className="tab-pane">
+                    <div className="tab-pane flex flex-col min-h-[400px]">
         
                         {categories.length > 0 && (
                             !isEffectivelyEmptyHtml(categories[activeTab]?.content) ? ( 
@@ -175,75 +174,81 @@ export default function AddCategories({
 
                                     
                                 
-                                    {categories[activeTab]?.has_button ? (
-                                        <div className="relative w-full sm:w-auto">
-                                            {editable ? (
-                                                <Button type="button" className="mt-2 w-full btn-primary cursor-pointer">
-                                                    <input 
-                                                        type="text" 
-                                                        value={categories[activeTab]?.button_text} 
-                                                        onChange={(e) => onUpdateCategory?.(categories[activeTab]?.id, 'button_text', e.target.value)} 
-                                                        className="border text-lg text-center" 
-                                                        maxLength={20}
-                                                        onFocus={(e) => e.target.select()}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            e.currentTarget.blur();
-                                                            }
-                                                        }}
-                                                    />
-                                                </Button>
-                                            ) : (
-                                                <Link href={route('booking.create', {
-                                                    slug: slug ?? ''
-                                                })}>
-                                                    <Button className="mt-2 w-full btn-primary cursor-pointer">{categories[activeTab]?.button_text}</Button>
-                                                </Link>
-                                            )}
-                                            {editable && (
-                                                <Button 
-                                                    className="absolute top-3 right-1 p-1 -m-1 btn-primary bg-white rounded-l-full w-6 h-6 cursor-pointer hover:bg-gray-300"
-                                                    onClick={() =>
-                                                        onUpdateCategory?.(
-                                                        categories[activeTab]?.id,
-                                                        'has_button',
-                                                        0
-                                                        )
-                                                    }
-                                                >
-                                                    <X className="w-4 h-4 text-black" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {editable && (
-                                                <div className="gray-card">
-                                                    <label>
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={!!categories[activeTab]?.has_button}
-                                                            onChange={(e) => onUpdateCategory?.(
+                                    <div className="mt-auto">
+                                        {categories[activeTab]?.has_button ? (
+                                            <div className="relative w-full sm:w-auto">
+                                                {editable ? (
+                                                    <Button type="button" className="mt-2 w-full btn-primary cursor-pointer">
+                                                        <input 
+                                                            type="text" 
+                                                            value={categories[activeTab]?.button_text} 
+                                                            onChange={(e) => onUpdateCategory?.(categories[activeTab]?.id, 'button_text', e.target.value)} 
+                                                            className="border text-lg text-center" 
+                                                            maxLength={20}
+                                                            onFocus={(e) => e.target.select()}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                e.currentTarget.blur();
+                                                                }
+                                                            }}
+                                                        />
+                                                    </Button>
+                                                ) : (
+                                                        <LinkLoading
+                                                            href={route('booking.create.category', {
+                                                                slug: slug ?? '',
+                                                                categorySlug: categories[activeTab]?.slug
+                                                            })}
+                                                            className="mt-2 w-full btn-primary cursor-pointer"
+                                                        >
+                                                            {categories[activeTab]?.button_text}
+                                                        </LinkLoading>
+                                                )}
+                                                {editable && (
+                                                    <Button 
+                                                        className="absolute top-3 right-1 p-1 -m-1 btn-primary bg-white rounded-l-full w-6 h-6 cursor-pointer hover:bg-gray-300"
+                                                        onClick={() =>
+                                                            onUpdateCategory?.(
                                                             categories[activeTab]?.id,
                                                             'has_button',
-                                                            e.target.checked ? 1 : 0
-                                                            )}
-                                                            className="w-4 h-4 cursor-pointer"
-                                                        />
-                                                        <div>
-                                                            <span className="text-sm font-medium text-gray-700">
-                                                                Show "Book Now" button
-                                                            </span>
-                                                            <p className="text-xs text-gray-500">
-                                                                When enabled, visitors can book this package category directly. Text can be changed.
-                                                            </p>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
+                                                            0
+                                                            )
+                                                        }
+                                                    >
+                                                        <X className="w-4 h-4 text-black" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {editable && (
+                                                    <div className="gray-card">
+                                                        <label>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!categories[activeTab]?.has_button}
+                                                                onChange={(e) => onUpdateCategory?.(
+                                                                categories[activeTab]?.id,
+                                                                'has_button',
+                                                                e.target.checked ? 1 : 0
+                                                                )}
+                                                                className="w-4 h-4 cursor-pointer"
+                                                            />
+                                                            <div>
+                                                                <span className="text-sm font-medium text-gray-700">
+                                                                    Show "Book Now" button
+                                                                </span>
+                                                                <p className="text-xs text-gray-500">
+                                                                    When enabled, visitors can book this package category directly. Text can be changed.
+                                                                </p>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
                                 </>
                             ) : (
                                 <Textarea 

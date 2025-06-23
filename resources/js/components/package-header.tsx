@@ -1,7 +1,7 @@
-import { Button } from "@headlessui/react";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import { FilePlus } from "lucide-react";
+import LinkLoading from "./link-loading";
 
 type PackageBannerProps = {
     title?: string;
@@ -10,8 +10,9 @@ type PackageBannerProps = {
     handleImageUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     created_at?: string;
     updated_at?: string;
-    bookingLink?: string;
-    textSize?: 'small' | 'medium' | 'large'
+    slug?: string;
+    textSize?: 'small' | 'medium' | 'large';
+    editable?: boolean;
 }
 
 export default function PackageHeader({
@@ -21,13 +22,14 @@ export default function PackageHeader({
     handleImageUpload,
     created_at = (new Date()).toISOString(),
     updated_at = (new Date()).toISOString(),
-    bookingLink,
-    textSize = 'small'
+    slug,
+    textSize = 'small',
+    editable = false
 }: PackageBannerProps) {
   return (
     <header className="mb-6">
         <div className={clsx("relative w-full ", size, " rounded-xl overflow-hidden mb-6")}>
-            {handleImageUpload && (
+            {handleImageUpload && editable && (
                 <input
                     id="image-banner"
                     type="file"
@@ -37,7 +39,7 @@ export default function PackageHeader({
                 />
             )}
                 
-            <label htmlFor="image-banner" className="absolute inset-0 cursor-pointer">
+            <label htmlFor="image-banner" className={clsx("absolute inset-0", editable && "cursor-pointer")}>
                 <img
                     src={imageBanner}
                     className="absolute inset-0 w-full h-full object-cover object-center"
@@ -64,26 +66,32 @@ export default function PackageHeader({
                         {imageBanner ? (
                             <>Package Tours</>
                         ) : (
-                            <span className="flex flex-col text-sm text-gray-600 p-8 gap-2 items-center">
-                            Upload your banner photo here
-                            <FilePlus className="w-8 h-8 text-gray-600" />
-                            </span>
+                            editable && (
+                                <span className="flex flex-col text-sm text-gray-600 p-8 gap-2 items-center">
+                                    Upload your banner photo here
+                                    <FilePlus className="w-8 h-8 text-gray-600" />
+                                </span>
+                            )
                         )}
                         </h1>
                     </div>
-                    </div>
+                </div>
             </label>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
             <h1 className="text-4xl font-bold">{title ? title : (<>Title Placeholder</>)}</h1>
-            
-            <Button
-                onClick={() => bookingLink && window.open(bookingLink, '_blank')}
-                className="btn-primary cursor-pointer"
+
+            <LinkLoading
+                href={route("booking.create", {
+                    slug: slug
+                })}
+                useUI={false}
+                className="btn-primary"
             >
                 Book Now
-            </Button>
+            </LinkLoading>
+                
         </div>
 
         <p className="text-sm text-gray-500">

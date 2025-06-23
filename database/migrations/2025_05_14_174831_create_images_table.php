@@ -11,18 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tour_images', function (Blueprint $table) {
+        Schema::create('images', function (Blueprint $table) {
             $table->id();
             $table->string('url');
             $table->string('alt_text')->nullable();
-            
-            $table->unsignedBigInteger('imageable_id');
-            $table->string('imageable_type');
+            $table->string('name')->unique();
 
             $table->timestamps();
-
-            // Optional: index for faster morph relation queries
-            $table->index(['imageable_id', 'imageable_type']);
         });
     }
 

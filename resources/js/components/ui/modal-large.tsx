@@ -64,7 +64,7 @@ const ModalLarge = forwardRef<ModalLargeRef, PropsWithChildren<ModalLargeProps>>
                 className="text-gray-500 hover:text-black transition-colors cursor-pointer"
                 aria-label="close">
                   <X className='w-8 h-8' />
-                </button>
+              </button>
             </div>
             {title && (<h1 className="text-xl font-semibold">{ title }</h1>)}
             {description && (<p className="mt-2 p-4">{ description }</p>)}

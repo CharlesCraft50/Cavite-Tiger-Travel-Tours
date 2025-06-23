@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('country_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('overview');
+            $table->string('image_url')->nullable();
             $table->timestamps();
         });
     }

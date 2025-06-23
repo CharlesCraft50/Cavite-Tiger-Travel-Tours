@@ -8,31 +8,33 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { City, PackageCategory } from "@/types";
 import { Head } from '@inertiajs/react';
-import { Textarea } from "@headlessui/react";
-import clsx from "clsx";
-import ImageUploadBox from "@/components/ui/ImageUploadBox";
 import PackageContentEditor from "@/components/package-content-editor";
 import 'react-datepicker/dist/react-datepicker.css';
 import DateRangePicker from "@/components/ui/data-range-picker";
 import InputSuggestions from "@/components/ui/input-suggestions";
 import AddCategories from "@/components/add-categories";
+import OverviewContent, { stripHtmlTags } from "@/components/overview-content";
+import { OVERVIEW_COUNT } from "@/config/constants";
 
+export type PackageForm = {
+    title: string;
+    subtitle: string;
+    overview: string;
+    location: string;
+    city_id: number;
+    content: string;
+    duration: string;
+    image_overview: string;
+    image_banner: string;
+    available_from: Date | null;
+    available_until: Date | null;
+};
 
 export default function Index({ cities }: { cities: City[] }) {
     const [contentError, setContentError] = useState('');
-    type PackageForm = {
-        title: string;
-        subtitle: string;
-        overview: string;
-        location: string;
-        city_id: number;
-        content: string;
-        duration: string;
-        image_overview: string;
-        image_banner: string;
-        available_from: Date | null;
-        available_until: Date | null;
-    };
+      
+    const [ automaticShortDescription, setAutomaticShortDescription ] = useState(false);
+    
     const { data, 
         setData, 
         //post,
@@ -86,18 +88,6 @@ export default function Index({ cities }: { cities: City[] }) {
             )
 
         );
-    }
-
-    const processContent = (input: string) => {
-
-        // 1. Extract the <p> after <h2>Short Description [*]</h2>
-        const shortDescMatch = input.match(/<h2>Short Description \[\*\]<\/h2>\s*(<p>.*?<\/p>)/i);
-        const shortDescription = shortDescMatch ? shortDescMatch[1] : null;
-
-        // 2. Remove the <h2>Short Description [*]</h2> from the input
-        const cleanedInput = input.replace(/<h2>Short Description \[\*\]<\/h2>/i, '');
-
-        return [shortDescription, cleanedInput];
     }
 
     const submit: FormEventHandler = (e) => {
@@ -222,46 +212,26 @@ export default function Index({ cities }: { cities: City[] }) {
                 </div> 
 
                 <div className="grid gap-2">
-                    <Label>Overview</Label>
-                    <div className="flex flex-row gap-4 items-center">
-                        <div className="grid gap-2">
-                            <ImageUploadBox imagePreview={data.image_overview} setImagePreview={(e) => setData('image_overview', e)} setImageFile={setImageOverview} />
-                        </div>
-                        <div className="flex flex-col gap-2 flex-1">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-base font-medium">{data.title ? data.title : (<span>Title Placeholder</span>)}</span>
-                                <span className="text-sm text-gray-600">{data.subtitle ? data.subtitle : (<span className="text-sm text-gray-600">Subtitle Placeholder</span>)}</span>
-                            </div>
-                            <Textarea
-                                name="overview"
-                                className={clsx("w-full max-w-xl sm:max-w-lg md:max-w-xl lg:max-w-2xl h-22 overflow-hidden resize-none text-sm p-2 focus:overflow-auto",
-                                    data.overview ? "bg-white" : "border bg-gray-100 focus:bg-blue-100 hover:shadow dark:bg-gray-900 text-black dark:text-white"
-                                )}
-                                placeholder="📝 This is a placeholder overview. Please enter a concise summary of the tour package here to give customers a quick insight into what your package offers. - Change this"
-                                maxLength={250}
-                                value={data.overview}
-                                onChange={(e) => setData('overview', e.target.value)}
-                                >
-
-                            </Textarea>
-                            <Button
-                                type="button"
-                                className="btn btn-primary text-xs w-20 px-12 py-2 rounded-none cursor-pointer"
-                                >
-                                View Tour
-                            </Button>
-                        </div>
-                    </div>
-                    
+                    <OverviewContent 
+                        data={data} 
+                        setData={setData} 
+                        setImageOverview={setImageOverview} 
+                        automaticShortDescription={automaticShortDescription} 
+                        setAutomaticShortDescription={setAutomaticShortDescription} 
+                        editable 
+                    />
                 </div>
 
                 <div className="grid gap-2">
                     <PackageContentEditor 
                         value={data.content} 
                         onChange={(value) => {
-                            const [shortDescription, cleanedInput] = processContent(value);
-                            setData('content', cleanedInput ?? '');
-                            setData('overview', shortDescription ?? '');
+                            setData('content', value ?? '');
+                            if(automaticShortDescription) {
+                                const clean = stripHtmlTags(value);
+                                const trimmed = clean.slice(0, OVERVIEW_COUNT);
+                                setData('overview', trimmed);
+                            }
                         }}
                         title={data.title}
                         imageBanner={data.image_banner}
