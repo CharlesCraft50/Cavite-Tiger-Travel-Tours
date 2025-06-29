@@ -8,32 +8,56 @@ use Inertia\Inertia;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
 use App\Models\City;
+use App\Models\Country;
 use App\Http\Requests\StorePackageRequest;
+use App\Http\Requests\UpdatePackageRequest;
 use Illuminate\Support\Facades\DB;
+use App\Traits\StoresImages;
 
 class PackageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index() {
-        return (Inertia::render('packages/index', [
+    
+    use StoresImages;
+    
+    public function index()
+    {
+        $selectedCountryName = "Philippines";
+
+        // Get the country by name (or use where('id', ...) if you use IDs)
+        $selectedCountry = Country::where('name', $selectedCountryName)->first();
+
+        // Default to empty if country not found
+        $cities = $selectedCountry ? $selectedCountry->cities : collect();
+
+        return Inertia::render('packages/index', [
             'packages' => TourPackage::all(),
-            'cities' => City::all()
-        ]));
+            'cities' => $cities,
+            'countries' => Country::all(),
+            'selectedCountry' => $selectedCountry, // optional: pass to show in frontend
+        ]);
     }
 
-    public function create() {
+    public function create(Request $request) {
+
         $cities = City::all();
+        
+        if($request->has('id')) {
+            $package = TourPackage::findOrFail($request->id);
+            return (Inertia::render('packages/create', [
+                'cities' => $cities,
+                'editMode' => true,
+                'packages' => $package,
+                'packageCategories' => $package->categories
+            ]));
+        }
+        
         return (Inertia::render('packages/create', [
-            'cities' => $cities
+            'cities' => $cities,
+            'editMode' => false
         ]));
-    }
-    
-    private function storeGetImage($request, $id) {
-        $file = $request->file($id);
-        $path = $file->store('packages', 'public');
-        return $path;
     }
 
     /**
@@ -127,9 +151,19 @@ class PackageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePackageRequest $request, string $id)
     {
         //
+        $package = TourPackage::findOrFail($id);
+        $validated = $request->validated();
+
+        if($request->hasFile('image_banner')) {
+            $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner'));
+        }
+
+        $package->update($validated);
+
+        return redirect()->route('packages.show', ['slug' => $package->slug])->with('success', 'Packages updated.');
     }
 
     /**

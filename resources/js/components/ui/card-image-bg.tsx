@@ -3,6 +3,7 @@ import { Button } from "./button";
 import React, { useState } from "react";
 import clsx from "clsx";
 import { router } from "@inertiajs/react";
+import { useLoading } from "./loading-provider";
 
 type CardImageBackgroundProps = {
     id?: number;
@@ -20,15 +21,17 @@ export default function CardImageBackground({
     editable,
 }: CardImageBackgroundProps) {
 
+    const { start, stop } = useLoading();
+
     const handleEditBtn = (e: React.MouseEvent) => {
         e.stopPropagation();
         setIsEditing(true);
+        setImagePreview("");
     }
 
     const handleSaveBtn = (e: React.MouseEvent) => {
         e.stopPropagation();
-        //setIsEditing(false);
-
+        
         const formData = new FormData();
 
         if(imageFile) {
@@ -37,9 +40,22 @@ export default function CardImageBackground({
 
         formData.append("_method", "PUT");
 
-        router.post(`/cities/${id}`, formData, {
-            forceFormData: true
-        });
+        if(imagePreview) {
+            start();
+            
+            router.post(`/cities/${id}`, formData, {
+                forceFormData: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsEditing(false);
+                    stop();
+                }
+            });
+
+            return;
+        }
+
+        setIsEditing(false);
     }
 
     const [ imagePreview, setImagePreview ] = useState<string>();
@@ -54,7 +70,6 @@ export default function CardImageBackground({
             const url = URL.createObjectURL(file);
             setImageFile(file);
             setImagePreview(url);
-            console.log("Selected file:", file);
         }
     }
 
@@ -89,9 +104,11 @@ export default function CardImageBackground({
                 editable && "cursor-pointer"
                 )}
                 style={{
-                backgroundImage: imagePreview ? `url(${imagePreview})` : undefined,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                    backgroundImage: imagePreview
+                        ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${imagePreview})`
+                        : undefined,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                 }}
                 onClick={(e) => e.stopPropagation()} // Optional: prevent triggering parent
             >
@@ -135,8 +152,10 @@ export default function CardImageBackground({
                 </Button>
             </div>
         )}
+
         <div className="absolute inset-0 bg-black/40" />
-        <p className="relative text-white text-3xl font-bold uppercase z-10">
+        
+        <p className={clsx("relative text-white text-3xl font-bold uppercase", imagePreview && "z-40")}>
             {title}
         </p>
     </div>

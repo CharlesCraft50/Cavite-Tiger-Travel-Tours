@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Country;
+use App\Http\Requests\UpdateCountryRequest;
+use App\Traits\StoresImages;
 
 class CountryController extends Controller
 {
+    use StoresImages;
     /**
      * Display a listing of the resource.
      */
@@ -50,9 +54,20 @@ class CountryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCountryRequest $request, string $id)
     {
         //
+        $country = Country::findOrFail($id);
+        $validated = $request->validated();
+
+        if($request->hasFile('image_url')) {
+            $validated['image_url'] = asset('storage/' . $this->storeGetImage($request, 'image_url'));
+        }
+
+        $country->update($validated);
+
+        return redirect()->route('countries.index')->with('success', 'Country updated.');
+
     }
 
     /**

@@ -2,6 +2,7 @@ import clsx from "clsx";
 import dayjs from "dayjs";
 import { FilePlus } from "lucide-react";
 import LinkLoading from "./link-loading";
+import { PropsWithChildren } from "react";
 
 type PackageBannerProps = {
     title?: string;
@@ -24,8 +25,9 @@ export default function PackageHeader({
     updated_at = (new Date()).toISOString(),
     slug,
     textSize = 'small',
-    editable = false
-}: PackageBannerProps) {
+    editable = false,
+    children,
+}: PropsWithChildren<PackageBannerProps>) {
   return (
     <header className="mb-6">
         <div className={clsx("relative w-full ", size, " rounded-xl overflow-hidden mb-6")}>
@@ -76,6 +78,8 @@ export default function PackageHeader({
                         </h1>
                     </div>
                 </div>
+                
+                {children}
             </label>
         </div>
 
@@ -83,9 +87,9 @@ export default function PackageHeader({
             <h1 className="text-4xl font-bold">{title ? title : (<>Title Placeholder</>)}</h1>
 
             <LinkLoading
-                href={route("booking.create", {
+                href={slug ? route("booking.create", {
                     slug: slug
-                })}
+                }): undefined}
                 useUI={false}
                 className="btn-primary"
             >

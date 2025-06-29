@@ -6,6 +6,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\CountryController;
 use App\Http\Controllers\Settings\ProfileController;
 use Inertia\Inertia;
 
@@ -40,6 +41,7 @@ Route::get('/test', function () {
 });
 
 Route::resource('cities', CityController::class);
+Route::resource('countries', CountryController::class);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -114,7 +114,12 @@ export default function PackageContentEditor({ value, onChange, title, imageBann
             <Label htmlFor="contentDummy" required>Content</Label>
             {!isEffectivelyEmptyHtml(value) ? (
                 <div className="p-6 bg-white shadow transition-all duration-300 ease-in-out hover:bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
-                    <PackageHeader handleImageUpload={handleImageUpload} imageBanner={imageBanner} title={title} editable/>
+                    <PackageHeader 
+                        handleImageUpload={handleImageUpload} 
+                        imageBanner={imageBanner} 
+                        title={title} 
+                        editable
+                    />
                     <div
                         className="tiptap ProseMirror cursor-text"
                         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}

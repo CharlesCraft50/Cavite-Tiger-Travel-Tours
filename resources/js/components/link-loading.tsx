@@ -28,7 +28,10 @@ export default function LinkLoading({
   const ButtonToRender = useUI ? UIButton : HeadlessButton;
 
   const handleClick = () => {
-    setLoading(true);
+    if(href) {
+      setLoading(true);
+    }
+    
     onClick?.();
   };
 

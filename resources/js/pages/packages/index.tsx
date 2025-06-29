@@ -1,4 +1,4 @@
-import { City, SharedData, TourPackage } from '@/types';
+import { City, Country, SharedData, TourPackage } from '@/types';
 import PackagesIndexHeaderLayout from '@/layouts/packages/packages-index-header-layout';
 import { useState } from 'react';
 import ModalLarge from '@/components/ui/modal-large';
@@ -8,12 +8,12 @@ import { usePage } from '@inertiajs/react';
 
 const ITEMS_PER_PAGE = 2;
 
-export default function Index({ packages, cities }: { packages: TourPackage[]; cities: City[] }) {
+export default function Index({ packages, cities, countries, selectedCountry }: { packages: TourPackage[]; cities: City[]; countries: Country[]; selectedCountry: Country; }) {
 
     const { auth } = usePage<SharedData>().props;
     const isAdmin = auth.user?.is_admin;
   
-    const [ activeCityId, setActiveCityId ] = useState(0);
+    const [ activeCityId, setActiveCityId ] = useState<number | null>(null);
 
     const [ activeModal, setActiveModal ] = useState(false);
 
@@ -30,7 +30,7 @@ export default function Index({ packages, cities }: { packages: TourPackage[]; c
     const currentPackages = filteredPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE);
 
     return (
-        <PackagesIndexHeaderLayout>
+        <PackagesIndexHeaderLayout id={selectedCountry.id} src={selectedCountry.image_url} editable={!!isAdmin}>
             <div className="flex flex-wrap gap-4 p-4">
                 {cities.map((city: City) => (
                     <CardImageBackground
@@ -38,7 +38,8 @@ export default function Index({ packages, cities }: { packages: TourPackage[]; c
                         key={city.id}
                         onClick={() => handleCityClick(city.id)}
                         title={city.name}
-                        editable={isAdmin}
+                        src={city.image_url}
+                        editable={!!isAdmin}
                     />
                 ))}
             </div>

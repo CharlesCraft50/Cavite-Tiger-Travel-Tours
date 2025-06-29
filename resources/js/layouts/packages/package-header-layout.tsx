@@ -1,25 +1,121 @@
-import { type PropsWithChildren } from 'react';
+import { useState, type PropsWithChildren } from 'react';
 import PackageHeader from '@/components/package-header';
 import { TourPackage } from '@/types';
+import { Check, PencilIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useLoading } from '@/components/ui/loading-provider';
+import { router } from '@inertiajs/react';
 
 interface PackagHeaderLayoutProps {
+  id?: number;
   packages: TourPackage;
+  editable?: boolean;
 }
 
 export default function PackagHeaderLayout({
+  id,
   children,
-  packages
+  packages,
+  editable,
 }: PropsWithChildren<PackagHeaderLayoutProps>) {
+
+  const { start, stop } = useLoading();
+  
+  const [ imageBanner, setImageBanner ] = useState<string>();
+
+  const [ imageFile, setImageFile ] = useState<File | null>(null);
+
+  const [ isEditing, setIsEditing ] = useState(false);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+
+      if(file && setImageBanner) {
+          const url = URL.createObjectURL(file);
+          setImageBanner(url);
+          setImageFile?.(file);
+      }
+  }
+
+  const handleEditBtn = () => {
+    //setIsEditing(true);
+    if (!id) return;
+
+    router.get(`/packages/create?id=${id}`);
+  }
+
+  const handleSaveBtn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const formData = new FormData();
+
+    if(imageFile) {
+      formData.append('image_banner', imageFile);
+    }
+
+    formData.append("_method", "PUT");
+
+    if(imageBanner) {
+      start();
+
+      router.post(`/packages/${id}`, formData, {
+        forceFormData: true,
+        preserveScroll: true,
+        onSuccess: () => {
+          setIsEditing(false);
+          stop();
+        }
+      });
+
+      return;
+    }
+
+    setIsEditing(false);
+  }
+
   return (
     <div className="bg-white max-w-7xl mx-auto px-4 py-8">
-      <PackageHeader 
-        title={packages.title} 
-        imageBanner={packages.image_banner as string} 
-        created_at={packages.created_at} 
-        updated_at={packages.updated_at}
-        textSize="large"
-        slug={packages.slug}
-      />
+      
+      {!isEditing && (
+        <PackageHeader
+          title={packages.title}
+          imageBanner={packages.image_banner as string}
+          created_at={packages.created_at}
+          updated_at={packages.updated_at}
+          textSize="large"
+          slug={packages.slug}
+        >
+          {editable && (
+            <div
+              className="flex justify-end top-4 right-4 absolute z-[40]" 
+              onClick={handleEditBtn}
+            >
+                <Button className="btn-primary cursor-pointer">
+                    <PencilIcon className="w-4 h-4 text-white" />
+                </Button>
+            </div>
+          )}
+        </PackageHeader>
+      )}
+
+      {isEditing && (
+        <PackageHeader
+          handleImageUpload={handleImageUpload}
+          imageBanner={imageBanner}
+          title={packages.title}
+          editable>
+            {editable && (
+              <div
+                className="flex justify-end top-4 right-4 absolute z-[99]" 
+                onClick={handleSaveBtn}
+              >
+                  <Button className="btn-primary cursor-pointer">
+                      <Check className="w-4 h-4 text-white" />
+                  </Button>
+              </div>
+            )}
+          </PackageHeader>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1">{children}</div>

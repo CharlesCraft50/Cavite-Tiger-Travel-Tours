@@ -1,6 +1,6 @@
-import { TourPackage, PackageCategory } from '@/types'
+import { TourPackage, PackageCategory, SharedData } from '@/types'
 import PackageShowLayout from '@/layouts/package-show-layout'
-import { Head } from '@inertiajs/react'
+import { Head, usePage } from '@inertiajs/react'
 import DOMPurify from 'dompurify';
 import { useEffect } from 'react';
 
@@ -28,9 +28,13 @@ export default function ShowPage({
     document.body.style.overflow = 'auto';
   }, []);
 
+  const { auth } = usePage<SharedData>().props;
+  const isAdmin = auth.user?.is_admin;
+
   return (
     <PackageShowLayout
       packages={packages}
+      editable={!!isAdmin}
     >
       <Head title={packages.title} />
       <div className="space-y-4">
@@ -39,7 +43,7 @@ export default function ShowPage({
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(packages.content as string) }}
         ></div>
 
-        <AddCategories 
+        <AddCategories
             categories={categories} 
             slug={packages.slug}
             selectedCategory={category}

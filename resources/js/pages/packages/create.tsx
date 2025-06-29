@@ -1,12 +1,12 @@
 import { router, useForm } from "@inertiajs/react";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 import { LoaderCircle } from 'lucide-react';
 import FormLayout from "@/layouts/form-layout";
 import { Label } from "@/components/ui/label";
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { City, PackageCategory } from "@/types";
+import { City, PackageCategory, TourPackage } from "@/types";
 import { Head } from '@inertiajs/react';
 import PackageContentEditor from "@/components/package-content-editor";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -30,7 +30,20 @@ export type PackageForm = {
     available_until: Date | null;
 };
 
-export default function Index({ cities }: { cities: City[] }) {
+type PackagesCreateProps = {
+    cities: City[],
+    editMode?: boolean;
+    packages?: TourPackage,
+    packageCategories?: PackageCategory[];
+};
+
+export default function Index({
+     cities,
+     editMode,
+     packages,
+     packageCategories,
+    }: PackagesCreateProps ) {
+
     const [contentError, setContentError] = useState('');
       
     const [ automaticShortDescription, setAutomaticShortDescription ] = useState(false);
@@ -54,6 +67,15 @@ export default function Index({ cities }: { cities: City[] }) {
         available_until: null
 
     });
+
+    useEffect(() => {
+        if(editMode && packages) {
+            setData('title', packages.title);
+            setData('subtitle', packages.subtitle || '');
+            setData('overview', packages.overview || '');
+            setData('content', packages.content || '');
+        }
+    }, [editMode, packages]);
     
     const [activeExpiry, setActiveExpiry] = useState<boolean>(false);
     const [imageOverview, setImageOverview] = useState<File | null>(null);
@@ -286,22 +308,6 @@ export default function Index({ cities }: { cities: City[] }) {
                 </div>
 
                 <div className="grid gap-2">
-                    {/* <div className="flex flex-row items-center space-x-2">
-                        <Switch
-                            name="expirySwitch"
-                            checked={activeExpiry}
-                            onChange={(e) => {
-                                setActiveExpiry(e);
-                                setData('available_from', null);
-                                setData('available_until', null);
-                            }}
-                            className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-checked:bg-blue-600 cursor-pointer"
-                        >
-                            <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
-                        </Switch>
-                        <Label htmlFor="expirySwitch">Add Expiry Date</Label>
-                    </div> */}
-
                     <div className="gray-card">
                         <label>
                             <input

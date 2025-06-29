@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\City;
 use App\Http\Requests\UpdateCityRequest;
+use App\Traits\StoresImages;
 
 class CityController extends Controller
 {
+
+    use StoresImages;
     /**
      * Display a listing of the resource.
      */
@@ -49,12 +52,6 @@ class CityController extends Controller
         //
     }
 
-    private function storeGetImage($request, $id) {
-        $file = $request->file($id);
-        $path = $file->store('packages', 'public');
-        return $path;
-    }
-
     /**
      * Update the specified resource in storage.
      */
@@ -64,13 +61,14 @@ class CityController extends Controller
         $city = City::findOrFail($id);
         $validated = $request->validated();
 
-        if ($request->hasFile('image_url')) {
+        if($request->hasFile('image_url')) {
             $validated['image_url'] = asset('storage/' . $this->storeGetImage($request, 'image_url'));
         }
         
         $city->update($validated);
 
-        return response()->noContent();
+        return redirect()->route('cities.index')->with('success', 'City updated.');
+
     }
 
     /**

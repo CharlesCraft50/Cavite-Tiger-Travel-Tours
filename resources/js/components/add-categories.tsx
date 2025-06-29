@@ -133,7 +133,7 @@ export default function AddCategories({
                                 </div>
                             ))
                         ): (
-                            <>
+                            editable ? (
                                 <CategoryTab className={
                                     `${activeTab === 0
                                         ? 'bg-[#fb2056] text-white font-semibold'
@@ -142,8 +142,21 @@ export default function AddCategories({
                                     name={"Add Categories"} 
                                     onClick={handleAdd} 
                                     hasIndicator={true} 
-                                    key={0} />
-                            </>
+                                    key={0} 
+                                />
+                            ) : (
+                                <div className="w-full">
+                                    <LinkLoading
+                                        href={slug ? route("booking.create", {
+                                            slug: slug
+                                        }): undefined}
+                                        useUI={false}
+                                        className="btn-primary w-full"
+                                    >
+                                        Book Now
+                                    </LinkLoading>
+                                </div>
+                            )
                         )}
                         {editable && (
                             <Button
@@ -188,8 +201,8 @@ export default function AddCategories({
                                                             onFocus={(e) => e.target.select()}
                                                             onKeyDown={(e) => {
                                                                 if (e.key === 'Enter') {
-                                                                e.preventDefault();
-                                                                e.currentTarget.blur();
+                                                                    e.preventDefault();
+                                                                    e.currentTarget.blur();
                                                                 }
                                                             }}
                                                         />
