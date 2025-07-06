@@ -8,6 +8,10 @@ use App\Models\Country;
 use App\Models\City;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
+use App\Models\PreferredVan;
+use App\Models\PreferredVanAvailability;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -45,6 +49,7 @@ class DatabaseSeeder extends Seeder
             'pax_adult' => 4,
             'available_from' => now(),
             'available_until' => now()->addMonths(3),
+            'image_overview' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/Calaguas_Island.jpg',
             'image_banner' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/Calaguas_Island.jpg',
             'slug' => Str::slug('Calaguas Island Getaway'),
         ]);
@@ -77,6 +82,92 @@ class DatabaseSeeder extends Seeder
             'tour_package_id' => $tagaytayTour->id,
             'name' => '2D1N Tagaytay Chill',
             'content' => '₱1,800 per head. Inclusions: Hotel stay, park tickets, transport, and 1 free dinner voucher.',
+        ]);
+
+        $hiAce = PreferredVan::create([
+            'name' => 'Toyota HiAce',
+            'image_url' => 'https://1cars.org/wp-content/uploads/2019/03/Toyota-Hiace-1.jpg',
+            'additional_fee' => 1500,
+            'pax_adult' => 10,
+            'pax_kids' => 2,
+        ]);
+
+        $urvan = PreferredVan::create([
+            'name' => 'Nissan Urvan',
+            'image_url' => 'https://www.autohubgroup.com/wp-content/uploads/2020/03/nissan-urvan-premium-2020-autohub-group-philippines-1.jpg',
+            'additional_fee' => 1300,
+            'pax_adult' => 8,
+            'pax_kids' => 3,
+        ]);
+
+        $starex = PreferredVan::create([
+            'name' => 'Hyundai Starex',
+            'image_url' => 'https://hyundaipasig.com/wp-content/uploads/2016/07/starex4.png',
+            'additional_fee' => 1200,
+            'pax_adult' => 7,
+            'pax_kids' => 2,
+        ]);
+
+        $transit = PreferredVan::create([
+            'name' => 'Ford Transit',
+            'image_url' => 'https://d2ivfcfbdvj3sm.cloudfront.net/7fc965ab77efe6e0fa62e4ca1ea7673bb25a42530a1e3d8e88cb/stills_0640_png/MY2015/10321/10321_st0640_116.png',
+            'additional_fee' => 1600,
+            'pax_adult' => 12,
+            'pax_kids' => 4,
+        ]);
+
+        $carnival = PreferredVan::create([
+            'name' => 'Kia Carnival',
+            'image_url' => 'https://heritagecabs.in/assets/uploads/product_images/Kia-carniwal-rental-in-jaipur.png',
+            'additional_fee' => 1400,
+            'pax_adult' => 6,
+            'pax_kids' => 2,
+        ]);
+
+        $calaguas->preferredVans()->attach([$hiAce->id, $urvan->id]);
+        $tagaytayTour->preferredVans()->attach([$urvan->id]);
+    
+        $admin = User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('asdasd'),
+            'email_verified_at' => now(),
+            'is_admin' => true,
+        ]);
+
+        PreferredVanAvailability::create([
+            'preferred_van_id' => $hiAce->id,
+            'available_from' => now(),
+            'available_until' => now()->addMonths(2),
+            'count' => 3,
+        ]);
+
+        PreferredVanAvailability::create([
+            'preferred_van_id' => $urvan->id,
+            'available_from' => now(),
+            'available_until' => now()->addMonths(2),
+            'count' => 4,
+        ]);
+
+        PreferredVanAvailability::create([
+            'preferred_van_id' => $starex->id,
+            'available_from' => now(),
+            'available_until' => now()->addMonths(2),
+            'count' => 2,
+        ]);
+
+        PreferredVanAvailability::create([
+            'preferred_van_id' => $transit->id,
+            'available_from' => now(),
+            'available_until' => now()->addMonths(2),
+            'count' => 5,
+        ]);
+
+        PreferredVanAvailability::create([
+            'preferred_van_id' => $carnival->id,
+            'available_from' => now(),
+            'available_until' => now()->addMonths(2),
+            'count' => 2,
         ]);
     }
 }

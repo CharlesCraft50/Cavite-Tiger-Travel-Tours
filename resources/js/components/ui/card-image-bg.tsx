@@ -7,6 +7,7 @@ import { useLoading } from "./loading-provider";
 
 type CardImageBackgroundProps = {
     id?: number;
+    inputId?: string;
     src?: string;
     onClick?: () => void;
     title?: string;
@@ -15,6 +16,7 @@ type CardImageBackgroundProps = {
 
 export default function CardImageBackground({
     id,
+    inputId,
     src,
     onClick,
     title,
@@ -97,7 +99,7 @@ export default function CardImageBackground({
     >
         {isEditing && (
             <label
-                htmlFor="image-overview-edit"
+                htmlFor={inputId}
                 className={clsx(
                 "absolute inset-0 z-[30] flex w-full h-full items-center justify-center text-center",
                 !imagePreview && "bg-gray-400 border border-gray-600 border-dashed",
@@ -126,16 +128,15 @@ export default function CardImageBackground({
                 )
                 )}
                 <input
-                id="image-overview-edit"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleUploadImage}
+                    id={inputId}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleUploadImage}
                 />
             </label>
             )}
 
-            {/* Keep the top-right buttons separate and above everything */}
             {isEditing && (
             <div className="flex justify-end top-4 right-4 absolute z-[40] gap-2">
                 <Button className="btn-primary cursor-pointer" onClick={handleSaveBtn}>

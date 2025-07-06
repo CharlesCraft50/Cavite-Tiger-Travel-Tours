@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 
 trait StoresImages
 {
-    public function storeGetImage(Request $request, string $id): string
+    public function storeGetImage(Request $request, string $id, string $folder): string
     {
         $file = $request->file($id);
-        return $file->store('packages', 'public');
+        return $file->store($folder, 'public');
     }
 }

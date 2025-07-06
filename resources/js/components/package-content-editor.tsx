@@ -21,6 +21,7 @@ type PackageContentEditorProps = {
     onChange: (value: string) => void;
     title?: string,
     imageBanner?: string;
+    existingImageBanner?: string;
     setImageBanner?: (e: string) => void;
     setImageFile?: (file: File) => void;
     onClearContent?: () => void;
@@ -62,7 +63,7 @@ export const isEffectivelyEmptyHtml = (html: string) => {
     return true;
 }
 
-export default function PackageContentEditor({ value, onChange, title, imageBanner, setImageBanner, setImageFile, onClearContent }: PackageContentEditorProps) {
+export default function PackageContentEditor({ value, onChange, title, imageBanner, existingImageBanner, setImageBanner, setImageFile, onClearContent }: PackageContentEditorProps) {
     const [activeModal, setActiveModal] = useState(false);
 
     const modalRef = useRef<ModalLargeRef>(null);
@@ -116,7 +117,7 @@ export default function PackageContentEditor({ value, onChange, title, imageBann
                 <div className="p-6 bg-white shadow transition-all duration-300 ease-in-out hover:bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
                     <PackageHeader 
                         handleImageUpload={handleImageUpload} 
-                        imageBanner={imageBanner} 
+                        imageBanner={imageBanner || existingImageBanner}
                         title={title} 
                         editable
                     />

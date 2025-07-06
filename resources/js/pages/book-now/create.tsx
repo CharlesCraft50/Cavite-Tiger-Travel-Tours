@@ -1,22 +1,32 @@
 import FormLayout from "@/layouts/form-layout";
-import { PackageCategory, TourPackage } from "@/types";
+import { PackageCategory, PreferredVan, TourPackage } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Head, useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
-import { FormEventHandler, useEffect } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 import InputError from "@/components/input-error";
 import { Select } from "@headlessui/react";
+import VanSelection from "@/components/van-selection";
+import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from "react-datepicker";
 
 type BookNowCreateProps = {
     packages: TourPackage;
     categories: PackageCategory[];
     selectedCategoryId: number;
     categorySlug: string;
+    preferredVans: PreferredVan[];
 }
 
-export default function Create({ packages, categories, selectedCategoryId, categorySlug }: BookNowCreateProps) {
+export default function Create({ 
+    packages, 
+    categories, 
+    selectedCategoryId, 
+    categorySlug,
+    preferredVans,
+}: BookNowCreateProps) {
     const { data, setData, post, processing, errors } = useForm<{
         package_title: string;
         tour_package_id: number;
@@ -31,6 +41,7 @@ export default function Create({ packages, categories, selectedCategoryId, categ
         pax_adult: number;
         travel_insurance: boolean;
         notes: string;
+        preferred_van_id: number | null;
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -45,6 +56,7 @@ export default function Create({ packages, categories, selectedCategoryId, categ
         pax_adult: 1,
         travel_insurance: true,
         notes: '',
+        preferred_van_id: null,
     });
 
     useEffect(() => {
@@ -62,10 +74,54 @@ export default function Create({ packages, categories, selectedCategoryId, categ
             }
     }, [categories, setData]);
 
+    const [availableDates, setAvailableDates] = useState<{
+        from: string;
+        until: string;
+        fully_booked_dates: string[];
+    } | null>(null);
+
+    useEffect(() => {
+        if (data.preferred_van_id) {
+            fetch(`/api/van/${data.preferred_van_id}/availability`)
+            .then(res => res.json())
+            .then(data => {
+                setAvailableDates({
+                    from: data.available_from,
+                    until: data.available_until,
+                    fully_booked_dates: data.fully_booked_dates,
+                });
+            }) 
+        }
+    }, [data.preferred_van_id]);
+
+    const [selectedVanIds, setSelectedVanIds] = useState<number[]>([]);
+    // const [preferredVanError, setPreferredVanError] = useState('');
+
+    const toggleVanSelection = (vanId: number) => {
+        if(selectedVanIds.includes(vanId)) {
+            setSelectedVanIds([]);
+            setData('preferred_van_id', null);
+            setAvailableDates(null);
+        } else {
+            setSelectedVanIds([vanId]);
+            setData('preferred_van_id', vanId);
+        }
+        
+        setData('pax_adult', 0);
+        setData('pax_kids', 0);
+        // setPreferredVanError('');
+    }
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        // if(!data.preferred_van_id) {
+        //     setPreferredVanError("Please choose a van")
+        //     return;
+        // }
+
         post('/book-now/booked', {
+            preserveScroll: true,
             onSuccess: () => {
             },
             onError: (errors) => {
@@ -96,10 +152,8 @@ export default function Create({ packages, categories, selectedCategoryId, categ
         window.history.replaceState({}, '', newUrl);
     }
 
-    console.log("Selected category: " + categorySlug);
-
-
-
+    const selectedVan = preferredVans.find(v => v.id === data.preferred_van_id);
+    
     return (
         <FormLayout>
             <Head title="Book Now" />
@@ -218,66 +272,6 @@ export default function Create({ packages, categories, selectedCategoryId, categ
                     </div>
                 </div>
 
-                {/* Departure and Return Dates */}
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="departure_date">Departure Date</Label>
-                        <Input
-                            id="departure_date"
-                            type="date"
-                            required
-                            value={data.departure_date}
-                            disabled={processing}
-                            onChange={(e) => setData('departure_date', e.target.value)}
-                        />
-                        <InputError message={errors.departure_date} className="mt-2" />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="return_date">Return Date</Label>
-                        <Input
-                            id="return_date"
-                            type="date"
-                            required
-                            value={data.return_date}
-                            disabled={processing}
-                            onChange={(e) => setData('return_date', e.target.value)}
-                        />
-                        <InputError message={errors.return_date} className="mt-2" />
-                    </div>
-                </div>
-
-                {/* Pax (Adults and Kids) */}
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="pax_kids">No. of Pax (Kids)</Label>
-                        <Input
-                            id="pax_kids"
-                            type="number"
-                            required
-                            value={data.pax_kids}
-                            disabled={processing}
-                            placeholder="0"
-                            onChange={(e) => setData('pax_kids', Number(e.target.value))}
-                        />
-                        <InputError message={errors.pax_kids} className="mt-2" />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="pax_adult">No. of Pax (Adults)</Label>
-                        <Input
-                            id="pax_adult"
-                            type="number"
-                            required
-                            value={data.pax_adult}
-                            disabled={processing}
-                            placeholder="0"
-                            onChange={(e) => setData('pax_adult', Number(e.target.value))}
-                        />
-                        <InputError message={errors.pax_adult} className="mt-2" />
-                    </div>
-                </div>
-
                 {/* Travel Insurance */}
                 <div className="grid gap-2">
                     <Label>Travel Insurance</Label>
@@ -323,7 +317,110 @@ export default function Create({ packages, categories, selectedCategoryId, categ
                     <InputError message={errors.notes} className="mt-2" />
                 </div>
 
-                <Button type="submit" className="mt-2 w-full btn-primary text-md cursor-pointer" tabIndex={5} disabled={processing}>
+                {/* Preferred Vans */}
+                <div className="grid gap-2">
+                    <VanSelection
+                        preferredVans={preferredVans}
+                        selectedVanIds={selectedVanIds}
+                        onSelect={toggleVanSelection}
+                        textLabel="Select your preferred van"
+                        required={true}
+                    />
+                    <InputError message={errors.preferred_van_id} className="mt-2" />
+                </div>
+
+                {/* Pax (Adults and Kids) */}
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="grid gap-2">
+                        <Label htmlFor="pax_adult">No. of Pax (Adults)</Label>
+                        <Input
+                            id="pax_adult"
+                            type="number"
+                            required
+                            value={selectedVanIds.length == 0 ? 0 : data.pax_adult}
+                            disabled={processing || selectedVanIds.length == 0}
+                            placeholder="0"
+                            max={selectedVan?.pax_adult}
+                            min={0}
+                            onChange={(e) => setData('pax_adult', Number(e.target.value))}
+                        />
+                        <InputError message={errors.pax_adult} className="mt-2" />
+                    </div>
+                    
+                    <div className="grid gap-2">
+                        <Label htmlFor="pax_kids">No. of Pax (Kids)</Label>
+                        <Input
+                            id="pax_kids"
+                            type="number"
+                            required
+                            value={selectedVanIds.length == 0 ? 0 : data.pax_kids}
+                            disabled={processing || selectedVanIds.length == 0}
+                            placeholder="0"
+                            max={selectedVan?.pax_kids}
+                            min={0}
+                            onChange={(e) => setData('pax_kids', Number(e.target.value))}
+                        />
+                        <InputError message={errors.pax_kids} className="mt-2" />
+                    </div>
+                </div>
+
+                {/* Departure and Return Dates */}
+                <div className="grid grid-cols-2 gap-6">
+                    {/* Departure Date */}
+                    <div className="grid gap-2">
+                        <Label htmlFor="departure_date">Departure Date</Label>
+                        <DatePicker
+                            disabled={selectedVanIds.length === 0}
+                            selected={data.departure_date ? new Date(data.departure_date) : null}
+                            onChange={(date: Date | null) => {
+                                if (date) {
+                                    const isoDate = date.toISOString().slice(0, 10);
+                                    setData("departure_date", isoDate);
+
+                                    // Clear return_date if it becomes invalid
+                                    if (data.return_date && new Date(data.return_date) < date) {
+                                        setData("return_date", "");
+                                    }
+                                }
+                            }}
+                            dateFormat="yyyy-MM-dd"
+                            minDate={availableDates?.from ? new Date(availableDates.from) : undefined}
+                            maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
+                            excludeDates={
+                                availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
+                            }
+                            placeholderText="Select a departure date"
+                            className="w-full border px-3 py-2 rounded-md"
+                        />
+                        <InputError message={errors.departure_date} className="mt-2" />
+                    </div>
+
+                    {/* Return Date */}
+                    <div className="grid gap-2">
+                        <Label htmlFor="return_date">Return Date</Label>
+                        <DatePicker
+                            disabled={selectedVanIds.length === 0}
+                            selected={data.return_date ? new Date(data.return_date) : null}
+                            onChange={(date: Date | null) => {
+                                if (date) {
+                                const isoDate = date.toISOString().slice(0, 10);
+                                setData("return_date", isoDate);
+                                }
+                            }}
+                            dateFormat="yyyy-MM-dd"
+                            minDate={data.departure_date ? new Date(data.departure_date) : (availableDates?.from ? new Date(availableDates.from) : undefined)}
+                            maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
+                            excludeDates={
+                                availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
+                            }
+                            placeholderText="Select a return date"
+                            className="w-full border px-3 py-2 rounded-md"
+                        />
+                        <InputError message={errors.return_date} className="mt-2" />
+                    </div>
+                </div>
+
+                <Button type="submit" className="mt-2 w-full btn-primary -md cursor-pointer" tabIndex={5} disabled={processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     SUBMIT
                 </Button>

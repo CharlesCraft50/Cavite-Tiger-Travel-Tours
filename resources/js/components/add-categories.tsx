@@ -115,12 +115,25 @@ export default function AddCategories({
                                         `${activeTab === index
                                             ? 'bg-[#fb2056] hover:opacity-90 text-white font-semibold'
                                             : 'bg-gray-500 text-white'
-                                        } w-full sm:w-auto cursor-pointer px-4 sm:px-6 py-2 sm:py-2 flex items-center gap-2 text-sm font-bold uppercase text-center justify-center`} 
+                                        } w-full sm:w-auto cursor-pointer px-4 sm:px-6 py-2 sm:py-2 flex items-center gap-2 text-sm font-bold text-center justify-center`} 
                                         name={category.name} 
                                         onClick={() => handleTabClick(index)} 
                                         hasIndicator={true}
                                         title={category.name}
-                                        setTitle={(newTitle) => onUpdateCategory?.(category.id, 'name', newTitle)}
+                                        setTitle={(newTitle) => {
+                                            const category = categories[index];
+
+                                            const existingButtonText = category?.button_text?.split(' ')[0] ?? '';
+                                            const fullButtonText = `${existingButtonText} ${newTitle}`.trim();
+
+                                            const trimmedButtonText =
+                                                fullButtonText.length > 20
+                                                    ? fullButtonText.slice(0, 17).trim() + '...'
+                                                    : fullButtonText;
+
+                                            onUpdateCategory?.(category.id, 'name', newTitle);
+                                            onUpdateCategory?.(category.id, 'button_text', trimmedButtonText);
+                                        }}
                                         editable={editable} /> 
                                     {editable && (
                                         <Button 
@@ -138,7 +151,7 @@ export default function AddCategories({
                                     `${activeTab === 0
                                         ? 'bg-[#fb2056] text-white font-semibold'
                                         : 'bg-gray-500 text-white'
-                                    } w-full sm:w-auto cursor-pointer px-4 sm:px-6 py-2 sm:py-2 flex items-center gap-2 text-sm font-bold uppercase text-center justify-center`} 
+                                    } w-full sm:w-auto cursor-pointer px-4 sm:px-6 py-2 sm:py-2 flex items-center gap-2 text-sm font-bold text-center justify-center`} 
                                     name={"Add Categories"} 
                                     onClick={handleAdd} 
                                     hasIndicator={true} 
@@ -196,7 +209,7 @@ export default function AddCategories({
                                                             type="text" 
                                                             value={categories[activeTab]?.button_text} 
                                                             onChange={(e) => onUpdateCategory?.(categories[activeTab]?.id, 'button_text', e.target.value)} 
-                                                            className="border text-lg text-center" 
+                                                            className="border text-lg text-center uppercase" 
                                                             maxLength={20}
                                                             onFocus={(e) => e.target.select()}
                                                             onKeyDown={(e) => {

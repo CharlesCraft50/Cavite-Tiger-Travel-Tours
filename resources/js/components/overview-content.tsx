@@ -14,6 +14,7 @@ type OverviewContentProps = {
     setData?: SetDataFunction<PackageForm>;
     packageData?: TourPackage;
     setImageOverview?: React.Dispatch<React.SetStateAction<File | null>>;
+    existingImageOverview?: string;
     automaticShortDescription?: boolean;
     setAutomaticShortDescription?: (e: boolean) => void;
     editable?: boolean;
@@ -24,7 +25,7 @@ export function stripHtmlTags(html?: string): string {
   return html.replace(/<[^>]*>/g, '').trim();
 }
 
-export default function OverviewContent({ data, setData, packageData, setImageOverview, automaticShortDescription, setAutomaticShortDescription, editable }: OverviewContentProps) {
+export default function OverviewContent({ data, setData, packageData, setImageOverview, existingImageOverview, automaticShortDescription, setAutomaticShortDescription, editable }: OverviewContentProps) {
   
     useEffect(() => {
         if(automaticShortDescription && data?.content) {
@@ -42,7 +43,13 @@ export default function OverviewContent({ data, setData, packageData, setImageOv
         )}
         <div className="flex flex-row gap-4 items-center">
             <div className="grid gap-2">
-                <ImageSimpleBox imagePreview={data?.image_overview || packageData?.image_overview || ''} setImagePreview={(e) => setData?.('image_overview', e)} setImageFile={setImageOverview} editable={editable}/>
+                <ImageSimpleBox
+                    id="image-overview"
+                    imagePreview={data?.image_overview || packageData?.image_overview || existingImageOverview || ''}
+                    setImagePreview={(e) => setData?.('image_overview', e)}
+                    setImageFile={setImageOverview}
+                    editable={editable}
+                />
             </div>
             <div className="flex flex-col gap-2 flex-1">
                 <div className="flex flex-col gap-1">

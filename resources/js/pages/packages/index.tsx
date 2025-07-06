@@ -35,6 +35,7 @@ export default function Index({ packages, cities, countries, selectedCountry }: 
                 {cities.map((city: City) => (
                     <CardImageBackground
                         id={city.id}
+                        inputId="image-overview-edit"
                         key={city.id}
                         onClick={() => handleCityClick(city.id)}
                         title={city.name}

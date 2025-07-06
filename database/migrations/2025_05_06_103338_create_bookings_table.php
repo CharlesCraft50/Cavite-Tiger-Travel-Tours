@@ -27,8 +27,10 @@ return new class extends Migration
             $table->integer('pax_kids');
             $table->boolean('travel_insurance')->default(true);
             $table->text('notes')->nullable();
+            $table->foreignId('preferred_van_id')->nullable()->constrained('preferred_vans')->onDelete('set null');
             $table->enum('payment_method', ['gcash', 'paypal', 'bank_deposit']);
             $table->boolean('is_confirmed')->default(false);
+            
 
             // Admin Status
             $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');

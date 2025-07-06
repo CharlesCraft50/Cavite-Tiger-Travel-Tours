@@ -3,7 +3,7 @@ import Navbar from '@/components/ui/navbar';
 import PackagHeaderLayout from './packages/package-header-layout';
 import { TourPackage } from '@/types';
 import BackButton from '@/components/ui/back-button';
-import { LoadingProvider, useLoading } from '@/components/ui/loading-provider';
+import { LoadingProvider } from '@/components/ui/loading-provider';
 
 interface PackageShowLayoutProps {
     id?: number;
@@ -14,15 +14,11 @@ interface PackageShowLayoutProps {
 
 export default function PackageShowLayout({ id, children, packages, editable, ...props }: PackageShowLayoutProps) {
 
-    const { start, stop } = useLoading();
-
     return (
         <LoadingProvider>
             <Navbar />
             <BackButton 
-                onClick={() => {
-                    start();
-                }} 
+                href="/packages"
                 className="ms-12 mb-0 mt-2" 
             />
             <PackagHeaderLayout 

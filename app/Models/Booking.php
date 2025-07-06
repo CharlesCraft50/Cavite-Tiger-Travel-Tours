@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
+use App\Models\OtherService;
+use App\Models\PreferredVan;
 
 class Booking extends Model
 {
@@ -14,6 +16,7 @@ class Booking extends Model
     protected $fillable = [
         'tour_package_id',
         'package_category_id',
+        'preferred_van_id',
         'first_name',
         'last_name',
         'contact_number',
@@ -38,5 +41,15 @@ class Booking extends Model
     public function packageCategory()
     {
         return $this->belongsTo(PackageCategory::class);
+    }
+
+    public function preferredVan()
+    {
+        return $this->belongsTo(PreferredVan::class);
+    }
+
+    public function otherServices()
+    {
+        return $this->belongsToMany(OtherService::class, 'booking_service');
     }
 }

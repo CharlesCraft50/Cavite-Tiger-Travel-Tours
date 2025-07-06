@@ -2,13 +2,15 @@ import clsx from 'clsx';
 import { FilePlus, Image } from 'lucide-react'
 
 type ImageUploadBoxProps = {
+ id?: string;
  imagePreview?: string;
  setImagePreview?: (e: string) => void;
  setImageFile?: (file: File) => void;
  editable?: boolean;
+ className?: string;
 }
 
-export default function ImageSimpleBox({ imagePreview, setImagePreview, setImageFile, editable }: ImageUploadBoxProps) {
+export default function ImageSimpleBox({ id, imagePreview, setImagePreview, setImageFile, className, editable }: ImageUploadBoxProps) {
     
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -24,7 +26,7 @@ export default function ImageSimpleBox({ imagePreview, setImagePreview, setImage
         <div className="relative">
             {editable && (
                 <input
-                    id="image-overview"
+                    id={id}
                     type="file"
                     accept="image/*"
                     className="hidden"
@@ -32,13 +34,14 @@ export default function ImageSimpleBox({ imagePreview, setImagePreview, setImage
                 />
             )}
             <label
-                htmlFor="image-overview"
-                className={clsx("bg-gray-200 border border-gray-600 w-48 h-48 flex items-center justify-center text-center dark:bg-gray-950 text-black dark:text-white",
+                htmlFor={id}
+                className={clsx("bg-gray-200 border border-gray-600 flex items-center justify-center text-center dark:bg-gray-950 text-black dark:text-white",
                     !imagePreview && editable && "border-dashed",
+                    className ? className : "w-48 h-48",
                     editable && "cursor-pointer"
                 )}
             >
-                {imagePreview ? (
+                {imagePreview && imagePreview !== 'null' ? (
                     <img src={imagePreview} 
                         alt="Image Preview"
                         className="image-preview" 

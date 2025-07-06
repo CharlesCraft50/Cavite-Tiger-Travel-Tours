@@ -5,6 +5,10 @@ export * from './city';
 export * from './country';
 export * from './booking';
 export * from './package-category';
+export * from './preferred-van';
+export * from './package-preferred-van';
+export * from './preferred-van-availability';
+export * from './other-service';
 
 export interface Auth {
     user: User;

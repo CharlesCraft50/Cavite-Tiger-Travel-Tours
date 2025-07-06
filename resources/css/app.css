@@ -197,6 +197,34 @@
     .label-sm {
         @apply text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50;
     }
+    
+    .card {
+        @apply relative cursor-pointer border rounded-xl p-4 transition-all duration-200 bg-white hover:bg-gray-50;
+    }
+
+    .card.selected {
+        @apply ring-2 ring-blue-500 bg-blue-50;
+    }
+
+    .selected-text {
+        @apply absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full;
+    }
+
+    .card img.img-card {
+        @apply w-full h-40 object-cover rounded-md;
+    }
+
+    .confirm-modal {
+        @apply fixed inset-0 z-50 flex items-center justify-center bg-black/40;
+    }
+
+    .confirm-card {
+        @apply bg-white sm:max-w-sm w-[90%] max-w-xs p-6 rounded-xl shadow-lg;
+    }
+
+    .card.toDelete {
+        @apply ring-red-500 bg-red-300 opacity-80 cursor-default;
+    }
 }
 
 @layer utilities {

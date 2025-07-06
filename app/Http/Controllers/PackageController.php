@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
 use App\Models\City;
+use App\Models\PreferredVan;
 use App\Models\Country;
 use App\Http\Requests\StorePackageRequest;
 use App\Http\Requests\UpdatePackageRequest;
@@ -43,20 +44,12 @@ class PackageController extends Controller
     public function create(Request $request) {
 
         $cities = City::all();
-        
-        if($request->has('id')) {
-            $package = TourPackage::findOrFail($request->id);
-            return (Inertia::render('packages/create', [
-                'cities' => $cities,
-                'editMode' => true,
-                'packages' => $package,
-                'packageCategories' => $package->categories
-            ]));
-        }
+        $preferredVans = PreferredVan::with('availabilities')->get();
         
         return (Inertia::render('packages/create', [
             'cities' => $cities,
-            'editMode' => false
+            'preferredVans' => $preferredVans,
+            'editMode' => false,
         ]));
     }
 
@@ -68,17 +61,21 @@ class PackageController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('image_overview')) {
-            $validated['image_overview'] = asset('storage/' . $this->storeGetImage($request, 'image_overview'));
+            $validated['image_overview'] = asset('storage/' . $this->storeGetImage($request, 'image_overview', 'packages'));
         }
 
         if ($request->hasFile('image_banner')) {
-            $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner'));
+            $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner', 'packages'));
         }
 
         DB::beginTransaction();
 
         try {
             $package = TourPackage::create($validated);
+
+            if ($request->has('preferred_van_ids')) {
+                $package->preferredVans()->sync($request->input('preferred_van_ids'));
+            }
 
             // Categories now come as an array, not a JSON string
             if ($request->has('categories')) {
@@ -146,6 +143,19 @@ class PackageController extends Controller
     public function edit(string $id)
     {
         //
+        $cities = City::all();
+        $preferredVans = PreferredVan::with('availabilities')->get();
+                
+        $package = TourPackage::findOrFail($id);
+        return (Inertia::render('packages/create', [
+            'cities' => $cities,
+            'editMode' => true,
+            'packages' => $package,
+            'packageCategories' => $package->categories,
+            'preferredVans' => $preferredVans,
+            'vanIds' => $package->preferredVans->pluck('id'),
+        ]));
+        
     }
 
     /**
@@ -153,17 +163,59 @@ class PackageController extends Controller
      */
     public function update(UpdatePackageRequest $request, string $id)
     {
-        //
         $package = TourPackage::findOrFail($id);
         $validated = $request->validated();
 
         if($request->hasFile('image_banner')) {
-            $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner'));
+            $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner', 'packages'));
+        } else {
+            unset($validated['image_banner']);
         }
 
-        $package->update($validated);
+        if($request->hasFile('image_overview')) {
+            $validated['image_overview'] = asset('storage/' . $this->storeGetImage($request, 'image_overview', 'packages'));
+        } else {
+            unset($validated['image_overview']);
+        }
 
-        return redirect()->route('packages.show', ['slug' => $package->slug])->with('success', 'Packages updated.');
+        DB::beginTransaction();
+
+        try {
+            $package->update($validated);
+
+            if ($request->has('preferred_van_ids')) {
+                $package->preferredVans()->sync($request->input('preferred_van_ids'));
+            }
+
+            if ($request->has('categories')) {
+                $categories = $request->input('categories');
+
+                $package->categories()->delete();
+
+                foreach ($categories as $category) {
+                    PackageCategory::create([
+                        'tour_package_id' => $package->id,
+                        'name' => $category['name'] ?? '',
+                        'content' => $category['content'] ?? '',
+                        'has_button' => $category['has_button'] ?? 0,
+                        'button_text' => $category['button_text'] ?? 'Book Now',
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return Inertia::render('success-page', [
+                'title' => 'Package Updated!',
+                'description' => 'The package "' . $package->title . '" has been successfully updated.',
+                'redirectUrl' => '/packages/' . $package->slug,
+                'redirectTimer' => 500,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withErrors(['error' => 'Failed to update package. ' . $e->getMessage()]);
+        }
     }
 
     /**

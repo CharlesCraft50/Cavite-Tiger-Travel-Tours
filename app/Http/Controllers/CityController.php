@@ -62,7 +62,7 @@ class CityController extends Controller
         $validated = $request->validated();
 
         if($request->hasFile('image_url')) {
-            $validated['image_url'] = asset('storage/' . $this->storeGetImage($request, 'image_url'));
+            $validated['image_url'] = asset('storage/' . $this->storeGetImage($request, 'image_url', 'cities'));
         }
         
         $city->update($validated);

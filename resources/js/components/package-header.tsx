@@ -43,7 +43,7 @@ export default function PackageHeader({
                 
             <label htmlFor="image-banner" className={clsx("absolute inset-0", editable && "cursor-pointer")}>
                 <img
-                    src={imageBanner}
+                    src={imageBanner || "https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/290875293_713107549780355_8510002955865993783_n.jpg"}
                     className="absolute inset-0 w-full h-full object-cover object-center"
                 />
 
@@ -65,15 +65,13 @@ export default function PackageHeader({
                             "font-bold leading-tight uppercase"
                         )}
                         >
-                        {imageBanner ? (
-                            <>Package Tours</>
-                        ) : (
-                            editable && (
+                        <>Package Tours</>
+                        
+                        {editable && (
                                 <span className="flex flex-col text-sm text-gray-600 p-8 gap-2 items-center">
                                     Upload your banner photo here
                                     <FilePlus className="w-8 h-8 text-gray-600" />
                                 </span>
-                            )
                         )}
                         </h1>
                     </div>

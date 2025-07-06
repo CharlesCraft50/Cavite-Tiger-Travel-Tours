@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
+use App\Services\VanAvailabilityService;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
@@ -25,9 +27,12 @@ class BookingController extends Controller
     public function create(Request $request, $slug, $categorySlug = null) {
         $packages = TourPackage::where('slug', $slug)->firstOrFail();
 
-        $packages->load(['categories' => function ($query) {
-            $query->where('has_button', true);
-        }]);
+        $packages->load([
+            'categories' => function ($query) {
+                $query->where('has_button', true);
+            },
+            'preferredVans' // ✅ Load only the selected preferred vans
+        ]);
 
         // Find selected category by slug (from URL), fallback null if none
         $selectedCategoryId = null;
@@ -40,7 +45,15 @@ class BookingController extends Controller
             'packages' => $packages,
             'categories' => $packages->categories,
             'selectedCategoryId' => $selectedCategoryId,
+            'preferredVans' => $packages->preferredVans,
         ]);
+    }
+
+    protected $availabilityService;
+
+    public function __construct(VanAvailabilityService $availabilityService)
+    {
+        $this->availabilityService = $availabilityService;
     }
 
     /**
@@ -49,6 +62,24 @@ class BookingController extends Controller
     public function store(StoreBookingRequest $request)
     {
         $validated = $request->validated();
+
+        $availability = $this->availabilityService->getAvailableDateRanges($validated['preferred_van_id']);
+
+        if(empty($availability)) {
+            return back()->withErrors(['preferred_van_id' => 'Van availability not found.']);
+        }
+
+        $from = Carbon::parse($validated['departure_date']);
+        $until = Carbon::parse($validated['return_date']);
+
+        if($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
+            return back()->withErrors(['departure_date' => 'Selected dates are outside van\'s availability range.']);
+        }
+
+        if(in_array($from->toDateString(), $availability['fully_booked_dates']) || 
+            in_array($until->toDateString(), $availability['fully_booked_dates'])) {
+                return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
+        }
 
         Booking::create($validated);
 

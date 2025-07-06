@@ -40,6 +40,10 @@ class StorePackageRequest extends FormRequest
             'categories.*.content' => ['required', 'string'],
             'categories.*.has_button' => ['nullable', 'boolean'],
             'categories.*.button_text' => ['nullable', 'string', 'max:20'],
+
+            // ✅ Validate preferred_van as array
+            'preferred_van_ids' => ['nullable', 'array'],
+            'preferred_van_ids.*' => ['integer', 'exists:preferred_vans,id'],
         ];
 
     }

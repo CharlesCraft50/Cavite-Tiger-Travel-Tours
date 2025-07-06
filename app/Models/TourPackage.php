@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Models\City;
 use App\Models\PackageCategory;
 use App\Models\Comment;
+use App\Models\PreferredVan;
 
 class TourPackage extends Model
 {
@@ -60,5 +61,9 @@ class TourPackage extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function preferredVans() {
+        return $this->belongsToMany(PreferredVan::class, 'package_preferred_van');
     }
 }

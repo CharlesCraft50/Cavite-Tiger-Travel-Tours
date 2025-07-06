@@ -41,7 +41,7 @@ export default function PackagHeaderLayout({
     //setIsEditing(true);
     if (!id) return;
 
-    router.get(`/packages/create?id=${id}`);
+    router.get(`/packages/${id}/edit`);
   }
 
   const handleSaveBtn = (e: React.MouseEvent) => {

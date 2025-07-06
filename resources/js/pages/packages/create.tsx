@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { City, PackageCategory, TourPackage } from "@/types";
+import { City, PackageCategory, TourPackage, PreferredVan } from "@/types";
 import { Head } from '@inertiajs/react';
 import PackageContentEditor from "@/components/package-content-editor";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -15,6 +15,7 @@ import InputSuggestions from "@/components/ui/input-suggestions";
 import AddCategories from "@/components/add-categories";
 import OverviewContent, { stripHtmlTags } from "@/components/overview-content";
 import { OVERVIEW_COUNT } from "@/config/constants";
+import VanSelection from "@/components/van-selection";
 
 export type PackageForm = {
     title: string;
@@ -35,6 +36,8 @@ type PackagesCreateProps = {
     editMode?: boolean;
     packages?: TourPackage,
     packageCategories?: PackageCategory[];
+    preferredVans: PreferredVan[];
+    vanIds: number[];
 };
 
 export default function Index({
@@ -42,6 +45,8 @@ export default function Index({
      editMode,
      packages,
      packageCategories,
+     preferredVans,
+     vanIds,
     }: PackagesCreateProps ) {
 
     const [contentError, setContentError] = useState('');
@@ -67,6 +72,30 @@ export default function Index({
         available_until: null
 
     });
+    
+    const [activeExpiry, setActiveExpiry] = useState<boolean>(false);
+    const [imageOverview, setImageOverview] = useState<File | null>(null);
+    const [imageBanner, setImageBanner] = useState<File | null>(null);
+    const [categories, setCategories] = useState<PackageCategory[]>([]);
+    const [categoriesContentError, setCategoriesContentError] = useState('');
+    const [existingImageOverview, setExistingImageOverview] = useState<string>('');
+    const [existingImageBanner, setExistingImageBanner] = useState<string>('');
+    const [selectedVanIds, setSelectedVanIds] = useState<number[]>([]);
+    const [vanList, setVanList] = useState<PreferredVan[]>(preferredVans);
+    
+    const addPreferredVans = (vans: PreferredVan[]) => {
+        setVanList(vans);
+    }
+
+    const toggleVanSelection = (vanId: number) => {
+        setSelectedVanIds((prev) => {
+            if (prev.includes(vanId)) {
+                return prev.filter((id) => id !== vanId);
+            } else {
+                return [...prev, vanId];
+            }
+        });
+    };
 
     useEffect(() => {
         if(editMode && packages) {
@@ -74,14 +103,23 @@ export default function Index({
             setData('subtitle', packages.subtitle || '');
             setData('overview', packages.overview || '');
             setData('content', packages.content || '');
+            setData('city_id', packages.city_id);
+            setData('duration', packages.duration || '');
+            setData('location', packages.location);
+            
+            if(packages.available_from || packages.available_until) {
+                setActiveExpiry(true);
+                setData('available_from', packages.available_from ? new Date(packages.available_from) : null);
+                setData('available_until', packages.available_until ? new Date(packages.available_until) : null);
+            }
+
+            setExistingImageOverview(packages.image_overview || '');
+            setExistingImageBanner(packages.image_banner || '');
+            setCategories(packageCategories ?? []);
+
+            setSelectedVanIds(vanIds);
         }
     }, [editMode, packages]);
-    
-    const [activeExpiry, setActiveExpiry] = useState<boolean>(false);
-    const [imageOverview, setImageOverview] = useState<File | null>(null);
-    const [imageBanner, setImageBanner] = useState<File | null>(null);
-    const [categories, setCategories] = useState<PackageCategory[]>([]);
-    const [categoriesContentError, setCategoriesContentError] = useState('');
 
     const addCategory = (newCategory: Omit<PackageCategory, 'id' | 'has_button' | 'button_text' | 'created_at' | 'updated_at'>) => {
         setCategories(prev => {
@@ -91,7 +129,7 @@ export default function Index({
                 ...newCategory,
                 id: newId,
                 has_button: 0,
-                button_text: 'Book Now',
+                button_text: 'Book',
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             }];
@@ -164,7 +202,7 @@ export default function Index({
 
         setContentError('');
 
-        if (categories.length > 0) {
+        if(categories.length > 0) {
             categories.forEach((category, index) => {
                 Object.entries(category).forEach(([key, value]) => {
                     if (['id', 'created_at', 'updated_at'].includes(key)) return;
@@ -173,12 +211,30 @@ export default function Index({
             });
         }
 
-        router.post('/packages', formData, {
-            forceFormData: true,
-            onSuccess: () => {
-                // Optional: clear form or show notification
-            }
-        });
+        if(selectedVanIds.length > 0) {
+            selectedVanIds.forEach((id, index) => {
+                formData.append(`preferred_van_ids[${index}]`, id.toString());
+            });
+        }
+
+        if(editMode) {
+
+            formData.append("_method", "PUT");
+            
+            router.post(`/packages/${packages?.id}`, formData, {
+                forceFormData: true,
+                // onSuccess: () => {
+                    
+                // }
+            });
+        } else {
+            router.post('/packages', formData, {
+                forceFormData: true,
+                onSuccess: () => {
+                    
+                }
+            });
+        }
 
     }
 
@@ -190,6 +246,14 @@ export default function Index({
 
     const clearContent = () => {
         setData('content', " ");
+    }
+
+    const handleSelectAllVan = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedVanIds(vanList.map((van) => van.id) || []);
+        } else {
+            setSelectedVanIds([]);
+        }
     }
 
     return (
@@ -231,12 +295,13 @@ export default function Index({
                             />
                             <InputError message={errors.subtitle} className="mt-2" />
                     </div>
-                </div> 
+                </div>
 
                 <div className="grid gap-2">
                     <OverviewContent 
                         data={data} 
-                        setData={setData} 
+                        setData={setData}
+                        existingImageOverview={existingImageOverview}
                         setImageOverview={setImageOverview} 
                         automaticShortDescription={automaticShortDescription} 
                         setAutomaticShortDescription={setAutomaticShortDescription} 
@@ -257,6 +322,7 @@ export default function Index({
                         }}
                         title={data.title}
                         imageBanner={data.image_banner}
+                        existingImageBanner={existingImageBanner}
                         setImageBanner={(e) => setData('image_banner', e)}
                         setImageFile={setImageBanner}
                         onClearContent={clearContent}
@@ -340,6 +406,23 @@ export default function Index({
                     )}
                 </div>
 
+                <hr />
+
+                <div className="grid gap-2 mb-12">
+                    <VanSelection
+                        parentId={packages?.id}
+                        preferredVans={vanList}
+                        selectedVanIds={selectedVanIds}
+                        onSelect={toggleVanSelection}
+                        onChange={handleSelectAllVan}
+                        textLabel="Select vans users can book"
+                        onSave={(newVans) => addPreferredVans(newVans)}
+                        required={true}
+                        editable
+                    />
+                </div>
+
+                <hr />
 
                 <div className="grid gap-2">
                     <AddCategories 
@@ -352,10 +435,10 @@ export default function Index({
                 </div>
 
                 <InputError message={categoriesContentError} className="mt-2" />
-                
+
                 <Button type="submit" className="mt-2 w-full btn-primary cursor-pointer text-md" tabIndex={5} disabled={processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                    Create
+                    {editMode ? 'Update' : 'Create'}
                 </Button>
 
                 <div className="flex flex-row text-center justify-center">
@@ -363,6 +446,7 @@ export default function Index({
                     <p className="text-sm ml-2">Required Fields</p>
                 </div>
         </form>
+        
         </FormLayout>
         
     );
