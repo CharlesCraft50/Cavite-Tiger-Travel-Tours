@@ -10,6 +10,7 @@ use App\Models\City;
 use App\Models\PackageCategory;
 use App\Models\Comment;
 use App\Models\PreferredVan;
+use App\Models\OtherService;
 
 class TourPackage extends Model
 {
@@ -23,7 +24,6 @@ class TourPackage extends Model
         'content',
         'overview',
         'duration',
-        'price_per_head',
         'pax_kids',
         'pax_adult',
         'available_from',
@@ -31,12 +31,13 @@ class TourPackage extends Model
         'image_overview',
         'image_banner',
         'slug',
+        'base_price',
     ];
 
     protected $casts = [
         'available_from' => 'date',
         'available_until' => 'date',
-        'price_per_head' => 'float',
+        'base_price' => 'float',
     ];
 
     protected static function booted() 
@@ -65,5 +66,12 @@ class TourPackage extends Model
 
     public function preferredVans() {
         return $this->belongsToMany(PreferredVan::class, 'package_preferred_van');
+    }
+
+    public function otherServices()
+    {
+        return $this->belongsToMany(OtherService::class, 'other_service_tour_packages')
+            ->withPivot('package_specific_price', 'is_recommended', 'sort_order')
+            ->withTimestamps();
     }
 }

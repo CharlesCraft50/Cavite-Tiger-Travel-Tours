@@ -3,17 +3,19 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\BookingPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\PreferredVanController;
+use App\Http\Controllers\OtherServiceController;
 use App\Http\Controllers\Api\VanApiController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return Inertia::render('index');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -32,6 +34,8 @@ Route::get('/image/{id}', [ImageController::class, 'show'])->name('image.show');
 Route::get('/book-now/{slug}', [BookingController::class, 'create'])->name('booking.create');
 Route::get('/book-now/{slug}/category/{categorySlug?}', [BookingController::class, 'create'])->name('booking.create.category');
 Route::post('/book-now/booked', [BookingController::class, 'store'])->name('booking.store');
+Route::get('/book-now/payment/{booking_id}', [BookingPaymentController::class, 'index'])->name('booking.payment');
+Route::post('/book-now/payment/create', [BookingPaymentController::class, 'store'])->name('booking.payment.store');
 Route::get('/api/van/{vanId}/availability', [VanApiController::class, 'availability']);
 
 //Route::resource('packages', PackageController::class);
@@ -50,6 +54,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('cities', CityController::class);
     Route::resource('countries', CountryController::class);
     Route::put('/preferredvan/update', [PreferredVanController::class, 'update'])->name('preferredvan.update');
+    Route::put('/otherservice/update', [OtherServiceController::class, 'update'])->name('otherservice.update');
 });
 
 Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');

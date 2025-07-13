@@ -1,5 +1,5 @@
 import FormLayout from "@/layouts/form-layout";
-import { PackageCategory, PreferredVan, TourPackage } from "@/types";
+import { OtherService, PackageCategory, PreferredVan, TourPackage } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -11,21 +11,24 @@ import { Select } from "@headlessui/react";
 import VanSelection from "@/components/van-selection";
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from "react-datepicker";
+import OtherServiceSelection from "@/components/other-service-selection";
+import PriceSign from "@/components/price-sign";
+import { format } from "date-fns";
 
 type BookNowCreateProps = {
     packages: TourPackage;
     categories: PackageCategory[];
     selectedCategoryId: number;
-    categorySlug: string;
     preferredVans: PreferredVan[];
+    otherServices: OtherService[];
 }
 
 export default function Create({ 
     packages, 
     categories, 
     selectedCategoryId, 
-    categorySlug,
     preferredVans,
+    otherServices,
 }: BookNowCreateProps) {
     const { data, setData, post, processing, errors } = useForm<{
         package_title: string;
@@ -39,9 +42,9 @@ export default function Create({
         email: string;
         pax_kids: number;
         pax_adult: number;
-        travel_insurance: boolean;
         notes: string;
         preferred_van_id: number | null;
+        other_services: number[],
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -54,9 +57,9 @@ export default function Create({
         email: '',
         pax_kids: 0,
         pax_adult: 1,
-        travel_insurance: true,
         notes: '',
         preferred_van_id: null,
+        other_services: [],
     });
 
     useEffect(() => {
@@ -95,7 +98,8 @@ export default function Create({
     }, [data.preferred_van_id]);
 
     const [selectedVanIds, setSelectedVanIds] = useState<number[]>([]);
-    // const [preferredVanError, setPreferredVanError] = useState('');
+    const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>([]);
+    const [totalAmount, setTotalAmount] = useState<number>();
 
     const toggleVanSelection = (vanId: number) => {
         if(selectedVanIds.includes(vanId)) {
@@ -109,8 +113,19 @@ export default function Create({
         
         setData('pax_adult', 0);
         setData('pax_kids', 0);
-        // setPreferredVanError('');
     }
+
+    const toggleServiceSelection = (serviceId: number) => {
+        let updatedIds: number[];
+        if (selectedOtherServiceIds.includes(serviceId)) {
+            updatedIds = selectedOtherServiceIds.filter(id => id !== serviceId);
+        } else {
+            updatedIds = [...selectedOtherServiceIds, serviceId];
+        }
+
+        setSelectedOtherServiceIds(updatedIds);
+        setData('other_services', updatedIds);
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -136,23 +151,63 @@ export default function Create({
 
     const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const val = e.target.value;
-        setData('package_category_id', val === '' ? null : Number(val));
+        const selectedId = val === '' ? null : Number(val);
+        setData('package_category_id', selectedId);
 
-        const baseSlug = packages.slug; // package slug from props
+        const baseSlug = packages.slug;
         const categorySlug = val === ''
             ? ''
-            : categories.find(cat => cat.id === Number(val))?.slug ?? '';
+            : categories.find(cat => cat.id === selectedId)?.slug ?? '';
 
         let newUrl = `/book-now/${baseSlug}`;
-
         if (categorySlug) {
             newUrl += `/category/${categorySlug}`;
         }
-
+        
         window.history.replaceState({}, '', newUrl);
-    }
+    };
 
     const selectedVan = preferredVans.find(v => v.id === data.preferred_van_id);
+
+    const sortedOtherServices = [...otherServices].sort((a, b) => {
+        const aRecommended = a.pivot?.is_recommended ? 1 : 0;
+        const bRecommended = b.pivot?.is_recommended ? 1 : 0;
+        return bRecommended - aRecommended;
+    });
+
+    useEffect(() => {
+        let total = packages.base_price;
+
+        const selectedCategory = categories.find(cat => cat.id === data.package_category_id);
+
+        if(selectedCategory?.use_custom_price && selectedCategory.custom_price) {
+            total += Number(selectedCategory.custom_price);
+        }
+
+        const selectedVan = preferredVans.find(v => v.id === data.preferred_van_id);
+
+        if(selectedVan) {
+            total += Number(selectedVan.additional_fee) ?? 0;
+        }
+
+        for (const serviceId of selectedOtherServiceIds) {
+            const service = otherServices.find(s => s.id === serviceId);
+            if (service) {
+                const price = service.pivot?.package_specific_price && service.pivot?.package_specific_price > 0 ? service.pivot?.package_specific_price : service.price;
+                total += Number(price);
+            }
+        }
+
+        setTotalAmount(total);
+    }, [
+        data.package_category_id,
+        data.preferred_van_id,
+        selectedOtherServiceIds,
+        packages.base_price,
+        categories,
+        preferredVans,
+        otherServices
+    ]);
     
     return (
         <FormLayout>
@@ -272,36 +327,6 @@ export default function Create({
                     </div>
                 </div>
 
-                {/* Travel Insurance */}
-                <div className="grid gap-2">
-                    <Label>Travel Insurance</Label>
-                    <div className="flex gap-4">
-                        <label className="flex items-center gap-2">
-                            <input
-                                type="radio"
-                                name="travel_insurance"
-                                value="yes"
-                                checked={data.travel_insurance === true}
-                                disabled={processing}
-                                onChange={() => setData("travel_insurance", true)}
-                            />
-                            Yes
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <input
-                                type="radio"
-                                name="travel_insurance"
-                                value="no"
-                                checked={data.travel_insurance === false}
-                                disabled={processing}
-                                onChange={() => setData("travel_insurance", false)}
-                            />
-                            No
-                        </label>
-                    </div>
-                    <InputError message={errors.travel_insurance} className="mt-2" />
-                </div>
-
                 {/* Additional Notes */}
                 <div className="grid gap-2">
                     <Label htmlFor="notes">Additional Notes</Label>
@@ -374,7 +399,7 @@ export default function Create({
                             selected={data.departure_date ? new Date(data.departure_date) : null}
                             onChange={(date: Date | null) => {
                                 if (date) {
-                                    const isoDate = date.toISOString().slice(0, 10);
+                                    const isoDate = format(date, 'yyyy-MM-dd');
                                     setData("departure_date", isoDate);
 
                                     // Clear return_date if it becomes invalid
@@ -403,7 +428,7 @@ export default function Create({
                             selected={data.return_date ? new Date(data.return_date) : null}
                             onChange={(date: Date | null) => {
                                 if (date) {
-                                const isoDate = date.toISOString().slice(0, 10);
+                                const isoDate = format(date, 'yyyy-MM-dd');
                                 setData("return_date", isoDate);
                                 }
                             }}
@@ -417,6 +442,26 @@ export default function Create({
                             className="w-full border px-3 py-2 rounded-md"
                         />
                         <InputError message={errors.return_date} className="mt-2" />
+                    </div>
+                </div>
+
+                {/* Other Services */}
+                <div className="grid gap-2">
+                    <OtherServiceSelection
+                        otherServices={sortedOtherServices}
+                        selectedOtherServiceIds={selectedOtherServiceIds}
+                        onSelect={toggleServiceSelection}
+                        textLabel="You can choose other services:"
+                    />
+                </div>
+
+                <div className="flex justify-end">
+                    <div className="text-right">
+                        <p className="text-lg font-semibold">Total Amount</p>
+                        <div className="flex flex-row items-center font-semibold text-primary text-2xl">
+                            <PriceSign />
+                            <p>{totalAmount}</p>
+                        </div>
                     </div>
                 </div>
 

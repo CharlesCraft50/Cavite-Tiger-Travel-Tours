@@ -3,8 +3,8 @@ import { PreferredVan } from "@/types";
 import clsx from "clsx";
 import { Label } from "./ui/label";
 import { Check, PencilIcon, PlusSquareIcon, TrashIcon, Undo, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from "@radix-ui/react-dialog";
 import { DialogFooter } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { router } from "@inertiajs/react";
@@ -12,21 +12,22 @@ import { useLoading } from "./ui/loading-provider";
 import { Input } from "./ui/input";
 import ImageSimpleBox from "./ui/image-simple-box";
 import DatePicker from "react-datepicker";
+import PriceSign from "./price-sign";
+import { format } from "date-fns";
 
 type VanSelectionProps = {
-    parentId?: number;
     preferredVans: PreferredVan[];
-    selectedVanIds: number[];
-    onSelect: (vanId: number) => void;
+    selectedVanIds?: number[];
+    onSelect?: (vanId: number) => void;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     textLabel?: string;
     required?: boolean;
     editable?: boolean;
+    selectable?: boolean;
     onSave?: (newVans: PreferredVan[]) => void;
 };
 
 export default function VanSelection({
-    parentId,
     preferredVans,
     selectedVanIds,
     onSelect,
@@ -34,6 +35,7 @@ export default function VanSelection({
     textLabel,
     required,
     editable,
+    selectable = true,
     onSave,
 }: VanSelectionProps) {
 
@@ -49,7 +51,28 @@ export default function VanSelection({
     const [tempVans, setTempVans] = useState<EditablePreferredVan[]>(preferredVans);
     const [vanToDelete, setVanToDelete] = useState<EditablePreferredVan | null>(null);
     const lastAddedVanRef = useRef<HTMLInputElement | null>(null);
+    const [visibleCount, setVisibleCount] = useState(6);
+    const [search, setSearch] = useState("");
+
+    const filteredVans = useMemo(() => {
+        return tempVans
+            .filter(van =>
+                van.name.toLowerCase().includes(search.toLowerCase())
+            )
+            .sort((a, b) => {
+                const aSelected = selectedVanIds?.includes(a.id) ? 1 : 0;
+                const bSelected = selectedVanIds?.includes(b.id) ? 1 : 0;
+
+                if (aSelected !== bSelected) {
+                    return bSelected - aSelected; // Selected vans appear first
+                }
+
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // Newer vans after
+            });
+    }, [search, tempVans, selectedVanIds]);
+
     
+    const visibleVans = filteredVans.slice(0, visibleCount);
 
     useEffect(() => {
         if (!isEditing && preferredVans.length > 0) {
@@ -65,7 +88,6 @@ export default function VanSelection({
     }
 
     const handleAddVan = () => {
-        // const newId = tempVans.length > 0 ? Math.max(...tempVans.map(v => v.id)) + 1: 1;
         const newId = -Date.now();
         const available_until = new Date();
         available_until.setFullYear(available_until.getFullYear() + 2);
@@ -79,14 +101,14 @@ export default function VanSelection({
             pax_kids: 0,
             action: 'create',
             isNew: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+            created_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+            updated_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
             availabilities: [
                 {
                     id: Date.now(),
                     preferred_van_id: newId,
-                    available_from: new Date().toISOString().slice(0, 10),
-                    available_until: available_until.toISOString().slice(0, 10),
+                    available_from: format(new Date(), "yyyy-MM-dd"),
+                    available_until: format(available_until, "yyyy-MM-dd"),
                     count: 1
                 }
             ],
@@ -173,8 +195,6 @@ export default function VanSelection({
                 van.id === id ? { ...van, [field]: value, action: van.action ?? 'update' } : van
             )
         );
-
-        console.log(field, value);
     }
 
   return (
@@ -182,6 +202,16 @@ export default function VanSelection({
         <Label className="font-medium text-sm" required={required}>
             {textLabel}
         </Label>
+
+        {/* Search Bar */}
+        <input
+            type="text"
+            placeholder="Search vans..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="mb-4 mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-non focus:ring-2 focus:ring-primary"
+        />
+
         {onChange && (
             <div className="mb-2">
                 <div className="flex items-center gap-2">
@@ -189,7 +219,7 @@ export default function VanSelection({
                         id="select-all-vans"
                         type="checkbox"
                         className="w-4 h-4 cursor-pointer"
-                        checked={preferredVans.length > 0 && selectedVanIds.length === preferredVans.length}
+                        checked={preferredVans.length > 0 && selectedVanIds?.length === preferredVans.length}
                         onChange={onChange}
                     />
                     <label htmlFor="select-all-vans" className="text-sm font-medium text-gray-700">
@@ -200,18 +230,49 @@ export default function VanSelection({
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {tempVans?.map((van) => {
-                const isSelected = selectedVanIds.includes(van.id);
+            {editable && (
+                <>
+                    {isEditing && (
+                        <div>
+                            <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={handleSave}>
+                                <Check className="w-24 h-24 text-gray-400" />
+                                <p className="text-sm text-gray-500">Save</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={toggleIsEditing}>
+                        {isEditing ? (
+                            <X className="w-24 h-24 text-gray-400" />
+                        ) : (
+                            <PencilIcon className="w-24 h-24 text-gray-400" />
+                        )}
+                        <p className="text-sm text-gray-500">{isEditing ? "Cancel Editing" : "Edit Vans"}</p>
+                    </div>
+                    
+                </>
+            )}
+
+            {editable && (
+                isEditing && (
+                    <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={handleAddVan}>
+                        <PlusSquareIcon className="w-24 h-24 text-gray-400" />
+                        <p className="text-sm text-gray-500">Add Van</p>
+                    </div>
+                )
+            )}
+            {visibleVans?.map((van) => {
+                const isSelected = selectedVanIds?.includes(van.id);
 
                 return (
                     <div
                         key={van.id}
                         onClick={() => {
-                            if(!isEditing) {
-                                onSelect(van.id);
+                            if(!isEditing && selectable) {
+                                onSelect?.(van.id);
                             }
                         }}
-                        className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete")}
+                        className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default")}
                     >
                     {isEditing ? (
                         <div className="flex items-center justify-center">
@@ -222,6 +283,7 @@ export default function VanSelection({
                                 setImagePreview={(e) => handleChange(van.id, 'image_url', e)}
                                 setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
                                 editable={isEditing}
+                                className="w-full h-32"
                             />
                         </div>
                     ) : (
@@ -279,10 +341,37 @@ export default function VanSelection({
                                 `${van.name}`
                             )}
                         </p>
-                        <p className="text-sm text-gray-600">
+
+                        {isEditing ? (
+                            <div className="flex justify-between">
+                                <p>
+                                    Adult:
+                                    <Input
+                                        type="number"
+                                        min={1}
+                                        value={van.pax_adult}
+                                        onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
+                                        className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                    />
+                                </p>
+                                <p>
+                                    Kids:
+                                    <Input
+                                        type="number"
+                                        value={van.pax_kids}
+                                        onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
+                                        className="p-0 text-lg outline-none px-2 font-semibold"
+                                    />
+                                </p>
+                            </div>
+                            ) : (
+                                <p className="text-sm text-gray-600">Adults: {van.pax_adult} | Kids: {van.pax_kids}</p>
+                        )}
+
+                        <p className="text-sm font-medium text-green-700">
                             {isEditing ? (
                                 <span className="flex items-center">
-                                    <span className="mr-1">₱</span>
+                                    <PriceSign />
                                     <Input
                                         type="text"
                                         value={van.additional_fee}
@@ -291,38 +380,14 @@ export default function VanSelection({
                                     />
                                 </span>
                             ) : (
-                                `₱${van.additional_fee.toLocaleString()}`
+                                <>
+                                    +
+                                    <PriceSign />
+                                    {`${van.additional_fee.toLocaleString()}`}
+                                </>
                             )}
                         </p>
-                        <div className="flex justify-between">
-                            <p>
-                                Adult:
-                                {isEditing ? (
-                                    <Input
-                                        type="number"
-                                        min={1}
-                                        value={van.pax_adult}
-                                        onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
-                                        className="p-0 text-lg outline-none px-2 w-full font-semibold"
-                                    />
-                                ) : (
-                                    ` ${van.pax_adult}`
-                                )}
-                            </p>
-                            <p>
-                                Kids:
-                                {isEditing ? (
-                                    <Input
-                                        type="number"
-                                        value={van.pax_kids}
-                                        onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
-                                        className="p-0 text-lg outline-none px-2 font-semibold"
-                                    />
-                                ) : (
-                                    ` ${van.pax_kids}`
-                                )}
-                            </p>
-                        </div>
+
                         <div>
                             {van.availabilities && (
                                 <div className="mt-2 text-xs text-gray-600">
@@ -339,7 +404,7 @@ export default function VanSelection({
                                                                 const newAvailabilities = [...van.availabilities];
                                                                 newAvailabilities[i] = {
                                                                     ...newAvailabilities[i],
-                                                                    available_from: date.toISOString().slice(0, 10),
+                                                                    available_from: format(date, "yyyy-MM-dd"),
                                                                 };
                                                                 handleChange(van.id, 'availabilities', newAvailabilities);
                                                             }
@@ -357,7 +422,7 @@ export default function VanSelection({
                                                                 const newAvailabilities = [...van.availabilities];
                                                                 newAvailabilities[i] = {
                                                                     ...newAvailabilities[i],
-                                                                    available_until: date.toISOString().slice(0, 10),
+                                                                    available_until: format(date, "yyyy-MM-dd"),
                                                                 }
                                                                 handleChange(van.id, 'availabilities', newAvailabilities);
                                                             }
@@ -402,40 +467,16 @@ export default function VanSelection({
                     </div>
                 );
                 })
-            }
-
-            {editable && (
-                isEditing && (
-                    <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={handleAddVan}>
-                        <PlusSquareIcon className="w-24 h-24 text-gray-400" />
-                        <p className="text-sm text-gray-500">Add Van</p>
-                    </div>
-                )
-            )}
-
-            {editable && (
-                <>
-                    {isEditing && (
-                        <div>
-                            <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={handleSave}>
-                                <Check className="w-24 h-24 text-gray-400" />
-                                <p className="text-sm text-gray-500">Save</p>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={toggleIsEditing}>
-                        {isEditing ? (
-                            <X className="w-24 h-24 text-gray-400" />
-                        ) : (
-                            <PencilIcon className="w-24 h-24 text-gray-400" />
-                        )}
-                        <p className="text-sm text-gray-500">{isEditing ? "Cancel Editing" : "Edit Vans"}</p>
-                    </div>
-                    
-                </>
-            )}
+            } 
         </div>
+
+        {/* Show More */}
+        {visibleCount < filteredVans.length && (
+            <Button
+                onClick={() => setVisibleCount((prev) => prev + 6)}
+                className="btn-primary w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded cursor-pointer"
+            >Show More</Button>
+        )}
 
         {vanToDelete && (
             <div className="confirm-modal">
@@ -475,7 +516,7 @@ export default function VanSelection({
                 </Dialog>
                 </div>
             </div>
-            )}
+        )}
     </>
     
   )

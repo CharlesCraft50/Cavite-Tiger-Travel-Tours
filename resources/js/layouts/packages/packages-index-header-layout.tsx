@@ -1,7 +1,6 @@
 import PackagesIndexHeader from '@/components/packages-index-header';
-import { LoadingProvider } from '@/components/ui/loading-provider';
 import Navbar from '@/components/ui/navbar';
-import { type PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 
 type PackagesIndexHeaderLayoutProps = {
     id?: number;
@@ -18,12 +17,12 @@ export default function PackagesIndexHeaderLayout({
     editable,
 } : PropsWithChildren<PackagesIndexHeaderLayoutProps>) {
   return (
-    <LoadingProvider>
+    <>
       <Navbar />
       <PackagesIndexHeader id={id} src={src} title={title} editable={editable} />
       <div className="flex-1 m-8">
           {children}
       </div>
-    </LoadingProvider>
+    </>
   )
 }

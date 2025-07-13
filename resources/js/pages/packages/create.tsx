@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { City, PackageCategory, TourPackage, PreferredVan } from "@/types";
+import { City, PackageCategory, TourPackage, PreferredVan, OtherService } from "@/types";
 import { Head } from '@inertiajs/react';
 import PackageContentEditor from "@/components/package-content-editor";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -16,6 +16,9 @@ import AddCategories from "@/components/add-categories";
 import OverviewContent, { stripHtmlTags } from "@/components/overview-content";
 import { OVERVIEW_COUNT } from "@/config/constants";
 import VanSelection from "@/components/van-selection";
+import OtherServiceSelection, { EditableOtherService } from "@/components/other-service-selection";
+import PriceSign from "@/components/price-sign";
+import { format } from "date-fns";
 
 export type PackageForm = {
     title: string;
@@ -29,6 +32,7 @@ export type PackageForm = {
     image_banner: string;
     available_from: Date | null;
     available_until: Date | null;
+    base_price: number;
 };
 
 type PackagesCreateProps = {
@@ -37,7 +41,9 @@ type PackagesCreateProps = {
     packages?: TourPackage,
     packageCategories?: PackageCategory[];
     preferredVans: PreferredVan[];
+    otherServices: OtherService[];
     vanIds: number[];
+    serviceIds: number[];
 };
 
 export default function Index({
@@ -46,7 +52,9 @@ export default function Index({
      packages,
      packageCategories,
      preferredVans,
+     otherServices,
      vanIds,
+     serviceIds,
     }: PackagesCreateProps ) {
 
     const [contentError, setContentError] = useState('');
@@ -69,7 +77,8 @@ export default function Index({
         image_overview: '',
         image_banner: '',
         available_from: null,
-        available_until: null
+        available_until: null,
+        base_price: 0,
 
     });
     
@@ -82,7 +91,9 @@ export default function Index({
     const [existingImageBanner, setExistingImageBanner] = useState<string>('');
     const [selectedVanIds, setSelectedVanIds] = useState<number[]>([]);
     const [vanList, setVanList] = useState<PreferredVan[]>(preferredVans);
-    
+    const [otherServiceList, setOtherServiceList] = useState<EditableOtherService[]>(otherServices);
+    const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>([]);
+
     const addPreferredVans = (vans: PreferredVan[]) => {
         setVanList(vans);
     }
@@ -97,6 +108,34 @@ export default function Index({
         });
     };
 
+    const addOtherServices = (otherServices: EditableOtherService[]) => {
+        setOtherServiceList(otherServices);
+    }
+
+    const toggleOtherServiceSelection = (otherServiceId: number) => {
+        setSelectedOtherServiceIds((prev) => {
+            if (prev.includes(otherServiceId)) {
+                // UNSELECT: Clear pivot fields for this service
+                setOtherServiceList((prevList) =>
+                    prevList.map((service) =>
+                        service.id === otherServiceId
+                            ? {
+                                ...service,
+                                package_specific_price: undefined,
+                                is_recommended: false,
+                                sort_order: undefined,
+                            }
+                            : service
+                    )
+                );
+
+                return prev.filter((id) => id !== otherServiceId);
+            } else {
+                return [...prev, otherServiceId];
+            }
+        });
+    };
+
     useEffect(() => {
         if(editMode && packages) {
             setData('title', packages.title);
@@ -106,6 +145,7 @@ export default function Index({
             setData('city_id', packages.city_id);
             setData('duration', packages.duration || '');
             setData('location', packages.location);
+            setData('base_price', packages.base_price);
             
             if(packages.available_from || packages.available_until) {
                 setActiveExpiry(true);
@@ -118,10 +158,11 @@ export default function Index({
             setCategories(packageCategories ?? []);
 
             setSelectedVanIds(vanIds);
+            setSelectedOtherServiceIds(serviceIds);
         }
     }, [editMode, packages]);
 
-    const addCategory = (newCategory: Omit<PackageCategory, 'id' | 'has_button' | 'button_text' | 'created_at' | 'updated_at'>) => {
+    const addCategory = (newCategory: Omit<PackageCategory, 'id' | 'has_button' | 'use_custom_price' | 'custom_price' | 'button_text' | 'created_at' | 'updated_at'>) => {
         setCategories(prev => {
             const newId = prev.length > 0 ? Math.max(...prev.map(c => c.id)) + 1 : 1;
             
@@ -129,9 +170,11 @@ export default function Index({
                 ...newCategory,
                 id: newId,
                 has_button: 0,
-                button_text: 'Book',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                use_custom_price: false,
+                custom_price: 0,
+                button_text: `Select Category ${newId}`,
+                created_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+                updated_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
             }];
         });
     }
@@ -148,6 +191,13 @@ export default function Index({
             )
 
         );
+    }
+
+    function formatDateForForm(value: Date | string): string {
+        if (value instanceof Date) {
+            return format(value, "yyyy-MM-dd");
+        }
+        return value;
     }
 
     const submit: FormEventHandler = (e) => {
@@ -188,7 +238,7 @@ export default function Index({
 
         Object.entries(data).forEach(([key, value]) => {
             if(value != null) {
-                formData.append(key, value instanceof Date ? value.toISOString() : value.toString());
+                formData.append(key, value instanceof Date ? formatDateForForm(value) : value.toString());
             }
         });
 
@@ -214,6 +264,18 @@ export default function Index({
         if(selectedVanIds.length > 0) {
             selectedVanIds.forEach((id, index) => {
                 formData.append(`preferred_van_ids[${index}]`, id.toString());
+            });
+        }
+
+        if (selectedOtherServiceIds.length > 0) {
+            selectedOtherServiceIds.forEach((id, index) => {
+                const service = otherServiceList.find(s => s.id === id);
+                if (service) {
+                    formData.append(`other_services[${index}][id]`, service.id.toString());
+                    formData.append(`other_services[${index}][package_specific_price]`, service.package_specific_price?.toString() ?? '0');
+                    formData.append(`other_services[${index}][is_recommended]`, service.is_recommended ? '1' : '0');
+                    formData.append(`other_services[${index}][sort_order]`, service.sort_order?.toString() ?? '0');
+                }
             });
         }
 
@@ -253,6 +315,14 @@ export default function Index({
             setSelectedVanIds(vanList.map((van) => van.id) || []);
         } else {
             setSelectedVanIds([]);
+        }
+    }
+
+    const handleSelectAllServices = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedOtherServiceIds(otherServiceList.map((service) => service.id) || []);
+        } else {
+            setSelectedOtherServiceIds([]);
         }
     }
 
@@ -406,11 +476,24 @@ export default function Index({
                     )}
                 </div>
 
+                <div className="grid gap-2">
+                    <Label htmlFor="base_price" required>Base Price</Label>
+                    <div className="flex flex-row items-center">
+                        <PriceSign />
+                        <Input
+                            type="number"
+                            id="base_price"
+                            value={data.base_price}
+                            onChange={(e) => setData('base_price', Number(e.target.value))}
+                            className="w-full border rounded"
+                        />
+                    </div>
+                </div>
+
                 <hr />
 
                 <div className="grid gap-2 mb-12">
                     <VanSelection
-                        parentId={packages?.id}
                         preferredVans={vanList}
                         selectedVanIds={selectedVanIds}
                         onSelect={toggleVanSelection}
@@ -423,18 +506,43 @@ export default function Index({
                 </div>
 
                 <hr />
+                <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-12">
+                    <div className="text-center mb-8">
+                        <h2 className="text-2xl font-bold text-gray-800">
+                        More About This Package
+                        </h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                        You can add detailed sections such as inclusions, itineraries, options, and more for <span className="font-medium">{data.title}</span>.
+                        </p>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <AddCategories 
+                            categories={categories} 
+                            onAddCategory={addCategory} 
+                            onRemoveCategory={removeCategory} 
+                            onUpdateCategory={updateCategory}
+                            packageTitle={data.title}
+                            editable
+                        />
+
+                        <InputError message={categoriesContentError} className="mt-2" />
+                    </div>
+                </div>
+
+                <hr />
 
                 <div className="grid gap-2">
-                    <AddCategories 
-                        categories={categories} 
-                        onAddCategory={addCategory} 
-                        onRemoveCategory={removeCategory} 
-                        onUpdateCategory={updateCategory}
+                    <OtherServiceSelection
+                        otherServices={otherServiceList}
+                        selectedOtherServiceIds={selectedOtherServiceIds}
+                        onSelect={toggleOtherServiceSelection}
+                        textLabel="Select services users can add"
+                        onChange={handleSelectAllServices}
+                        onSave={(newServices) => addOtherServices(newServices)}
                         editable
                     />
                 </div>
-
-                <InputError message={categoriesContentError} className="mt-2" />
 
                 <Button type="submit" className="mt-2 w-full btn-primary cursor-pointer text-md" tabIndex={5} disabled={processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}

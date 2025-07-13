@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\TourPackage;
+use App\Models\PreferredVan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
 use App\Services\VanAvailabilityService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -31,7 +33,8 @@ class BookingController extends Controller
             'categories' => function ($query) {
                 $query->where('has_button', true);
             },
-            'preferredVans' // ✅ Load only the selected preferred vans
+            'preferredVans', // ✅ Load only the selected preferred vans
+            'otherServices',
         ]);
 
         // Find selected category by slug (from URL), fallback null if none
@@ -46,6 +49,7 @@ class BookingController extends Controller
             'categories' => $packages->categories,
             'selectedCategoryId' => $selectedCategoryId,
             'preferredVans' => $packages->preferredVans,
+            'otherServices' => $packages->otherServices,
         ]);
     }
 
@@ -81,12 +85,50 @@ class BookingController extends Controller
                 return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
         }
 
-        Booking::create($validated);
+        // Get package, category, van, other services
+        $package = TourPackage::with(['categories', 'otherServices'])->findOrFail($validated['tour_package_id']);
+        $van = PreferredVan::findOrFail($validated['preferred_van_id']);
 
-        return Inertia::render('success-page', [
-            'title' => 'Booking Confirmed!',
-            'description' => 'Thank you for booking. Please check your email for confirmation and details.',
+        // Start with base price
+        $totalAmount = $package->base_price;
+
+        // Add custom category price if applicable
+        if (!empty($validated['package_category_id'])) {
+            $category = $package->categories->firstWhere('id', $validated['package_category_id']);
+            if ($category && $category->use_custom_price && $category->custom_price !== null) {
+                $totalAmount += $category->custom_price;
+            }
+        }
+
+        $totalAmount += $van->additional_fee ?? 0;
+
+        if ($request->has('other_services')) {
+            foreach ($request->input('other_services') as $serviceId) {
+                $service = $package->otherServices->firstWhere('id', $serviceId);
+                if ($service) {
+                    $totalAmount += $service->pivot->package_specific_price ?? ($service->price ?? 0);
+                }
+            }
+        }
+
+        $user = Auth::user();
+        $userId = null;
+
+        if($user) {
+            $userId = $user->id;
+        }
+
+        $booking = Booking::create([
+            ...$validated,
+            'total_amount' => $totalAmount,
+            'user_id' => $userId,
         ]);
+        
+        if ($request->has('other_services')) {
+            $booking->otherServices()->sync($request->input('other_services'));
+        }
+
+        return to_route('booking.payment', ['booking_id' => $booking->id]);
     }
 
     /**

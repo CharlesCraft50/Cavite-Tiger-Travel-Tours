@@ -17,6 +17,8 @@ class PackageCategory extends Model
         'content',
         'button_text',
         'has_button',
+        'use_custom_price',
+        'custom_price',
         'slug',
     ];
 

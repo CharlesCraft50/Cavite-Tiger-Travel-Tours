@@ -19,8 +19,9 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
 
     const start = () => setIsLoading(true);
     const stop = () => setIsLoading(false);
-
+    
     return (
+        
         <LoadingContext.Provider value={{ isLoading, start, stop }}>
             {children}
             {isLoading && (

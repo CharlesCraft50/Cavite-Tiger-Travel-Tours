@@ -4,30 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Booking;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
 
-class DashboardController extends Controller
+class OtherServiceTourPackage extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $user = Auth::user();
-
-        $bookings = Booking::with(['tourPackage', 'preferredVan'])
-                        ->where('user_id', $user->id)
-                        ->orderByDesc('created_at')
-                        ->get();
-        
-        $bookingCount = $bookings->count();
-
-        return Inertia::render('dashboard', [
-            'bookingCount' => $bookingCount,
-            'userBookings' => $bookings,
-        ]);
+        //
     }
 
     /**
@@ -68,6 +53,7 @@ class DashboardController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        
     }
 
     /**

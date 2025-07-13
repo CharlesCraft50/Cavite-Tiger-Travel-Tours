@@ -9,11 +9,13 @@ use App\Models\TourPackage;
 use App\Models\PackageCategory;
 use App\Models\City;
 use App\Models\PreferredVan;
+use App\Models\OtherService;
 use App\Models\Country;
 use App\Http\Requests\StorePackageRequest;
 use App\Http\Requests\UpdatePackageRequest;
 use Illuminate\Support\Facades\DB;
 use App\Traits\StoresImages;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PackageController extends Controller
 {
@@ -23,21 +25,29 @@ class PackageController extends Controller
     
     use StoresImages;
     
-    public function index()
+    public function index(Request $request)
     {
         $selectedCountryName = "Philippines";
-
-        // Get the country by name (or use where('id', ...) if you use IDs)
         $selectedCountry = Country::where('name', $selectedCountryName)->first();
-
-        // Default to empty if country not found
         $cities = $selectedCountry ? $selectedCountry->cities : collect();
 
+        $query = TourPackage::query();
+
+        if ($request->has('city_id')) {
+            $query->where('city_id', $request->city_id);
+        }
+
+        if ($request->boolean('no_paginate')) {
+            $packages = $query->get(); // return ALL
+        } else {
+            $packages = $query->paginate(2);
+        }
+
         return Inertia::render('packages/index', [
-            'packages' => TourPackage::all(),
+            'packages' => $packages,
             'cities' => $cities,
             'countries' => Country::all(),
-            'selectedCountry' => $selectedCountry, // optional: pass to show in frontend
+            'selectedCountry' => $selectedCountry,
         ]);
     }
 
@@ -45,10 +55,12 @@ class PackageController extends Controller
 
         $cities = City::all();
         $preferredVans = PreferredVan::with('availabilities')->get();
+        $otherServices = OtherService::all();
         
         return (Inertia::render('packages/create', [
             'cities' => $cities,
             'preferredVans' => $preferredVans,
+            'otherServices' => $otherServices,
             'editMode' => false,
         ]));
     }
@@ -77,6 +89,20 @@ class PackageController extends Controller
                 $package->preferredVans()->sync($request->input('preferred_van_ids'));
             }
 
+            if ($request->has('other_services')) {
+                $pivotData = [];
+
+                foreach ($request->input('other_services') as $item) {
+                    $pivotData[$item['id']] = [
+                        'package_specific_price' => $item['package_specific_price'],
+                        'is_recommended' => $item['is_recommended'] ?? false,
+                        'sort_order' => $item['sort_order'] ?? 0,
+                    ];
+                }
+
+                $package->otherServices()->attach($pivotData);
+            }
+
             // Categories now come as an array, not a JSON string
             if ($request->has('categories')) {
                 $categories = $request->input('categories'); // This is now an array
@@ -88,6 +114,8 @@ class PackageController extends Controller
                         'content' => $category['content'] ?? '',
                         'has_button' => $category['has_button'] ?? 0,
                         'button_text' => $category['button_text'] ?? 'Book Now',
+                        'use_custom_price' => $category['use_custom_price'] ?? 0,
+                        'custom_price' => $category['custom_price'] ?? 0,
                     ]);
                 }
             }
@@ -114,10 +142,20 @@ class PackageController extends Controller
     {
         //
         $package = TourPackage::where('slug', $slug)->firstOrFail();
+       
+        $package->load([
+            'categories', 
+            'preferredVans.availabilities', 
+            'otherServices' => function ($query) {
+                $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
+            }
+        ]);
         
         return (inertia::render('packages/show', [
             'packages' => $package,
-            'categories' => $package->categories
+            'categories' => $package->categories,
+            'preferredVans' => $package->preferredVans,
+            'otherServices' => $package->otherServices,
         ]));
     }
 
@@ -142,20 +180,38 @@ class PackageController extends Controller
      */
     public function edit(string $id)
     {
-        //
         $cities = City::all();
         $preferredVans = PreferredVan::with('availabilities')->get();
-                
+
         $package = TourPackage::findOrFail($id);
-        return (Inertia::render('packages/create', [
+
+        $allServices = OtherService::all();
+        $selectedServices = $package->otherServices()->withPivot(['package_specific_price', 'is_recommended', 'sort_order'])->get();
+
+        $otherServices = $allServices->map(function ($service) use ($selectedServices) {
+            $pivot = $selectedServices->firstWhere('id', $service->id)?->pivot;
+
+            return [
+                'id' => $service->id,
+                'name' => $service->name,
+                'description' => $service->description,
+                'image_url' => $service->image_url,
+                'package_specific_price' => $pivot->package_specific_price ?? null,
+                'is_recommended' => $pivot->is_recommended ?? false,
+                'sort_order' => $pivot->sort_order ?? 0,
+            ];
+        });
+
+        return Inertia::render('packages/create', [
             'cities' => $cities,
             'editMode' => true,
             'packages' => $package,
             'packageCategories' => $package->categories,
             'preferredVans' => $preferredVans,
             'vanIds' => $package->preferredVans->pluck('id'),
-        ]));
-        
+            'otherServices' => $otherServices,
+            'serviceIds' => $package->otherServices->pluck('id'),
+        ]);
     }
 
     /**
@@ -187,6 +243,20 @@ class PackageController extends Controller
                 $package->preferredVans()->sync($request->input('preferred_van_ids'));
             }
 
+            if ($request->has('other_services')) {
+                $pivotData = [];
+
+                foreach ($request->input('other_services') as $item) {
+                    $pivotData[$item['id']] = [
+                        'package_specific_price' => $item['package_specific_price'],
+                        'is_recommended' => $item['is_recommended'] ?? false,
+                        'sort_order' => $item['sort_order'] ?? 0,
+                    ];
+                }
+
+                $package->otherServices()->sync($pivotData);
+            }
+
             if ($request->has('categories')) {
                 $categories = $request->input('categories');
 
@@ -199,6 +269,8 @@ class PackageController extends Controller
                         'content' => $category['content'] ?? '',
                         'has_button' => $category['has_button'] ?? 0,
                         'button_text' => $category['button_text'] ?? 'Book Now',
+                        'use_custom_price' => $category['use_custom_price'] ?? 0,
+                        'custom_price' => $category['custom_price'] ?? 0,
                     ]);
                 }
             }

@@ -12,13 +12,14 @@ export interface TourPackage {
     city_id: number;
 
     duration?: string | null; // e.g. "3D2N"
-    price_per_head?: number | null;
     pax_kids?: number | null;
     pax_adult?: number | null;
     available_from?: string | null; // ISO date string, e.g. "2025-06-01"
     available_until?: string | null;
     image_overview?: string | null;
     image_banner?: string | null;
+
+    base_price: number;
 
     created_at: string;
     updated_at: string;

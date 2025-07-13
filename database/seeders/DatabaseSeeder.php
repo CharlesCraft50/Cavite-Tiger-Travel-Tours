@@ -11,6 +11,8 @@ use App\Models\PackageCategory;
 use App\Models\PreferredVan;
 use App\Models\PreferredVanAvailability;
 use App\Models\User;
+use App\Models\OtherService;
+use App\Models\OtherServiceTourPackage;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -44,7 +46,6 @@ class DatabaseSeeder extends Seeder
             'location' => 'Calaguas Island, Camarines Norte',
             'content' => 'Calaguas Island is known for its stunning beachscapes, untouched beauty, and peaceful vibes. Ideal for backpackers, couples, or family trips who want to unplug and enjoy nature.',
             'duration' => '4D3N',
-            'price_per_head' => 2999.00,
             'pax_kids' => 2,
             'pax_adult' => 4,
             'available_from' => now(),
@@ -52,6 +53,7 @@ class DatabaseSeeder extends Seeder
             'image_overview' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/Calaguas_Island.jpg',
             'image_banner' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/Calaguas_Island.jpg',
             'slug' => Str::slug('Calaguas Island Getaway'),
+            'base_price' => 2999.00,
         ]);
 
         PackageCategory::create([
@@ -67,15 +69,15 @@ class DatabaseSeeder extends Seeder
             'overview' => 'Relax in Tagaytay with scenic views, cool weather, and local culinary delights.',
             'subtitle' => 'Tagaytay City Day Tour',
             'location' => 'Tagaytay City',
-            'content' => 'Perfect for couples and families. Includes visit to People’s Park, Sky Ranch, Picnic Grove, and dinner with Taal Volcano view.',
+            'content' => 'Perfect for couples and families. Includes visit to People\'s Park, Sky Ranch, Picnic Grove, and dinner with Taal Volcano view.',
             'duration' => '2D1N',
-            'price_per_head' => 1800.00,
             'pax_kids' => 1,
             'pax_adult' => 3,
             'available_from' => now(),
             'available_until' => now()->addMonths(2),
             'image_banner' => 'tagaytay.jpg',
             'slug' => Str::slug('Chill and Dine Tagaytay'),
+            'base_price' => 1800.00,
         ]);
 
         PackageCategory::create([
@@ -169,5 +171,326 @@ class DatabaseSeeder extends Seeder
             'available_until' => now()->addMonths(2),
             'count' => 2,
         ]);
+
+        // Create Other Services
+        $travelInsurance = OtherService::create([
+            'name' => 'Travel Insurance',
+            'image_url' => '/images/travel-insurance.jpg',
+            'price' => 500.00,
+            'description' => 'Comprehensive travel insurance coverage including medical emergencies, trip cancellation, and lost luggage protection.',
+        ]);
+
+        $airportTransfer = OtherService::create([
+            'name' => 'Airport Transfer',
+            'image_url' => '/images/airport-transfer.jpg',
+            'price' => 1500.00,
+            'description' => 'Convenient door-to-door transportation service between your accommodation and the airport with professional drivers.',
+        ]);
+
+        $extraLuggage = OtherService::create([
+            'name' => 'Extra Luggage',
+            'image_url' => '/images/extra-luggage.jpg',
+            'price' => 200.00,
+            'description' => 'Additional baggage allowance for your flight, perfect for bringing back souvenirs or carrying extra gear.',
+        ]);
+
+        $photography = OtherService::create([
+            'name' => 'Professional Photography',
+            'image_url' => '/images/photography.jpg',
+            'price' => 2500.00,
+            'description' => 'Capture your precious travel memories with a professional photographer who knows the best spots and lighting.',
+        ]);
+
+        $droneVideo = OtherService::create([
+            'name' => 'Drone Video Package',
+            'description' => 'Stunning aerial footage and photography of your destination using professional drone equipment and editing.',
+            'image_url' => '/images/drone-video.jpg',
+            'price' => 3500.00,
+        ]);
+
+        $scubaGear = OtherService::create([
+            'name' => 'Scuba Diving Gear Rental',
+            'description' => 'Complete scuba diving equipment rental including wetsuit, BCD, regulator, and mask for underwater adventures.',
+            'image_url' => '/images/scuba-gear.jpg',
+            'price' => 1200.00,
+        ]);
+
+        $snorkelGear = OtherService::create([
+            'name' => 'Snorkeling Equipment',
+            'description' => 'High-quality snorkeling gear including mask, snorkel, fins, and optional wetsuit for exploring marine life.',
+            'image_url' => '/images/snorkel-gear.jpg',
+            'price' => 300.00,
+        ]);
+
+        $hikingBoots = OtherService::create([
+            'name' => 'Hiking Boots Rental',
+            'description' => 'Durable, comfortable hiking boots in various sizes for trekking and outdoor adventures on any terrain.',
+            'image_url' => '/images/hiking-boots.jpg',
+            'price' => 400.00,
+        ]);
+
+        $campingGear = OtherService::create([
+            'name' => 'Camping Equipment',
+            'description' => 'Complete camping setup including tent, sleeping bags, camping chairs, and essential outdoor cooking equipment.',
+            'image_url' => '/images/camping-gear.jpg',
+            'price' => 800.00,
+        ]);
+
+        $privateTourGuide = OtherService::create([
+            'name' => 'Private Tour Guide',
+            'description' => 'Experienced local guide for personalized tours, cultural insights, and access to hidden gems and local experiences.',
+            'image_url' => '/images/tour-guide.jpg',
+            'price' => 2000.00,
+        ]);
+
+        $massage = OtherService::create([
+            'name' => 'Massage Therapy',
+            'description' => 'Relaxing therapeutic massage sessions to unwind after long days of travel and sightseeing activities.',
+            'image_url' => '/images/massage.jpg',
+            'price' => 1500.00,
+        ]);
+
+        $wifiDevice = OtherService::create([
+            'name' => 'Wi-Fi Hotspot Device',
+            'description' => 'Portable internet device providing reliable Wi-Fi connection for multiple devices throughout your trip.',
+            'image_url' => '/images/wifi-device.jpg',
+            'price' => 250.00,
+        ]);
+
+        $powerBank = OtherService::create([
+            'name' => 'Power Bank Rental',
+            'description' => 'High-capacity portable charger to keep your devices powered during long days of exploration and travel.',
+            'image_url' => '/images/power-bank.jpg',
+            'price' => 150.00,
+        ]);
+
+        $laundryService = OtherService::create([
+            'name' => 'Laundry Service',
+            'description' => 'Professional laundry and dry cleaning service to keep your clothes fresh during extended travel periods.',
+            'image_url' => '/images/laundry.jpg',
+            'price' => 300.00,
+        ]);
+
+        // Create Package Other Services - Calaguas Island (Beach/Island Package)
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $travelInsurance->id,
+            'package_specific_price' => null,
+            'is_recommended' => true,
+            'sort_order' => 1,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $airportTransfer->id,
+            'package_specific_price' => null,
+            'is_recommended' => true,
+            'sort_order' => 2,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $photography->id,
+            'package_specific_price' => null,
+            'is_recommended' => true,
+            'sort_order' => 3,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $droneVideo->id,
+            'package_specific_price' => 3000.00, // Discounted for beach shots
+            'is_recommended' => true,
+            'sort_order' => 4,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $snorkelGear->id,
+            'package_specific_price' => null,
+            'is_recommended' => true,
+            'sort_order' => 5,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $scubaGear->id,
+            'package_specific_price' => 1000.00, // Discounted for package
+            'is_recommended' => false,
+            'sort_order' => 6,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $campingGear->id,
+            'package_specific_price' => 600.00, // Discounted for camping
+            'is_recommended' => false,
+            'sort_order' => 7,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $privateTourGuide->id,
+            'package_specific_price' => 1800.00, // Discounted guide
+            'is_recommended' => false,
+            'sort_order' => 8,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $wifiDevice->id,
+            'package_specific_price' => null,
+            'is_recommended' => false,
+            'sort_order' => 9,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $calaguas->id,
+            'other_service_id' => $powerBank->id,
+            'package_specific_price' => null,
+            'is_recommended' => false,
+            'sort_order' => 10,
+        ]);
+
+        // Create Package Other Services - Tagaytay (City/Mountain Package)
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $travelInsurance->id,
+            'package_specific_price' => null,
+            'is_recommended' => true,
+            'sort_order' => 1,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $airportTransfer->id,
+            'package_specific_price' => null,
+            'is_recommended' => true,
+            'sort_order' => 2,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $photography->id,
+            'package_specific_price' => null,
+            'is_recommended' => true,
+            'sort_order' => 3,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $massage->id,
+            'package_specific_price' => 1200.00, // Spa package discount
+            'is_recommended' => true,
+            'sort_order' => 4,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $hikingBoots->id,
+            'package_specific_price' => null,
+            'is_recommended' => false,
+            'sort_order' => 5,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $privateTourGuide->id,
+            'package_specific_price' => null,
+            'is_recommended' => false,
+            'sort_order' => 6,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $laundryService->id,
+            'package_specific_price' => null,
+            'is_recommended' => false,
+            'sort_order' => 7,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $wifiDevice->id,
+            'package_specific_price' => null,
+            'is_recommended' => false,
+            'sort_order' => 8,
+        ]);
+
+        OtherServiceTourPackage::create([
+            'tour_package_id' => $tagaytayTour->id,
+            'other_service_id' => $powerBank->id,
+            'package_specific_price' => null,
+            'is_recommended' => false,
+            'sort_order' => 9,
+        ]);
+        
+        $cities = City::all();
+        $vanIds = PreferredVan::pluck('id')->toArray();
+        $services = OtherService::all();
+
+        foreach ($cities as $city) {
+            for ($i = 1; $i <= 2; $i++) { // add 2 more packages per city
+                $title = $city->name . " Explorer Tour $i";
+                $package = TourPackage::create([
+                    'title' => $title,
+                    'city_id' => $city->id,
+                    'overview' => "Experience the beauty and culture of {$city->name} like never before.",
+                    'subtitle' => "Immersive Adventure $i",
+                    'location' => $city->name,
+                    'content' => "Join our specially crafted {$city->name} Explorer Tour #$i, where you'll uncover hidden gems, enjoy local delicacies, and create unforgettable memories.",
+                    'duration' => '3D2N',
+                    'pax_kids' => 2,
+                    'pax_adult' => 4,
+                    'available_from' => now(),
+                    'available_until' => now()->addMonths(3),
+                    'image_banner' => 'default-banner.jpg',
+                    'slug' => Str::slug($title),
+                    'base_price' => 2500 + ($i * 200),
+                ]);
+
+                PackageCategory::create([
+                    'tour_package_id' => $package->id,
+                    'name' => "Standard Package $i",
+                    'content' => "₱{$package->base_price} per head. Inclusions: Accommodation, local tour, meals, and guide.",
+                ]);
+
+                // Attach random vans
+                $randomVanIds = collect($vanIds)->random(min(2, count($vanIds)))->toArray();
+                $package->preferredVans()->attach($randomVanIds);
+
+                // Attach other services
+                $recommendedServices = $services->random(min(6, $services->count()));
+                $this->createOtherServiceTourPackages($package, $recommendedServices);
+            }
+        }
+
+    }
+
+    private function createOtherServiceTourPackages($package, $services)
+    {
+        $sortOrder = 1;
+        foreach ($services as $service) {
+            $isRecommended = $sortOrder <= 4;
+            $packageSpecificPrice = null;
+
+            if ($service->name === 'Drone Video Package' && str_contains($package->title, 'Island')) {
+                $packageSpecificPrice = 3000.00;
+            } elseif ($service->name === 'Scuba Diving Gear Rental' && str_contains($package->title, 'Beach')) {
+                $packageSpecificPrice = 1000.00;
+            } elseif ($service->name === 'Massage Therapy' && str_contains($package->title, 'Chill')) {
+                $packageSpecificPrice = 1200.00;
+            }
+
+            OtherServiceTourPackage::create([
+                'tour_package_id' => $package->id,
+                'other_service_id' => $service->id,
+                'package_specific_price' => $packageSpecificPrice,
+                'is_recommended' => $isRecommended,
+                'sort_order' => $sortOrder,
+            ]);
+
+            $sortOrder++;
+        }
     }
 }

@@ -65,7 +65,7 @@ class PreferredVanController extends Controller
         foreach ($validated['vans'] as $index => $vanData) {
             $fileKey = "vans.$index.image_url";
 
-            if($request->hasFile($fileKey)) {
+            if ($request->hasFile($fileKey)) {
                 $validated['vans'][$index]['image_url'] = asset('storage/' . $this->storeGetImage($request, $fileKey, 'vans'));
             }
         }

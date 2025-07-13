@@ -42,7 +42,7 @@ export default function navbar() {
                     </div>
 
                     {/* Book Now Button */}
-                    {!user && (
+                    {!user ? (
                         <div className="hidden md:flex flex-row gap-3">
                             <div className="md:flex">
                                 <LinkLoading
@@ -59,6 +59,17 @@ export default function navbar() {
                                     className="btn-primary"
                                 >
                                     Login
+                                </LinkLoading>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="hidden md:flex flex-row gap-3">
+                            <div className="md:flex">
+                                <LinkLoading
+                                    href="/dashboard"
+                                    className="btn-primary"
+                                >
+                                    Dashboard
                                 </LinkLoading>
                             </div>
                         </div>

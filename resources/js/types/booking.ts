@@ -1,6 +1,9 @@
+import { TourPackage } from "./tour-package";
+
 export interface Booking {
     id: number;
     tour_package_id: number;
+    user_id?: number;
 
     // Customer Details
     first_name: string;
@@ -13,7 +16,6 @@ export interface Booking {
     return_date: string; // ISO date string, e.g., "2025-06-01"
     pax_adults: number;
     pax_kids: number;
-    travel_insurance: boolean;
     notes?: string | null;
 
     // Payment Method
@@ -23,6 +25,9 @@ export interface Booking {
 
     // Admin Status
     status: 'pending' | 'accepted' | 'declined';
+    
+    tour_package?: TourPackage;
+    total_amount: number;
 
     created_at: string;
     updated_at: string;

@@ -3,7 +3,6 @@ import Navbar from '@/components/ui/navbar';
 import PackagHeaderLayout from './packages/package-header-layout';
 import { TourPackage } from '@/types';
 import BackButton from '@/components/ui/back-button';
-import { LoadingProvider } from '@/components/ui/loading-provider';
 
 interface PackageShowLayoutProps {
     id?: number;
@@ -15,7 +14,7 @@ interface PackageShowLayoutProps {
 export default function PackageShowLayout({ id, children, packages, editable, ...props }: PackageShowLayoutProps) {
 
     return (
-        <LoadingProvider>
+        <>
             <Navbar />
             <BackButton 
                 href="/packages"
@@ -30,6 +29,6 @@ export default function PackageShowLayout({ id, children, packages, editable, ..
                 {children}
             </PackagHeaderLayout>
 
-        </LoadingProvider>
+        </>
     );
 }

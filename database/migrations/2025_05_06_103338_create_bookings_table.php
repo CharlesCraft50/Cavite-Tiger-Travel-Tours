@@ -13,6 +13,7 @@ return new class extends Migration
 
             $table->foreignId('tour_package_id')->constrained()->onDelete('cascade');
             $table->foreignId('package_category_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
 
             // Customer Details
             $table->string('first_name');
@@ -25,11 +26,10 @@ return new class extends Migration
             $table->date('return_date');
             $table->integer('pax_adult');
             $table->integer('pax_kids');
-            $table->boolean('travel_insurance')->default(true);
             $table->text('notes')->nullable();
             $table->foreignId('preferred_van_id')->nullable()->constrained('preferred_vans')->onDelete('set null');
-            $table->enum('payment_method', ['gcash', 'paypal', 'bank_deposit']);
             $table->boolean('is_confirmed')->default(false);
+            $table->decimal('total_amount')->nullable();
             
 
             // Admin Status

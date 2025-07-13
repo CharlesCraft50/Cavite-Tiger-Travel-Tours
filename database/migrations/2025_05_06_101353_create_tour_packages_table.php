@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('duration')->nullable(); // e.g. 3D2N
             $table->string('overview')->nullable();
             $table->longText('content')->nullable();
-            $table->decimal('price_per_head', 10, 2)->nullable();
             $table->integer('pax_kids')->nullable();
             $table->integer('pax_adult')->nullable();
             $table->date('available_from')->nullable();
@@ -26,6 +25,7 @@ return new class extends Migration
             $table->string('image_overview')->nullable(); // path to image_overview in /storage
             $table->string('image_banner')->nullable(); // path to image_banner in /storage
             $table->string('slug', 100)->unique();
+            $table->decimal('base_price', 10, 2)->default(0);
 
             $table->timestamps();
         });

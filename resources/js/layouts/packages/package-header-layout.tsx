@@ -79,6 +79,7 @@ export default function PackagHeaderLayout({
       {!isEditing && (
         <PackageHeader
           title={packages.title}
+          base_price={packages.base_price}
           imageBanner={packages.image_banner as string}
           created_at={packages.created_at}
           updated_at={packages.updated_at}

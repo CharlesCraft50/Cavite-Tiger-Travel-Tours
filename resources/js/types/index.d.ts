@@ -9,6 +9,9 @@ export * from './preferred-van';
 export * from './package-preferred-van';
 export * from './preferred-van-availability';
 export * from './other-service';
+export * from './other-service-tour-package';
+export * from './paginated';
+export * from './booking-payment';
 
 export interface Auth {
     user: User;

@@ -8,6 +8,8 @@ use App\Models\TourPackage;
 use App\Models\PackageCategory;
 use App\Models\OtherService;
 use App\Models\PreferredVan;
+use App\Models\User;
+use App\Models\BookingPayment;
 
 class Booking extends Model
 {
@@ -16,6 +18,7 @@ class Booking extends Model
     protected $fillable = [
         'tour_package_id',
         'package_category_id',
+        'user_id',
         'preferred_van_id',
         'first_name',
         'last_name',
@@ -25,14 +28,13 @@ class Booking extends Model
         'return_date',
         'pax_adult',
         'pax_kids',
-        'travel_insurance',
         'notes',
         'payment_method',
         'is_confirmed',
         'status',
+        'total_amount',
     ];
 
-    // Define the relationship to the TourPackage model
     public function tourPackage()
     {
         return $this->belongsTo(TourPackage::class);
@@ -51,5 +53,13 @@ class Booking extends Model
     public function otherServices()
     {
         return $this->belongsToMany(OtherService::class, 'booking_service');
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    public function payment() {
+        return $this->hasOne(BookingPayment::class);
     }
 }

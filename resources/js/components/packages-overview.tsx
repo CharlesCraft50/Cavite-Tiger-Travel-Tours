@@ -1,14 +1,16 @@
 import { TourPackage } from '@/types';
 import React from 'react';
 import OverviewContent from './overview-content';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PencilIcon } from 'lucide-react';
 import clsx from 'clsx';
+import { Link, router } from '@inertiajs/react';
 
 type PackagesOverviewContent = {
   currentPackages: TourPackage[];
   totalPages: number;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  isAdmin?: boolean;
 };
 
 export default function PackagesOverview({
@@ -16,13 +18,25 @@ export default function PackagesOverview({
   totalPages,
   currentPage,
   setCurrentPage,
+  isAdmin,
 }: PackagesOverviewContent) {
   return (
     <div className="flex flex-col h-full">
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto grid gap-4">
         {currentPackages.map((p) => (
-          <OverviewContent key={p.id} packageData={p} />
+          <div key={p.id} className="relative">
+            <OverviewContent packageData={p} />
+
+            {isAdmin && (
+              <Link 
+                className="btn-primary cursor-pointer absolute top-2 right-2"
+                href={`/packages/${p.id}/edit`}
+              >
+                <PencilIcon className="w-4 h-4 text-white" />
+              </Link>
+            )}
+          </div>
         ))}
       </div>
 

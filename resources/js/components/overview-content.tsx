@@ -6,6 +6,8 @@ import { TourPackage } from '@/types'
 import { useEffect } from 'react'
 import { OVERVIEW_COUNT } from '@/config/constants'
 import LinkLoading from './link-loading'
+import { PencilIcon } from 'lucide-react'
+import { Link } from '@inertiajs/react'
 
 type SetDataFunction<T> = (key: keyof T, value: T[keyof T]) => void;
 
@@ -25,7 +27,16 @@ export function stripHtmlTags(html?: string): string {
   return html.replace(/<[^>]*>/g, '').trim();
 }
 
-export default function OverviewContent({ data, setData, packageData, setImageOverview, existingImageOverview, automaticShortDescription, setAutomaticShortDescription, editable }: OverviewContentProps) {
+export default function OverviewContent({ 
+    data, 
+    setData, 
+    packageData, 
+    setImageOverview, 
+    existingImageOverview, 
+    automaticShortDescription, 
+    setAutomaticShortDescription, 
+    editable,
+ }: OverviewContentProps) {
   
     useEffect(() => {
         if(automaticShortDescription && data?.content) {

@@ -3,10 +3,13 @@ import dayjs from "dayjs";
 import { FilePlus } from "lucide-react";
 import LinkLoading from "./link-loading";
 import { PropsWithChildren } from "react";
+import PriceSign from "./price-sign";
+import { format } from "date-fns";
 
 type PackageBannerProps = {
     title?: string;
     imageBanner?: string;
+    base_price?: number;
     size?: Array<string>;
     handleImageUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     created_at?: string;
@@ -19,10 +22,11 @@ type PackageBannerProps = {
 export default function PackageHeader({
     title,
     imageBanner,
+    base_price,
     size = ["h-64", "md:h-96"],
     handleImageUpload,
-    created_at = (new Date()).toISOString(),
-    updated_at = (new Date()).toISOString(),
+    created_at = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+    updated_at = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
     slug,
     textSize = 'small',
     editable = false,
@@ -56,7 +60,7 @@ export default function PackageHeader({
                         )}
                     >
                         <p className="text-sm md:text-base text-white mb-1 uppercase">
-                        {title ? title : imageBanner && <>Title Placeholder</>}
+                            {title ? title : imageBanner && <>Title Placeholder</>}
                         </p>
                         <h1
                         className={clsx(
@@ -82,18 +86,26 @@ export default function PackageHeader({
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
-            <h1 className="text-4xl font-bold">{title ? title : (<>Title Placeholder</>)}</h1>
+            <div>
+                <h1 className="text-4xl font-bold">
+                    {title ? title : (<>Title Placeholder</>)}
+                </h1>
+
+                {base_price && (
+                    <p className="text-xl text-green-700 font-semibold mt-1">
+                        <PriceSign />
+                        {Number(base_price).toLocaleString()} <span className="text-sm text-gray-500">/ package</span>
+                    </p>
+                )}
+            </div>
 
             <LinkLoading
-                href={slug ? route("booking.create", {
-                    slug: slug
-                }): undefined}
+                href={slug ? route("booking.create", { slug: slug }) : undefined}
                 useUI={false}
                 className="btn-primary"
             >
                 Book Now
             </LinkLoading>
-                
         </div>
 
         <p className="text-sm text-gray-500">

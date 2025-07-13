@@ -199,19 +199,27 @@
     }
     
     .card {
-        @apply relative cursor-pointer border rounded-xl p-4 transition-all duration-200 bg-white hover:bg-gray-50;
+        @apply relative cursor-pointer border rounded-xl p-4 shadow transition-all duration-200 bg-white hover:bg-gray-50;
+    }
+
+    .card.recommended {
+        @apply ring-2 ring-orange-400 bg-blue-50;
     }
 
     .card.selected {
         @apply ring-2 ring-blue-500 bg-blue-50;
-    }
+    } 
 
     .selected-text {
         @apply absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full;
     }
 
+    .recommended-text {
+        @apply absolute top-2 left-2 bg-orange-400 text-white text-xs px-2 py-1 rounded-full;
+    }
+
     .card img.img-card {
-        @apply w-full h-40 object-cover rounded-md;
+        @apply w-full h-32 object-cover rounded mb-2;
     }
 
     .confirm-modal {

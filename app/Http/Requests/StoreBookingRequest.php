@@ -30,6 +30,7 @@ class StoreBookingRequest extends FormRequest
             'tour_package_id' => ['required', 'exists:tour_packages,id'],
             'package_category_id' => ['nullable', 'integer', 'exists:package_categories,id'],
             'preferred_van_id' => ['required', 'integer', 'exists:preferred_vans,id'],
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'contact_number' => ['required', 'string'],
@@ -48,8 +49,9 @@ class StoreBookingRequest extends FormRequest
                 'min:0',
                 'max:' . ($this->van_pax_kids_max ?? 1000),
             ],
-            'travel_insurance' => ['required', 'boolean'],
             'comments' => ['nullable', 'string'],
+            'other_services' => 'array',
+            'other_services.*' => 'exists:other_services,id',
         ];
     }
 }

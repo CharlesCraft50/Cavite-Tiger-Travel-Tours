@@ -19,6 +19,9 @@ return new class extends Migration
             $table->boolean('has_button')->default(true);
             $table->string('button_text')->default('Book Now');
             $table->string('slug', 100)->unique();
+
+            $table->boolean('use_custom_price')->default(false);
+            $table->decimal('custom_price', 10, 2)->nullable();
             
             $table->timestamps();
         });

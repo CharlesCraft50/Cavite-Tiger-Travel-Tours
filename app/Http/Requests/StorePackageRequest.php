@@ -33,6 +33,7 @@ class StorePackageRequest extends FormRequest
             'available_until' => ['nullable', 'date', 'required_if:activeExpiry,true', 'after_or_equal:available_from'],
             'image_overview' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'image_banner' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:4096'],
+            'base_price' => ['required', 'integer'],
 
             // ✅ Validate categories as array
             'categories' => ['nullable', 'array'],
@@ -44,6 +45,10 @@ class StorePackageRequest extends FormRequest
             // ✅ Validate preferred_van as array
             'preferred_van_ids' => ['nullable', 'array'],
             'preferred_van_ids.*' => ['integer', 'exists:preferred_vans,id'],
+
+            // ✅ Validate other_service_ids as array
+            'other_service_ids' => ['nullable', 'array'],
+            'other_service_ids.*' => ['integer', 'exists:other_service_ids,id'],
         ];
 
     }

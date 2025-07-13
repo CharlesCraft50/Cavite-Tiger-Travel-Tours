@@ -4,6 +4,7 @@ import { Button as UIButton } from './ui/button'; // your custom button
 import clsx from 'clsx';
 import { Link } from '@inertiajs/react';
 import { Button as HeadlessButton } from '@headlessui/react'; // headless button you're using
+import { useLoading } from './ui/loading-provider';
 
 type LinkLoadingProps = PropsWithChildren<{
   onClick?: () => Promise<void> | void;
@@ -23,12 +24,14 @@ export default function LinkLoading({
   onClick,
   loadingVisible = true,
 }: LinkLoadingProps) {
-  const [loading, setLoading] = useState(false);
+  const {start, stop} = useLoading();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const ButtonToRender = useUI ? UIButton : HeadlessButton;
 
   const handleClick = () => {
     if(href) {
+      start();
       setLoading(true);
     }
     
@@ -50,12 +53,6 @@ export default function LinkLoading({
         </Link>
       ) : (
         <ButtonToRender {...commonProps}>{children}</ButtonToRender>
-      )}
-
-      {loading && loadingVisible && (
-        <div className="fixed z-[9999] inset-0 bg-black/40 flex items-center justify-center">
-          <Loader2Icon className="w-18 h-18 animate-spin text-primary" />
-        </div>
       )}
     </>
   );

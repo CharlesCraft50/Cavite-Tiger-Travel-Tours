@@ -1,6 +1,6 @@
 import CategoryTab from '@/components/ui/category-tab';
 import { PackageCategory } from '@/types'
-import { Textarea } from '@headlessui/react';
+import { Input, Label, Textarea } from '@headlessui/react';
 import { Button } from '@/components/ui/button';
 import { Plus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -10,6 +10,7 @@ import DOMPurify from 'dompurify';
 import { isEffectivelyEmptyHtml } from './package-content-editor';
 import clsx from 'clsx';
 import LinkLoading from './link-loading';
+import PriceSign from './price-sign';
 
 type AddCategoriesProps = {
     categories: PackageCategory[];
@@ -19,6 +20,7 @@ type AddCategoriesProps = {
     editable?: boolean;
     slug?: string;
     selectedCategory?: PackageCategory;
+    packageTitle?: string;
 }
 
 export default function AddCategories({ 
@@ -28,7 +30,8 @@ export default function AddCategories({
     onUpdateCategory, 
     editable = false,
     slug,
-    selectedCategory
+    selectedCategory,
+    packageTitle,
 }: AddCategoriesProps ) {
 
     const initialTab = categories.findIndex(cat => cat.slug === selectedCategory?.slug);
@@ -54,10 +57,10 @@ export default function AddCategories({
     const handleAdd = () => {
         onAddCategory?.({
             tour_package_id: nextCategoryIndex,
-            name: 'New Category ' + nextCategoryIndex,
+            name: 'Category ' + nextCategoryIndex,
             content: '',
             has_button: 1,
-            button_text: ''
+            button_text: `Select Category ${nextCategoryIndex}`,
         });
         setNextCategoryIndex(prev => prev + 1);
     }
@@ -196,15 +199,103 @@ export default function AddCategories({
                                             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(categories[activeTab]?.content) }}
                                             onClick={editable ? openModal : undefined}
                                         />
+
+                                        <p className="mt-4 text-xl font-semibold text-green-700">
+                                            <PriceSign />
+                                            {Number(categories[activeTab].custom_price).toLocaleString()} 
+                                            <span className="text-sm text-gray-500 ml-1">/ category</span>
+                                        </p>
                                     </div>
 
-                                    
+                                    <div className="mt-4">
+                                        {categories[activeTab]?.use_custom_price ? (
+                                            <>
+                                                {editable && (
+                                                    <div className="flex flex-row justify-between items-center">
+                                                        <p className="mt-2 font-semibold text-sm">Custom Price</p>
+                                                        <X 
+                                                            className="w-5 h-5 text-black border rounded cursor-pointer"
+                                                            onClick={() => 
+                                                                onUpdateCategory?.(
+                                                                    categories[activeTab]?.id,
+                                                                    'use_custom_price',
+                                                                    false
+                                                                )
+                                                            }
+                                                        />
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-row items-center mt-2">
+                                                    {editable && (
+                                                        <>
+                                                            <PriceSign />
+                                                            <Input
+                                                                type="number"
+                                                                value={categories[activeTab].custom_price ?? 0}
+                                                                onChange={(e) => onUpdateCategory?.(
+                                                                    categories[activeTab]?.id,
+                                                                    'custom_price',
+                                                                    e.target.value
+                                                                )}
+                                                                className="border text-lg p-2 w-full rounded"
+                                                            />
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            editable ? (
+                                                <div className="gray-card">
+                                                    <label>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={!!categories[activeTab]?.use_custom_price}
+                                                            onChange={(e) => {
+                                                                    const checked = e.target.checked;
+
+                                                                    onUpdateCategory?.(
+                                                                        categories[activeTab]?.id,
+                                                                        'use_custom_price',
+                                                                        checked ? 1 : 0
+                                                                    );
+
+                                                                    if (checked) {
+                                                                        onUpdateCategory?.(categories[activeTab]?.id, 'custom_price', 0);
+                                                                        onUpdateCategory?.(categories[activeTab]?.id, 'has_button', 1);
+                                                                    }
+                                                                }
+                                                            }
+                                                            className="w-4 h-4 cursor-pointer"
+                                                        />
+                                                        <div>
+                                                            <span className="text-sm font-medium text-gray-700">
+                                                                Set a custom price for this category
+                                                            </span>
+                                                            <p className="text-xs text-gray-500">
+                                                                Enable this if you want this category to have a different price than the main package.
+                                                            </p>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            ) : (
+                                                <p className="mt-4 text-lg text-gray-700">
+                                                    Follows base package price
+                                                </p>
+                                            )
+                                            
+                                        )}
+                                    </div>
                                 
-                                    <div className="mt-auto">
+                                    <div className="mt-4">
+                                        {packageTitle && (
+                                            <p className="text-sm text-gray-500 text-center mt-1">
+                                                Variation of "{packageTitle}"
+                                            </p>
+                                        )}
                                         {categories[activeTab]?.has_button ? (
                                             <div className="relative w-full sm:w-auto">
                                                 {editable ? (
-                                                    <Button type="button" className="mt-2 w-full btn-primary cursor-pointer">
+                                                    <Button type="button" className="mt-2 w-full border border-[#fb2056] bg-white text-[#fb2056] hover:bg-[#fb2056] hover:text-white transition font-semibold uppercase py-2 rounded cursor-pointer">
                                                         <input 
                                                             type="text" 
                                                             value={categories[activeTab]?.button_text} 
@@ -226,7 +317,7 @@ export default function AddCategories({
                                                                 slug: slug ?? '',
                                                                 categorySlug: categories[activeTab]?.slug
                                                             })}
-                                                            className="mt-2 w-full btn-primary cursor-pointer"
+                                                            className="mt-2 w-full border border-[#fb2056] bg-white text-[#fb2056] hover:bg-[#fb2056] hover:text-white transition font-semibold uppercase py-2 rounded cursor-pointer"
                                                         >
                                                             {categories[activeTab]?.button_text}
                                                         </LinkLoading>
@@ -247,32 +338,31 @@ export default function AddCategories({
                                                 )}
                                             </div>
                                         ) : (
-                                            <>
-                                                {editable && (
-                                                    <div className="gray-card">
-                                                        <label>
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={!!categories[activeTab]?.has_button}
-                                                                onChange={(e) => onUpdateCategory?.(
-                                                                categories[activeTab]?.id,
-                                                                'has_button',
-                                                                e.target.checked ? 1 : 0
-                                                                )}
-                                                                className="w-4 h-4 cursor-pointer"
-                                                            />
-                                                            <div>
-                                                                <span className="text-sm font-medium text-gray-700">
-                                                                    Show "Book Now" button
-                                                                </span>
-                                                                <p className="text-xs text-gray-500">
-                                                                    When enabled, visitors can book this package category directly. Text can be changed.
-                                                                </p>
-                                                            </div>
-                                                        </label>
-                                                    </div>
-                                                )}
-                                            </>
+
+                                            editable && (
+                                                <div className="gray-card">
+                                                    <label>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={!!categories[activeTab]?.has_button}
+                                                            onChange={(e) => onUpdateCategory?.(
+                                                            categories[activeTab]?.id,
+                                                            'has_button',
+                                                            e.target.checked ? 1 : 0
+                                                            )}
+                                                            className="w-4 h-4 cursor-pointer"
+                                                        />
+                                                        <div>
+                                                            <span className="text-sm font-medium text-gray-700">
+                                                                Show a button
+                                                            </span>
+                                                            <p className="text-xs text-gray-500">
+                                                                When enabled, visitors can book this package category directly. Text can be changed.
+                                                            </p>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            )
                                         )}
                                     </div>
                                 </>
