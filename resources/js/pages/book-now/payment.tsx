@@ -5,16 +5,19 @@ import FormLayout from "@/layouts/form-layout";
 import PageLayout from "@/layouts/page-layout";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle } from "lucide-react";
-import { FormEventHandler, useState } from "react";
-import { SharedData } from "@/types";
+import { FormEventHandler, useEffect, useState } from "react";
+import { BookingPayment, SharedData } from "@/types";
 import InputError from "@/components/input-error";
+import clsx from "clsx";
 
 type PaymentProps = {
     booking_id: number;
+    booking_payment?: BookingPayment;
 }
 
 export default function Payment({ 
     booking_id,
+    booking_payment,
 } : PaymentProps) {
     const { data, setData, post, processing, errors } = useForm<{
         payment_method: string,
@@ -25,6 +28,11 @@ export default function Payment({
         reference_number: '',
         payment_proof: null,
     });
+
+    useEffect(() => {
+        setData('payment_method', booking_payment?.payment_method ?? '');
+        setData('reference_number', booking_payment?.reference_number ?? '');
+    }, [booking_payment]);
 
     const [imagePreview, setImagePreview] = useState('');
     const [paymentProofError, setPaymentProofError] = useState('');
@@ -52,11 +60,12 @@ export default function Payment({
         setPaymentProofError('');
 
         const formData = new FormData();
+        formData.append('booking_id', booking_id.toString());
         formData.append('payment_method', 'gcash');
         formData.append('reference_number', data.reference_number);
         formData.append('payment_proof', data.payment_proof);
         
-        router.post('payment/create', formData, {
+        router.post(route('booking.payment.store'), formData, {
             preserveScroll: true,
             onSuccess: () => {
             },
@@ -67,36 +76,70 @@ export default function Payment({
     }
 
   return (
-    <FormLayout title="Booking Pending" description="To confirm your booking, please pay using GCash and provide the reference number and a screenshot of your payment.">
+    <FormLayout
+        title={booking_payment?.status === 'declined' ? '❌ Payment Declined – Resubmit Required' : 'Booking Pending'}
+        description="To confirm your booking, please pay using GCash and provide the reference number and a screenshot of your payment."
+    >
         <Head title="Payment" />
         <form onSubmit={submit} className="flex flex-col gap-6">
-            <div className="rounded-lg bg-yellow-50 border border-yellow-300 p-4 text-sm text-yellow-900 space-y-2">
-                <p className="font-semibold text-base">✅ Booking Created! Payment Needed to Confirm</p>
-                <p>
-                    Your booking has been successfully created, but it's <strong>not confirmed yet</strong>.
-                </p>
-                <ul className="list-disc list-inside">
-                    <li>Pay via <strong>GCash</strong></li>
-                    <li>Submit your <strong>reference number</strong> and <strong>proof of payment</strong></li>
-                </ul>
-                <p>
-                    You can do this now or come back later — just don’t forget!
-                </p>
-                <p>
-                    Or visit this link again anytime:{" "}
-                    <a
-                        href={`/book-now/payment/${booking_id}`}
-                        className="text-blue-700 hover:underline"
-                    >
-                        {window.location.origin}/book-now/payment/{booking_id}
-                    </a>
-                </p>
-                {auth.user && (
-                    <p className="text-green-800">
-                        🔎 You can also check and complete your payment anytime from your <strong>dashboard</strong>.
-                    </p>
+            <div className={clsx(
+                "rounded-lg border p-4 text-sm space-y-2",
+                booking_payment?.status === 'declined'
+                    ? "bg-red-50 border-red-300 text-red-800"
+                    : "bg-yellow-50 border-yellow-300 text-yellow-900"
+            )}>
+                {booking_payment?.status === 'declined' ? (
+                    <>
+                        <p className="font-semibold text-base">❌ Payment Declined</p>
+                        <p>
+                            Your previous payment was <strong>declined</strong>. Please double-check your payment details and resubmit a valid proof of payment.
+                        </p>
+                        <ul className="list-disc list-inside">
+                            <li>Ensure your <strong>reference number</strong> is correct</li>
+                            <li>Upload a <strong>clear screenshot</strong> of the transaction</li>
+                        </ul>
+                        <p>
+                            You can resubmit now or return later using this link:
+                            <br />
+                            <a
+                                href={`/book-now/payment/${booking_id}`}
+                                className="text-blue-700 hover:underline"
+                            >
+                                {window.location.origin}/book-now/payment/{booking_id}
+                            </a>
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <p className="font-semibold text-base">✅ Booking Created! Payment Needed to Confirm</p>
+                        <p>
+                            Your booking has been successfully created, but it's <strong>not confirmed yet</strong>.
+                        </p>
+                        <ul className="list-disc list-inside">
+                            <li>Pay via <strong>GCash</strong></li>
+                            <li>Submit your <strong>reference number</strong> and <strong>proof of payment</strong></li>
+                        </ul>
+                        <p>
+                            You can do this now or come back later — just don’t forget!
+                        </p>
+                        <p>
+                            Or visit this link again anytime:{" "}
+                            <a
+                                href={`/book-now/payment/${booking_id}`}
+                                className="text-blue-700 hover:underline"
+                            >
+                                {window.location.origin}/book-now/payment/{booking_id}
+                            </a>
+                        </p>
+                        {auth.user && (
+                            <p className="text-green-800">
+                                🔎 You can also check and complete your payment anytime from your <strong>dashboard</strong>.
+                            </p>
+                        )}
+                    </>
                 )}
             </div>
+
             <div className="grid gap-2">
                 <Label htmlFor="payment_method" required>Payment Method</Label>
                 <select

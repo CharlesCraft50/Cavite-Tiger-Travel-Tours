@@ -1,3 +1,6 @@
+import { OtherService } from "./other-service";
+import { PackageCategory } from "./package-category";
+
 export interface TourPackage {
     id: number;
 
@@ -20,6 +23,8 @@ export interface TourPackage {
     image_banner?: string | null;
 
     base_price: number;
+    other_services: OtherService[];
+    package_categories: PackageCategory[];
 
     created_at: string;
     updated_at: string;

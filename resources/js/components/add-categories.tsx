@@ -1,6 +1,6 @@
 import CategoryTab from '@/components/ui/category-tab';
 import { PackageCategory } from '@/types'
-import { Input, Label, Textarea } from '@headlessui/react';
+import { Input, Textarea } from '@headlessui/react';
 import { Button } from '@/components/ui/button';
 import { Plus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';

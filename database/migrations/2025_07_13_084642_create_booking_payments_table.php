@@ -17,7 +17,7 @@ return new class extends Migration
             $table->enum('payment_method', ['gcash', 'paypal', 'bank_deposit']);
             $table->string('reference_number');
             $table->string('payment_proof_path');
-            $table->enum('status', ['pending', 'accepted', 'declined']);
+            $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');
 
             $table->timestamps();
         });

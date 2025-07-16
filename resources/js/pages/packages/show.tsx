@@ -13,7 +13,6 @@ import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
 import "@/components/tiptap-templates/simple/simple-editor.scss"
 import AddCategories from '@/components/add-categories';
 import LinkLoading from '@/components/link-loading';
-import PriceSign from '@/components/price-sign';
 import OtherServiceSelection from '@/components/other-service-selection';
 import VanSelection from '@/components/van-selection';
 

@@ -52,5 +52,6 @@ export interface User {
     is_admin: boolean;
     created_at: string;
     updated_at: string;
+    bookings_count: number;
     [key: string]: unknown; // This allows for additional properties...
 }

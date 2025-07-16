@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\BookNowController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BookingPaymentController;
 use App\Http\Controllers\DashboardController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\PreferredVanController;
 use App\Http\Controllers\OtherServiceController;
 use App\Http\Controllers\Api\VanApiController;
+use App\Http\Controllers\Admin\UserController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -25,15 +27,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::resource('bookings', BookingController::class);
+    Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 });
 
 Route::post('/image/upload', [ImageController::class, 'store'])->name('image.store');
 Route::get('/image/{id}', [ImageController::class, 'show'])->name('image.show');
 
 
-Route::get('/book-now/{slug}', [BookingController::class, 'create'])->name('booking.create');
-Route::get('/book-now/{slug}/category/{categorySlug?}', [BookingController::class, 'create'])->name('booking.create.category');
-Route::post('/book-now/booked', [BookingController::class, 'store'])->name('booking.store');
+Route::get('/book-now/{slug}', [BookNowController::class, 'create'])->name('booking.create');
+Route::get('/book-now/{slug}/category/{categorySlug?}', [BookNowController::class, 'create'])->name('booking.create.category');
+Route::post('/book-now/booked', [BookNowController::class, 'store'])->name('booking.store');
 Route::get('/book-now/payment/{booking_id}', [BookingPaymentController::class, 'index'])->name('booking.payment');
 Route::post('/book-now/payment/create', [BookingPaymentController::class, 'store'])->name('booking.payment.store');
 Route::get('/api/van/{vanId}/availability', [VanApiController::class, 'availability']);
@@ -55,11 +60,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('countries', CountryController::class);
     Route::put('/preferredvan/update', [PreferredVanController::class, 'update'])->name('preferredvan.update');
     Route::put('/otherservice/update', [OtherServiceController::class, 'update'])->name('otherservice.update');
+    Route::get('/analytics', [BookingController::class, 'analytics'])->name('bookings.analytics');
+    Route::resource('users', UserController::class);
 });
 
 Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');
-
-
 
 
 require __DIR__.'/settings.php';

@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use App\Traits\StoresImages;
 use App\Models\Booking;
 use App\Models\BookingPayment;
+use Illuminate\Support\Facades\Auth;
 
 class BookingPaymentController extends Controller
 {
@@ -18,11 +19,49 @@ class BookingPaymentController extends Controller
      */
     public function index(string $booking_id)
     {
-        $booking = Booking::findOrFail($booking_id);
+        $user = Auth::user();
+        $booking = Booking::with('payment')
+                            ->findOrFail($booking_id);
+
+        // Prevent duplicate payment
+        $existingPayment = BookingPayment::where('booking_id', $booking_id)->first();
+        $isDeclined = null;
+        if ($existingPayment && !($existingPayment->status === 'declined')) {
+            $isDeclined = $existingPayment->status === 'declined';
+            return Inertia::render('error-page', [
+                'title' => 'Payment Already Submitted',
+                'description' => 'This booking already has a payment on file. If you believe this is an error, please contact support.',
+                'redirectUrl' => route('bookings.show', $booking_id),
+            ]);
+        }
+
+        if($booking->user_id) {
+            if($user) {
+                if($user->id !== $booking->user_id) {
+                    abort(404);
+                }
+            } else {
+                abort(404);
+            }
+        }
+
+        if($booking->status == 'past_due') {
+            abort(404);
+        }
         
+        if($booking->payment) {
+            if($booking->payment->status == "pending") {
+                return Inertia::render('success-page', [
+                    'title' => '✅ Payment Submitted',
+                    'description' => 'We’ve received your payment and it’s now being reviewed. You’ll get a confirmation soon. Thank you!',
+                    'redirectUrl' => route('bookings.show', $booking->id),
+                ]);
+            }
+        }
 
         return Inertia::render('book-now/payment', [
             'booking_id' => $booking->id,
+            'booking_payment' => $isDeclined ? $booking->payment : null,
         ]);
     }
 
@@ -39,21 +78,52 @@ class BookingPaymentController extends Controller
      */
     public function store(StoreBookingPaymentRequest $request)
     {
-        //
-
         $validated = $request->validated();
 
-        if($request->hasFile('payment_proof')) {
+        $existingPayment = BookingPayment::where('booking_id', $validated['booking_id'])->first();
+
+        // Store image if present
+        if ($request->hasFile('payment_proof')) {
             $validated['payment_proof_path'] = asset('storage/' . $this->storeGetImage($request, 'payment_proof', 'payment_proofs'));
         }
 
-        BookingPayment::create($validated);
+        // Handle declined resubmission
+        if ($existingPayment && $existingPayment->status === 'declined') {
+            $existingPayment->payment_method = $validated['payment_method'];
+            $existingPayment->reference_number = $validated['reference_number'];
+            if (isset($validated['payment_proof_path'])) {
+                $existingPayment->payment_proof_path = $validated['payment_proof_path'];
+            }
+            $existingPayment->status = 'pending'; // Force set back to pending
+            $existingPayment->save();
+
+            return Inertia::render('success-page', [
+                'title' => 'Payment Resubmitted!',
+                'description' => 'Your updated payment has been received. We will review and confirm your booking shortly.',
+                'redirectUrl' => route('bookings.show', $existingPayment->booking_id),
+            ]);
+        }
+
+        // Prevent duplicate submission
+        if ($existingPayment) {
+            return Inertia::render('error-page', [
+                'title' => 'Payment Already Submitted',
+                'description' => 'This booking already has a payment on file. If you believe this is an error, please contact support.',
+                'redirectUrl' => route('bookings.show', $validated['booking_id']),
+            ]);
+        }
+
+        // Create new payment
+        $bookingPayment = BookingPayment::create($validated + ['status' => 'pending']);
 
         return Inertia::render('success-page', [
             'title' => 'Payment Submitted!',
             'description' => 'Your payment has been received. We will review and confirm your booking shortly.',
+            'redirectUrl' => route('bookings.show', $bookingPayment->booking_id),
         ]);
     }
+
+
 
     /**
      * Display the specified resource.

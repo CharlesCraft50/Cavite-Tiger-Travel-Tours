@@ -7,11 +7,14 @@ use App\Models\TourPackage;
 use App\Models\PreferredVan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
+use App\Models\OtherService;
 use App\Services\VanAvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UpdateBookingRequest;
+use App\Mail\BookingUpdated;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -21,36 +24,31 @@ class BookingController extends Controller
     public function index()
     {
         //
+        $user = Auth::user();
+
+        $bookings = null;
+
+        if($user->is_admin) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                        ->orderByDesc('created_at')
+                        ->get();
+        } else {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                        ->where('user_id', $user->id)
+                        ->orderByDesc('created_at')
+                        ->get();
+        }
+
+        return Inertia::render('dashboard/bookings/index', [
+            'userBookings' => $bookings,
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request, $slug, $categorySlug = null) {
-        $packages = TourPackage::where('slug', $slug)->firstOrFail();
-
-        $packages->load([
-            'categories' => function ($query) {
-                $query->where('has_button', true);
-            },
-            'preferredVans', // ✅ Load only the selected preferred vans
-            'otherServices',
-        ]);
-
-        // Find selected category by slug (from URL), fallback null if none
-        $selectedCategoryId = null;
-        if ($categorySlug) {
-            $category = $packages->categories->firstWhere('slug', $categorySlug);
-            $selectedCategoryId = $category ? $category->id : null;
-        }
-
-        return Inertia::render('book-now/create', [
-            'packages' => $packages,
-            'categories' => $packages->categories,
-            'selectedCategoryId' => $selectedCategoryId,
-            'preferredVans' => $packages->preferredVans,
-            'otherServices' => $packages->otherServices,
-        ]);
+        
     }
 
     protected $availabilityService;
@@ -65,70 +63,7 @@ class BookingController extends Controller
      */
     public function store(StoreBookingRequest $request)
     {
-        $validated = $request->validated();
-
-        $availability = $this->availabilityService->getAvailableDateRanges($validated['preferred_van_id']);
-
-        if(empty($availability)) {
-            return back()->withErrors(['preferred_van_id' => 'Van availability not found.']);
-        }
-
-        $from = Carbon::parse($validated['departure_date']);
-        $until = Carbon::parse($validated['return_date']);
-
-        if($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
-            return back()->withErrors(['departure_date' => 'Selected dates are outside van\'s availability range.']);
-        }
-
-        if(in_array($from->toDateString(), $availability['fully_booked_dates']) || 
-            in_array($until->toDateString(), $availability['fully_booked_dates'])) {
-                return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
-        }
-
-        // Get package, category, van, other services
-        $package = TourPackage::with(['categories', 'otherServices'])->findOrFail($validated['tour_package_id']);
-        $van = PreferredVan::findOrFail($validated['preferred_van_id']);
-
-        // Start with base price
-        $totalAmount = $package->base_price;
-
-        // Add custom category price if applicable
-        if (!empty($validated['package_category_id'])) {
-            $category = $package->categories->firstWhere('id', $validated['package_category_id']);
-            if ($category && $category->use_custom_price && $category->custom_price !== null) {
-                $totalAmount += $category->custom_price;
-            }
-        }
-
-        $totalAmount += $van->additional_fee ?? 0;
-
-        if ($request->has('other_services')) {
-            foreach ($request->input('other_services') as $serviceId) {
-                $service = $package->otherServices->firstWhere('id', $serviceId);
-                if ($service) {
-                    $totalAmount += $service->pivot->package_specific_price ?? ($service->price ?? 0);
-                }
-            }
-        }
-
-        $user = Auth::user();
-        $userId = null;
-
-        if($user) {
-            $userId = $user->id;
-        }
-
-        $booking = Booking::create([
-            ...$validated,
-            'total_amount' => $totalAmount,
-            'user_id' => $userId,
-        ]);
         
-        if ($request->has('other_services')) {
-            $booking->otherServices()->sync($request->input('other_services'));
-        }
-
-        return to_route('booking.payment', ['booking_id' => $booking->id]);
     }
 
     /**
@@ -137,7 +72,30 @@ class BookingController extends Controller
     public function show(string $id)
     {
         //
-        
+        $user = Auth::user();
+
+        $otherServices = OtherService::all();
+
+        $booking = Booking::with(['tourPackage', 'preferredVan', 'otherServices', 'payment', 'packageCategory'])
+                        ->findOrFail($id);
+
+        $packages = TourPackage::findOrFail($booking->tour_package_id);
+        $vans = PreferredVan::all();
+        $packages->load([
+            'categories', 
+            'preferredVans.availabilities', 
+            'otherServices' => function ($query) {
+                $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
+            }
+        ]);
+
+        return Inertia::render('dashboard/bookings/show', [
+            'booking' => $booking,
+            'isAdmin' => $user->is_admin,
+            'otherServices' => $otherServices,
+            'packages' => $packages,
+            'vans' => $vans,
+        ]);
     }
 
     /**
@@ -151,9 +109,32 @@ class BookingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateBookingRequest $request, string $id)
     {
         //
+        $validated = $request->validated();
+
+        $booking = Booking::findOrFail($id);
+
+        if ($request->has('payment_status') && $booking->payment) {
+            $booking->payment->status = $request->input('payment_status');
+            $booking->payment->save();
+        }
+
+        if($request->has('other_services')) {
+            $booking->otherServices()->sync($request->input('other_services'));
+        }
+
+        $fieldsToUpdate = collect(['preferred_van_id', 'departure_date', 'return_date', 'status', 'notes', 'total_amount'])
+            ->filter(fn($field) => $request->filled($field))
+            ->mapWithKeys(fn($field) => [$field => $request->input($field)])
+            ->toArray();
+
+        $booking->update($fieldsToUpdate);
+
+        Mail::to($booking->email)->send(new BookingUpdated($booking));
+
+        return redirect()->back()->with('success', 'Booking updated and email sent.');
     }
 
     /**
@@ -162,5 +143,28 @@ class BookingController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function analytics()
+    {
+        return Inertia::render('dashboard/analytics/index', [
+            'bookings' => Booking::with('payment')->get()
+        ]);
+    }
+
+    public function cancel(string $id)
+    {
+        $booking = Booking::findOrFail($id);
+
+        // Optional: Only allow cancel if not already cancelled
+        if ($booking->status === 'cancelled') {
+            return redirect()->back()->with('info', 'Booking is already cancelled.');
+        }
+
+        $booking->update([
+            'status' => 'cancelled',
+        ]);
+
+        return redirect()->back()->with('success', 'Booking has been cancelled.');
     }
 }

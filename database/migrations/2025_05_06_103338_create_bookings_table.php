@@ -23,17 +23,19 @@ return new class extends Migration
 
             // Booking Details
             $table->date('departure_date');
+            $table->time('departure_time')->nullable();
             $table->date('return_date');
             $table->integer('pax_adult');
             $table->integer('pax_kids');
             $table->text('notes')->nullable();
             $table->foreignId('preferred_van_id')->nullable()->constrained('preferred_vans')->onDelete('set null');
             $table->boolean('is_confirmed')->default(false);
+            $table->string('booking_number')->unique();
             $table->decimal('total_amount')->nullable();
             
 
             // Admin Status
-            $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');
+            $table->enum('status', ['pending', 'accepted', 'declined', 'past_due', 'cancelled'])->default('pending');
 
             $table->timestamps();
         });

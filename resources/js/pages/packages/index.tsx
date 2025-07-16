@@ -35,10 +35,6 @@ export default function Index({
 
     const [allPackages, setAllPackages] = useState<TourPackage[]>([]);
 
-    type CustomPageProps = {
-    packages: TourPackage[];
-    };
-
     const handleCityClick = (cityId: number) => {
         start();
         setActiveCityId(cityId);
@@ -70,7 +66,7 @@ export default function Index({
     return (
         <PackagesIndexHeaderLayout id={selectedCountry.id} src={selectedCountry.image_url} editable={!!isAdmin}>
             <div className="flex flex-wrap gap-4 p-4">
-                {isAdmin && (
+                {!!isAdmin && (
                     <Link
                         href={route('packages.create')} 
                         className="flex-col gap-2 relative w-76 h-84 bg-gray-200 border-gray-600 shadow-lg rounded-xl overflow-hidden flex items-center justify-center text-center cursor-pointer transition-shadow duration-300"

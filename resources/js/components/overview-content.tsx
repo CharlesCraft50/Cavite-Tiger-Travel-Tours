@@ -72,7 +72,13 @@ export default function OverviewContent({
                         
                     ) : (
                         <>
-                            <span className="text-base font-medium">{packageData?.title}</span>
+                            <Link
+                                href={!editable ? route('packages.show', {
+                                    slug: packageData?.slug
+                                }) : ""}
+                            >
+                                <span className="text-base font-medium">{packageData?.title}</span>
+                            </Link>
                             <span className="text-sm text-gray-600">{packageData?.subtitle}</span>
                         </>
                         

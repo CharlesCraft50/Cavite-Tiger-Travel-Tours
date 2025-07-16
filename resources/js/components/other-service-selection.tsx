@@ -13,6 +13,7 @@ import ImageSimpleBox from "./ui/image-simple-box";
 import PriceSign from "./price-sign";
 import { Textarea } from "@headlessui/react";
 import { format } from "date-fns";
+import { formatPrice } from "@/lib/utils";
 
 type OtherServiceSelectionProps = {
     otherServices: OtherService[];
@@ -377,9 +378,9 @@ export default function OtherServiceSelection({
                                             <div className="flex items-center gap-2">
                                                 <span className="mt-1 text-sm font-medium text-blue-700">
                                                     <PriceSign />
-                                                    {(service.package_specific_price ?? service.price) != null
-                                                        ? `${(service.pivot?.package_specific_price && service.pivot?.package_specific_price > 0 ? service.pivot?.package_specific_price : service.price).toLocaleString()}`
-                                                        : '0'}
+                                                    {formatPrice(service.pivot?.package_specific_price && service.pivot?.package_specific_price > 0
+                                                        ? service.pivot.package_specific_price
+                                                        : service.price)}
                                                 </span>
                                                 {service.pivot?.package_specific_price && (
                                                     <span className="text-center text-xs text-blue-600 bg-blue-100 px-0.5 py-1 rounded-full">

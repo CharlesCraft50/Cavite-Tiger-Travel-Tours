@@ -1,6 +1,6 @@
 import { router, useForm } from "@inertiajs/react";
 import { FormEventHandler, useEffect, useState } from "react";
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, X } from 'lucide-react';
 import FormLayout from "@/layouts/form-layout";
 import { Label } from "@/components/ui/label";
 import InputError from '@/components/input-error';
@@ -19,6 +19,7 @@ import VanSelection from "@/components/van-selection";
 import OtherServiceSelection, { EditableOtherService } from "@/components/other-service-selection";
 import PriceSign from "@/components/price-sign";
 import { format } from "date-fns";
+import CityList from "@/components/city-list";
 
 export type PackageForm = {
     title: string;
@@ -93,6 +94,8 @@ export default function Index({
     const [vanList, setVanList] = useState<PreferredVan[]>(preferredVans);
     const [otherServiceList, setOtherServiceList] = useState<EditableOtherService[]>(otherServices);
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>([]);
+    const [showNewCityInput, setShowNewCityInput] = useState(false);
+    const [newCityName, setNewCityName] = useState('');
 
     const addPreferredVans = (vans: PreferredVan[]) => {
         setVanList(vans);
@@ -326,6 +329,34 @@ export default function Index({
         }
     }
 
+    const handleAddCity = () => {
+
+        router.post(route('cities.store'), {
+            name: newCityName.toString(),
+        }, {
+            preserveScroll: true,
+            preserveState: true,
+            onFinish: () => {
+                setShowNewCityInput(false);
+            },
+        });
+    }
+
+    const handleDeletionCity = (cityId: number) => {
+        if (!cityId) return;
+
+        router.delete(route('cities.destroy', cityId), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Optional: reset city selection or show a toast
+                console.log('City deleted successfully');
+            },
+            onError: (errors) => {
+                console.error('Failed to delete city', errors);
+            }
+        });
+    };
+
     return (
         <FormLayout title="Create a Package" description="Enter the package details below to create a new package">
             <Head title="Create a Package" />
@@ -402,27 +433,18 @@ export default function Index({
 
                 <div className="grid gap-2">
                     <Label htmlFor="cities" required>City</Label>
-                    <select
-                        id="cities"
-                        name="cities"
-                        value={data.city_id}
-                        onChange={(e) => {
-                            const selectedCityId = Number(e.target.value);
-                            const selectedCity = cities.find(city => city.id === selectedCityId);
-                            setData('city_id', Number(selectedCityId));
-                            setData('location', selectedCity?.name ?? '');
-                        }}
-                        disabled={processing}
-                        className="border rounded p-2 dark:bg-gray-950 text-black dark:text-white"
-                        required
-                    >
-                        <option value="">Choose a City</option>
-                        {cities.map((city: City) => (
-                            <option value={city.id} key={city.id} data-name={city.name}>{city.name}</option>
-                        ))
-
-                        }
-                    </select>
+                    <CityList 
+                        cities={cities}
+                        data={data}
+                        setData={setData}
+                        showNewCityInput={showNewCityInput}
+                        setShowNewCityInput={setShowNewCityInput}
+                        newCityName={newCityName}
+                        setNewCityName={setNewCityName}
+                        handleAddCity={handleAddCity}
+                        processing={processing}
+                        handleDeletionCity={handleDeletionCity}
+                    />
                 </div>
 
                 <div className="grid gap-2">

@@ -8,6 +8,7 @@ use App\Models\Booking;
 class BookingPayment extends Model
 {
     protected $fillable = [
+        'booking_id',
         'payment_method',
         'reference_number',
         'payment_proof_path',

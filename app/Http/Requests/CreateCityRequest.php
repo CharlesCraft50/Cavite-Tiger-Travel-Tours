@@ -4,13 +4,13 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBookingPaymentRequest extends FormRequest
+class CreateCityRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
-{
+    {
         return true;
     }
 
@@ -22,12 +22,18 @@ class StoreBookingPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'booking_id' => ['nullable', 'integer', 'exists:bookings,id'],
-            'payment_method' => ['required', 'string'],
-            'reference_number' => ['required', 'string'],
-            'payment_proof' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'status' => ['nullable', 'in:pending,accepted,declined'],
+            'name' => ['required', 'string', 'max:255', 'unique:cities,name'],
+            'overview' => ['sometimes', 'string'],
+            'image_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'country_id' => ['sometimes', 'exists:countries,id'],
         ];
 
+    }
+
+    public function messages()
+    {
+        return [
+            'name.unique' => 'This city name already exists.',
+        ];
     }
 }

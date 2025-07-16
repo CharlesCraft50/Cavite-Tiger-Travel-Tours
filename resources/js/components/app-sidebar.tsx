@@ -1,24 +1,20 @@
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BarChart2, BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BarChart2, Book, BookOpen, Folder, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Analytics',
-        href: '/analytics',
-        icon: BarChart2,
-    },
-];
+import type { SharedData } from '@/types'; // adjust path if needed
 
 const footerNavItems: NavItem[] = [
     {
@@ -33,7 +29,39 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string }) {
+    const { url, props } = usePage<SharedData>();
+    const { auth } = props;
+    const isBookingView = /^\/bookings\/\d+$/.test(url);
+    const isAdmin = auth.user.is_admin;
+
+    const mainNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Bookings',
+        href: '/bookings',
+        icon: Book,
+    },
+    ...(isAdmin
+            ? [
+                {
+                    title: 'Analytics',
+                    href: '/analytics',
+                    icon: BarChart2,
+                },
+                {
+                    title: 'Users',
+                    href: '/users',
+                    icon: Folder,
+                },
+            ]
+            : []),
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -54,6 +82,11 @@ export function AppSidebar() {
 
             <SidebarFooter>
                 <NavFooter items={footerNavItems} className="mt-auto" />
+                {isBookingView && bookingPackageName && (
+                    <div className="text-sm text-gray-500 px-4 py-2 border-t border-gray-200">
+                        Package: <span className="text-gray-900 font-medium">{bookingPackageName}</span>
+                    </div>
+                )}
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

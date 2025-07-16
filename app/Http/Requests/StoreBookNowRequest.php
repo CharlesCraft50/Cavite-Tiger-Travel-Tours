@@ -5,7 +5,7 @@ use App\Models\PreferredVan;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBookingRequest extends FormRequest
+class StoreBookNowRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -49,7 +49,7 @@ class StoreBookingRequest extends FormRequest
                 'min:0',
                 'max:' . ($this->van_pax_kids_max ?? 1000),
             ],
-            'comments' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
             'other_services' => 'array',
             'other_services.*' => 'exists:other_services,id',
         ];

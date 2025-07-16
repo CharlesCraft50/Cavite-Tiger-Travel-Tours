@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\City;
+use App\Http\Requests\CreateCityRequest;
 use App\Http\Requests\UpdateCityRequest;
 use App\Traits\StoresImages;
 
@@ -31,9 +32,16 @@ class CityController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreateCityRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $validated['country_id'] = 1;
+        $validated['overview'] = '';
+
+        City::create($validated);
+
+        return back(303)->with('success', 'City added successfully!');
     }
 
     /**
@@ -76,6 +84,9 @@ class CityController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $city = City::findOrFail($id);
+        $city->delete();
+
+        return back()->with('success', 'City deleted successfully.');
     }
 }

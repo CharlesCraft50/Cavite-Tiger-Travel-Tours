@@ -10,6 +10,7 @@ use App\Models\OtherService;
 use App\Models\PreferredVan;
 use App\Models\User;
 use App\Models\BookingPayment;
+use Illuminate\Support\Str;
 
 class Booking extends Model
 {
@@ -34,6 +35,18 @@ class Booking extends Model
         'status',
         'total_amount',
     ];
+
+    
+    protected static function booted()
+    {
+        static::creating(function ($booking) {
+            do {
+                $bookingNumber = strtoupper(Str::random(6));
+            } while (Booking::where('booking_number', $bookingNumber)->exists());
+
+            $booking->booking_number = $bookingNumber;
+        });
+    }
 
     public function tourPackage()
     {

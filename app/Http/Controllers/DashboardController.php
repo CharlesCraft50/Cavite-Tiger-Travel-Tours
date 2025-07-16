@@ -17,10 +17,18 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $bookings = Booking::with(['tourPackage', 'preferredVan'])
+        $bookings = null;
+
+        if($user->is_admin) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                        ->orderByDesc('created_at')
+                        ->get();
+        } else {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
                         ->where('user_id', $user->id)
                         ->orderByDesc('created_at')
                         ->get();
+        }
         
         $bookingCount = $bookings->count();
 
