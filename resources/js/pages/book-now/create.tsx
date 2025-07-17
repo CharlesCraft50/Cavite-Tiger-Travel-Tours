@@ -1,9 +1,9 @@
 import FormLayout from "@/layouts/form-layout";
-import { OtherService, PackageCategory, PreferredVan, TourPackage } from "@/types";
+import { OtherService, PackageCategory, PreferredVan, SharedData, TourPackage } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import { FormEventHandler, useEffect, useState } from "react";
 import InputError from "@/components/input-error";
@@ -97,9 +97,22 @@ export default function Create({
         }
     }, [data.preferred_van_id]);
 
+    const { auth } = usePage<SharedData>().props;
+    const user = auth.user;
     const [selectedVanIds, setSelectedVanIds] = useState<number[]>([]);
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>([]);
     const [totalAmount, setTotalAmount] = useState<number>();
+    const [reminderSignUp, setReminderSignUp] = useState(false);
+
+    useEffect(() => {
+        if (!user) {
+            const alreadyReminded = sessionStorage.getItem('signUpReminderShown');
+            if (!alreadyReminded) {
+            setReminderSignUp(true);
+            sessionStorage.setItem('signUpReminderShown', 'true');
+            }
+        }
+    }, [user]);
 
     const toggleVanSelection = (vanId: number) => {
         if(selectedVanIds.includes(vanId)) {

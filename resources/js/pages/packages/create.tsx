@@ -20,6 +20,7 @@ import OtherServiceSelection, { EditableOtherService } from "@/components/other-
 import PriceSign from "@/components/price-sign";
 import { format } from "date-fns";
 import CityList from "@/components/city-list";
+import CardImageBackground from "@/components/ui/card-image-bg";
 
 export type PackageForm = {
     title: string;
@@ -96,6 +97,15 @@ export default function Index({
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>([]);
     const [showNewCityInput, setShowNewCityInput] = useState(false);
     const [newCityName, setNewCityName] = useState('');
+    const [activeCity, setActiveCity] = useState('');
+
+    const selectedCityId = (e: string) => {
+      setActiveCity(e);
+    }
+
+    const displayedCities = activeCity.trim() === '' || activeCity === '__new'
+      ? []
+      : cities.filter(c => c.id === Number(activeCity));
 
     const addPreferredVans = (vans: PreferredVan[]) => {
         setVanList(vans);
@@ -444,7 +454,21 @@ export default function Index({
                         handleAddCity={handleAddCity}
                         processing={processing}
                         handleDeletionCity={handleDeletionCity}
+                        selectedCityId={selectedCityId}
                     />
+
+                    <div className="flex flex-wrap gap-4 p-4">
+                        {displayedCities.map((city => (
+                        <CardImageBackground
+                            id={city.id}
+                            inputId="image-overview-edit"
+                            key={city.id}
+                            title={city.name}
+                            src={city.image_url}
+                            editable={true}
+                        />
+                        )))}
+                    </div>
                 </div>
 
                 <div className="grid gap-2">

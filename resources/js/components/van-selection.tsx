@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { Label } from "./ui/label";
 import { Check, PencilIcon, PlusSquareIcon, TrashIcon, Undo, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from '@/components/ui/dialog';
 import { DialogFooter } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { router } from "@inertiajs/react";

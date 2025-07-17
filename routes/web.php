@@ -14,11 +14,23 @@ use App\Http\Controllers\PreferredVanController;
 use App\Http\Controllers\OtherServiceController;
 use App\Http\Controllers\Api\VanApiController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ConfigurationController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('index');
+    $packages = \App\Models\TourPackage::latest()->take(2)->get();
+    return Inertia::render('index', [
+        'packages' => $packages,
+    ]);
 })->name('home');
+
+Route::get('/about', function () {
+    return Inertia::render('about');
+})->name('about');
+
+Route::get('/contact', function () {
+    return Inertia::render('contact');
+})->name('contact');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -62,6 +74,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/otherservice/update', [OtherServiceController::class, 'update'])->name('otherservice.update');
     Route::get('/analytics', [BookingController::class, 'analytics'])->name('bookings.analytics');
     Route::resource('users', UserController::class);
+    Route::resource('configurations', ConfigurationController::class);
 });
 
 Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');

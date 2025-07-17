@@ -10,7 +10,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription
-} from "@radix-ui/react-dialog";
+} from '@/components/ui/dialog';
 import { DialogFooter } from "./ui/dialog";
 
 type CityListProps = {
@@ -27,6 +27,7 @@ type CityListProps = {
   setNewCityName: (val: string) => void;
   handleAddCity: () => void;
   handleDeletionCity: (cityId: number) => void;
+  selectedCityId?: (e: string) => void;
 };
 
 export default function CityList({
@@ -39,7 +40,8 @@ export default function CityList({
   newCityName,
   setNewCityName,
   handleAddCity,
-  handleDeletionCity
+  handleDeletionCity,
+  selectedCityId,
 }: CityListProps) {
   const [cityToDelete, setCityToDelete] = useState<City | null>(null);
 
@@ -52,6 +54,8 @@ export default function CityList({
           value={data.city_id}
           onChange={(e) => {
             const selectedValue = e.target.value;
+            
+            selectedCityId?.(selectedValue);
 
             if (selectedValue === '__new') {
               setShowNewCityInput(true);
@@ -86,7 +90,7 @@ export default function CityList({
               const city = cities.find(c => c.id === data.city_id);
               if (city) setCityToDelete(city);
             }}
-            className="p-2"
+            className="p-2 cursor-pointer"
             title="Delete selected city"
           >
             <X className="w-4 h-4" />

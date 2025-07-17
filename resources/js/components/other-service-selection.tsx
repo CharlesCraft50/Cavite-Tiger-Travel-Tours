@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { useLoading } from "./ui/loading-provider";
 import { router } from "@inertiajs/react";
 import { Check, PencilIcon, PlusSquareIcon, TrashIcon, Undo, X } from "lucide-react";
-import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from '@/components/ui/dialog';
 import { DialogFooter } from "./ui/dialog";
 import { Input } from "./ui/input";
 import ImageSimpleBox from "./ui/image-simple-box";
@@ -359,7 +359,7 @@ export default function OtherServiceSelection({
                                     
                                     {isEditing && (
                                         <p className="text-xs text-gray-500 mt-1 text-right">
-                                            {service.description.length}/120 characters
+                                            {service.description?.length}/120 characters
                                         </p>
                                     )}
 

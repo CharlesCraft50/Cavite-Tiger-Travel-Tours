@@ -10,7 +10,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
-} from '@radix-ui/react-dialog';
+} from '@/components/ui/dialog';
 import { DialogFooter } from './ui/dialog';
 
 type BookingListProps = {

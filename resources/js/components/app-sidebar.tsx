@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BarChart2, Book, BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BarChart2, Book, BookOpen, Folder, LayoutGrid, Settings } from 'lucide-react';
 import AppLogo from './app-logo';
 import type { SharedData } from '@/types'; // adjust path if needed
 
@@ -57,6 +57,11 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
                     title: 'Users',
                     href: '/users',
                     icon: Folder,
+                },
+                {
+                    title: 'Configurations',
+                    href: '/configurations',
+                    icon: Settings,
                 },
             ]
             : []),

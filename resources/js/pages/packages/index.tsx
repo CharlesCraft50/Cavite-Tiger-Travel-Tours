@@ -4,7 +4,7 @@ import { useState } from 'react';
 import ModalLarge from '@/components/ui/modal-large';
 import PackagesOverview from '@/components/packages-overview';
 import CardImageBackground from '@/components/ui/card-image-bg';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useLoading } from '@/components/ui/loading-provider';
 import { PlusSquareIcon } from 'lucide-react';
 
@@ -44,7 +44,7 @@ export default function Index({
             preserveState: true,
             only: ['packages'],
             onSuccess: (page: any) => {
-                setAllPackages(page.props.packages);
+                setAllPackages(page.props.packages || []);
                 stop();
                 setActiveModal(true);
             },
@@ -65,6 +65,7 @@ export default function Index({
 
     return (
         <PackagesIndexHeaderLayout id={selectedCountry.id} src={selectedCountry.image_url} editable={!!isAdmin}>
+            <Head title='Packages' />
             <div className="flex flex-wrap gap-4 p-4">
                 {!!isAdmin && (
                     <Link
