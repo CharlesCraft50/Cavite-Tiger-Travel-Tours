@@ -64,8 +64,7 @@ export default function Index({
     const [ automaticShortDescription, setAutomaticShortDescription ] = useState(false);
     
     const { data, 
-        setData, 
-        //post,
+        setData,
         processing, 
         errors 
     } = useForm<PackageForm>({
@@ -128,7 +127,6 @@ export default function Index({
     const toggleOtherServiceSelection = (otherServiceId: number) => {
         setSelectedOtherServiceIds((prev) => {
             if (prev.includes(otherServiceId)) {
-                // UNSELECT: Clear pivot fields for this service
                 setOtherServiceList((prevList) =>
                     prevList.map((service) =>
                         service.id === otherServiceId
@@ -298,9 +296,6 @@ export default function Index({
             
             router.post(`/packages/${packages?.id}`, formData, {
                 forceFormData: true,
-                // onSuccess: () => {
-                    
-                // }
             });
         } else {
             router.post('/packages', formData, {
@@ -471,6 +466,7 @@ export default function Index({
                     </div>
                 </div>
 
+                {/* Duration */}
                 <div className="grid gap-2">
                     <Label htmlFor="duration">Duration</Label>
                     
