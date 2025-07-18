@@ -232,11 +232,14 @@ export default function AddCategories({
                                                             <Input
                                                                 type="number"
                                                                 value={categories[activeTab].custom_price ?? 0}
-                                                                onChange={(e) => onUpdateCategory?.(
+                                                                onChange={(e) => {
+                                                                    const intVal = parseInt(e.target.value, 10);
+                                                                    onUpdateCategory?.(
                                                                     categories[activeTab]?.id,
                                                                     'custom_price',
-                                                                    e.target.value
-                                                                )}
+                                                                    isNaN(intVal) ? 0 : intVal
+                                                                    );
+                                                                }}
                                                                 className="border text-lg p-2 w-full rounded"
                                                             />
                                                         </>

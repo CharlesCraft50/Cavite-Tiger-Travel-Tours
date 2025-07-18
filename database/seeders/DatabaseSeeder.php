@@ -21,19 +21,22 @@ class DatabaseSeeder extends Seeder
     {
         // Country
         $philippines = Country::create([
-            'name' => 'Philippines'
+            'name' => 'Philippines',
+            'image_url' => 'https://upload.imgshare.cc/images/z1ipupg9.webp',
         ]);
 
         // Cities
         $camarinesNorte = City::create([
             'country_id' => $philippines->id,
             'name' => 'Camarines Norte',
+            'image_url' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/Calaguas_Island.jpg',
             'overview' => 'White sand beach and crystal-clear water, situated in the province of Camarines Norte.',
         ]);
 
         $tagaytay = City::create([
             'country_id' => $philippines->id,
             'name' => 'Tagaytay City',
+            'image_url' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/275774475_714502919546027_1975803185873096686_n.jpg',
             'overview' => 'Tagaytay is a quick escape from Manila and a romantic getaway with cool temperatures and overlooking view restaurants.',
         ]);
 
@@ -75,7 +78,8 @@ class DatabaseSeeder extends Seeder
             'pax_adult' => 3,
             'available_from' => now(),
             'available_until' => now()->addMonths(2),
-            'image_banner' => 'tagaytay.jpg',
+            'image_banner' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/275774475_714502919546027_1975803185873096686_n.jpg',
+            'image_overview' => 'https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/275774475_714502919546027_1975803185873096686_n.jpg',
             'slug' => Str::slug('Chill and Dine Tagaytay'),
             'base_price' => 1800.00,
         ]);

@@ -57,7 +57,7 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
       <section className="py-16 px-6 bg-gray-50 text-center">
         <h2 className="text-3xl font-bold mb-6">Tour Packages</h2>
         <div className="flex flex-col md:flex-row justify-center gap-8">
-          {packages.map((pkg) => (
+          {packages.map((pkg: TourPackage) => (
             <div key={pkg.id} className="bg-white rounded-lg shadow-md overflow-hidden w-full md:w-1/3">
               <img
                 src={pkg.image_overview || ''}

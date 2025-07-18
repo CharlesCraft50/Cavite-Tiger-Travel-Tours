@@ -78,10 +78,13 @@ export default function PackagesIndexHeader({
         <div className="m-8">
             <div className="relative w-full h-54 rounded-xl overflow-hidden mb-6">
                 <div className="absolute inset-0">
+                    
                     <img 
                         src={src}
                         className="absolute inset-0 bg-black/40 w-full h-full object-cover object-center" 
                     />
+                    {/* Black semi-transparent overlay */}
+                    <div className="absolute inset-0 bg-black/60" />
 
                     {isEditing && (
                         <label

@@ -15,10 +15,11 @@ use App\Http\Controllers\OtherServiceController;
 use App\Http\Controllers\Api\VanApiController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ConfigurationController;
+use \App\Models\TourPackage;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    $packages = \App\Models\TourPackage::latest()->take(2)->get();
+    $packages = TourPackage::whereIn('id', [1, 2])->get();
     return Inertia::render('index', [
         'packages' => $packages,
     ]);

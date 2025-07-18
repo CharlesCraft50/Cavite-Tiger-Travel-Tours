@@ -54,7 +54,7 @@ class UpdatePackageRequest extends FormRequest
             'categories.*.has_button' => ['nullable', 'boolean'],
             'categories.*.button_text' => ['nullable', 'string', 'max:20'],
             'categories.*.use_custom_price' => ['nullable', 'boolean'],
-            'categories.*.custom_price' => ['nullable', 'integer'],
+            'categories.*.custom_price' => ['nullable', 'numeric'],
 
             // ✅ Validate preferred_van as array
             'preferred_van_ids' => ['nullable', 'array'],
