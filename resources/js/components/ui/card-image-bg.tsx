@@ -139,8 +139,8 @@ export default function CardImageBackground({
 
             {isEditing && (
             <div className="flex justify-end top-4 right-4 absolute z-[40] gap-2">
-                <Button className="btn-primary cursor-pointer" onClick={handleSaveBtn}>
-                <Check className="w-4 h-4 text-white" />
+                <Button type="button" className="btn-primary cursor-pointer" onClick={handleSaveBtn}>
+                    <Check className="w-4 h-4 text-white" />
                 </Button>
             </div>
         )}

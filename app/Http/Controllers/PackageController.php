@@ -112,9 +112,9 @@ class PackageController extends Controller
                         'tour_package_id' => $package->id,
                         'name' => $category['name'] ?? '',
                         'content' => $category['content'] ?? '',
-                        'has_button' => $category['has_button'] ?? 0,
+                        'has_button' => filter_var($category['has_button'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                         'button_text' => $category['button_text'] ?? 'Book Now',
-                        'use_custom_price' => $category['use_custom_price'] ?? 0,
+                        'use_custom_price' => filter_var($category['use_custom_price'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                         'custom_price' => $category['custom_price'] ?? 0,
                     ]);
                 }
@@ -267,9 +267,9 @@ class PackageController extends Controller
                         'tour_package_id' => $package->id,
                         'name' => $category['name'] ?? '',
                         'content' => $category['content'] ?? '',
-                        'has_button' => $category['has_button'] ?? 0,
+                        'has_button' => filter_var($category['has_button'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                         'button_text' => $category['button_text'] ?? 'Book Now',
-                        'use_custom_price' => $category['use_custom_price'] ?? 0,
+                        'use_custom_price' => filter_var($category['use_custom_price'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                         'custom_price' => $category['custom_price'] ?? 0,
                     ]);
                 }
