@@ -30,7 +30,7 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
           <p className="mt-4 text-lg">
             Professionally trained and safety-conscious driver. Well-maintained vans with passenger insurance.
           </p>
-          <Link href="/book">
+          <Link href="/packages">
             <button className="mt-6 bg-red-700 hover:bg-red-800 text-white px-6 py-3 rounded-full font-semibold">
               BOOK NOW
             </button>
