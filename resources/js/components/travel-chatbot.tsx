@@ -72,20 +72,20 @@ export default function TravelChatbot() {
 
         if (messageIncludes(message, ['contact', 'call', 'phone'])) {
             return {
-                text: "You can reach us at:\n📞 0910-345-6119\n📧 gilbertarasan8@gmail.com\n📍 Cavite City, Philippines\n🕒 Mon-Sat: 8AM-6PM",
+                text: "${contact}",
             }
         }
 
         if (messageIncludes(message, ['package', 'tour'])) {
             return {
                 text: "Here are our tour packages",
-                showPackages: true,
+                showTime: true,
             }
         }
         
         if (messageIncludes(message, ['tips', 'guide', 'travel tips'])) {
             return {
-                text: `🧳 **Planning your trip?** Here are some helpful travel tips:
+                text: `🧳 𝗣𝗹𝗮𝗻𝗻𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝘁𝗿𝗶𝗽? Here are some helpful travel tips:
 
             - ✅ Pack light, but don't forget the essentials  
             - 📅 Book in advance for better deals  
@@ -98,7 +98,7 @@ export default function TravelChatbot() {
         }
 
         return {
-            text: "I'd be happy to help you with that! For detailed information about our tours, bookings, or any specific questions, please contact us at 0910-345-6119. What else would you like to know about our travel packages?",
+            text: "${null}",
         };
     }
     
@@ -116,7 +116,7 @@ export default function TravelChatbot() {
             addMessage(response.text, 'bot');
             setIsTyping(false);
 
-            if (response.showPackages) {
+            if (response.showTime) {
                 setTimeout(() => {
                     addMessage('', 'bot');
                 }, 500);
@@ -133,7 +133,7 @@ export default function TravelChatbot() {
             addMessage(response.text, 'bot');
             setIsTyping(false);
 
-            if (response.showPackages) {
+            if (response.showTime) {
                 setTimeout(() => {
                     addMessage('', 'bot');
                 }, 500);
@@ -206,7 +206,40 @@ export default function TravelChatbot() {
                                                 : "bg-primary text-white rounded-br-none max-w-[85%] sm:max-w-[80%]"
                                             )}
                                             >
-                                            <p className="text-xs sm:text-sm whitespace-pre-line break-words">{message.text}</p>
+                                            <p className="text-xs sm:text-sm whitespace-pre-line break-words">
+                                                {message.text == "${null}" 
+                                                ? (
+                                                    <span>
+                                                        I'd be happy to help you with that! For tour details, bookings, or any questions, feel free to contact us at <strong>𝟬𝟵𝟭𝟬-𝟯𝟰𝟱-𝟲𝟭𝟭𝟵</strong> or{" "}
+                                                        <a
+                                                            href="https://www.facebook.com/profile.php?id=100093876846720"
+                                                            className="underline text-blue-600"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            message us on Facebook
+                                                        </a>
+                                                        . What else would you like to know about our travel packages?
+                                                    </span>
+                                                ) : message.text == "${contact}" ? (
+                                                    <span>
+                                                        You can reach us at:
+                                                        {"\n"}📞 0910-345-6119
+                                                        {"\n"}📧 gilbertarasan8@gmail.com
+                                                        {"\n"}📍 Cavite City, Philippines
+                                                        {"\n"}🕒 Mon–Sat: 8AM–6PM
+                                                        {"\n"}🔗 Facebook:{" "}
+                                                        <a
+                                                            href="https://www.facebook.com/profile.php?id=100093876846720"
+                                                            className="underline text-blue-600"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                        </span>
+                                                ) : message.text}
+                                            </p>
                                             <p
                                                 className={`text-xs mt-1 ${
                                                 message.sender === 'user' ? 'text-orange-100' : 'text-gray-500'
@@ -228,22 +261,22 @@ export default function TravelChatbot() {
                                                     })}
                                                     useUI={false}
                                                     >
-                                                    <div className="text-left bg-white border rounded-lg p-2 sm:p-3 hover:shadow-md transition-shadow cursor-pointer">
-                                                        <div className="flex justify-between items-start gap-2">
-                                                        <h4 className="font-semibold text-xs sm:text-sm text-gray-800 flex-1 min-w-0">{pkg.title}</h4>
-                                                        <div className="flex flex-row items-center text-primary shrink-0">
-                                                            <PriceSign />
-                                                            <span className="font-bold text-xs sm:text-sm">{pkg.base_price}</span>
-                                                        </div>
-                                                        </div>
-                                                        <p className="text-xs text-gray-500 mt-0 mb-1 break-words">{pkg.subtitle}</p>
+                                                        <div className="text-left bg-white border rounded-lg p-2 sm:p-3 hover:shadow-md transition-shadow cursor-pointer">
+                                                            <div className="flex justify-between items-start gap-2">
+                                                            <h4 className="font-semibold text-xs sm:text-sm text-gray-800 flex-1 min-w-0">{pkg.title}</h4>
+                                                            <div className="flex flex-row items-center text-primary shrink-0">
+                                                                <PriceSign />
+                                                                <span className="font-bold text-xs sm:text-sm">{pkg.base_price}</span>
+                                                            </div>
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 mt-0 mb-1 break-words">{pkg.subtitle}</p>
 
-                                                        {pkg.package_categories?.map((category) => (
-                                                        <p className="text-xs text-gray-700" key={category.id}>{category.name}</p>
-                                                        ))}
+                                                            {pkg.package_categories?.map((category) => (
+                                                            <p className="text-xs text-gray-700" key={category.id}>{category.name}</p>
+                                                            ))}
 
-                                                        <p className="text-xs text-gray-700 line-clamp-2">{pkg.overview}</p>
-                                                    </div>
+                                                            <p className="text-xs text-gray-700 line-clamp-2">{pkg.overview}</p>
+                                                        </div>
                                                     </LinkLoading>
                                                 ))}
 
@@ -258,7 +291,7 @@ export default function TravelChatbot() {
                                                     </div>
                                                     </div>
                                                 </LinkLoading>
-                                                </div>
+                                            </div>
                                         )}
                                     </>
                                 ))}
