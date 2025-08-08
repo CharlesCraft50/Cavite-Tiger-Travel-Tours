@@ -24,6 +24,7 @@ class UpdatePreferredVanRequest extends FormRequest
         return [
             'vans' => ['required', 'array'],
             'vans.*.id' => ['nullable', 'integer'],
+            'vans.*.user_id' => ['nullable', 'integer'],
             'vans.*.name' => ['required', 'string'],
             'vans.*.image_url' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'vans.*.additional_fee' => ['required', 'numeric'],

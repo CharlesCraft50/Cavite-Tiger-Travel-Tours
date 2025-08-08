@@ -12,7 +12,6 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\PreferredVanController;
 use App\Http\Controllers\OtherServiceController;
-use App\Http\Controllers\Api\VanApiController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use \App\Models\TourPackage;
@@ -54,7 +53,6 @@ Route::get('/book-now/{slug}/category/{categorySlug?}', [BookNowController::clas
 Route::post('/book-now/booked', [BookNowController::class, 'store'])->name('booking.store');
 Route::get('/book-now/payment/{booking_id}', [BookingPaymentController::class, 'index'])->name('booking.payment');
 Route::post('/book-now/payment/create', [BookingPaymentController::class, 'store'])->name('booking.payment.store');
-Route::get('/api/van/{vanId}/availability', [VanApiController::class, 'availability']);
 
 //Route::resource('packages', PackageController::class);
 Route::get('/packages/{packageSlug}/category/{categorySlug}', [PackageController::class, 'showCategory'])

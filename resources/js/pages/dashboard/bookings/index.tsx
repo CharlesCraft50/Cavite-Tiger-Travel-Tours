@@ -1,16 +1,20 @@
 import BookingList from '@/components/booking-list';
 import DashboardLayout from '@/layouts/dashboard-layout';
-import { Booking } from '@/types';
+import { Booking, SharedData } from '@/types';
+import { isAdmin, isDriver } from '@/lib/utils';
+import { usePage } from '@inertiajs/react';
 
 type DashboardProps = {
     userBookings: Booking[];
 };
 
 export default function Bookings({ userBookings } : DashboardProps) {
-
+    const { auth } = usePage<SharedData>().props;
+    const isAdmins = isAdmin(auth.user);
+    const isDrivers = isDriver(auth.user);
 return (
         <DashboardLayout title="Bookings" href="/bookings">
-            <h2 className="text-xl font-semibold mt-8 mb-4">My Recent Bookings</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'My Recent Bookings'}</h2>
             <BookingList 
                 bookings={userBookings}
             />

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('preferred_vans', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null')->after('preferred_van_id');
             $table->string('name');
             $table->string('image_url')->nullable();
             $table->decimal('additional_fee', 10, 2)->default(0);

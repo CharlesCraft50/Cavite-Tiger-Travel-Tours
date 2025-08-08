@@ -1,7 +1,8 @@
+import { isAdmin, isDriver } from '@/lib/utils';
+import { User } from '@/types';
 import { Link } from '@inertiajs/react';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { User } from '@/types';
 
 interface UserListProps {
   users: User[];
@@ -68,10 +69,14 @@ export default function UserList({ users }: UserListProps) {
                 <td className="px-4 py-2">{user.email}</td>
                 <td className="px-4 py-2">
                   <span className={clsx(
-                    'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                    user.is_admin ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                    'inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize',
+                    isAdmin(user) 
+                      ? 'bg-purple-100 text-purple-800' 
+                      : isDriver(user) 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
                   )}>
-                    {user.is_admin ? 'Admin' : 'User'}
+                    {user.role}
                   </span>
                 </td>
                 <td className="px-4 py-2">{new Date(user.created_at).toLocaleDateString()}</td>

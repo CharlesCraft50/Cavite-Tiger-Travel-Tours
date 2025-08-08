@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Booking;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -49,5 +51,19 @@ class User extends Authenticatable
     public function bookings()
     {
         return $this->hasMany(\App\Models\Booking::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isDriver(): bool
+    {
+        return $this->role === 'driver';
+    }
+
+    public function bookingsAsDriver() {
+        return $this->belongsToMany(Booking::class, 'driver_id');
     }
 }

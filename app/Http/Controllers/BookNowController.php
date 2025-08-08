@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\TourPackage;
+use App\Models\User;
 use App\Models\PreferredVan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -47,8 +48,11 @@ class BookNowController extends Controller
             $selectedCategoryId = $category ? $category->id : null;
         }
 
+        $drivers = User::where('role', 'driver')->get();
+
         return Inertia::render('book-now/create', [
             'packages' => $packages,
+            'drivers' => $drivers,
             'categories' => $packages->categories,
             'selectedCategoryId' => $selectedCategoryId,
             'preferredVans' => $packages->preferredVans,
@@ -124,6 +128,7 @@ class BookNowController extends Controller
         $booking = Booking::create([
             ...$validated,
             'total_amount' => $totalAmount,
+            'driver_id' => $validated['driver_id'],
             'user_id' => $userId,
         ]);
         

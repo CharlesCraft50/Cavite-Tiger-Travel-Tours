@@ -34,6 +34,7 @@ class Booking extends Model
         'is_confirmed',
         'status',
         'total_amount',
+        'driver_id',
     ];
 
     
@@ -74,5 +75,9 @@ class Booking extends Model
 
     public function payment() {
         return $this->hasOne(BookingPayment::class);
+    }
+
+    public function driver() {
+        return $this->belongsTo(User::class, 'driver_id');
     }
 }

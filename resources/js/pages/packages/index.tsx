@@ -1,4 +1,4 @@
-import { City, Country, Paginated, SharedData, TourPackage } from '@/types';
+import { City, Country, Paginated, SharedData, TourPackage, User } from '@/types';
 import PackagesIndexHeaderLayout from '@/layouts/packages/packages-index-header-layout';
 import { useState } from 'react';
 import ModalLarge from '@/components/ui/modal-large';
@@ -7,9 +7,10 @@ import CardImageBackground from '@/components/ui/card-image-bg';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useLoading } from '@/components/ui/loading-provider';
 import { PlusSquareIcon } from 'lucide-react';
+import { isAdmin } from '@/lib/utils';
 
 type PackagesIndexProps = {
-    packages: Paginated<TourPackage>; 
+    packages: TourPackage[]; 
     cities: City[]; 
     countries: Country[]; 
     selectedCountry: Country;
@@ -27,7 +28,7 @@ export default function Index({
 
     const { start, stop } = useLoading();
     const { auth } = usePage<SharedData>().props;
-    const isAdmin = auth.user?.is_admin;
+    const isAdmins = isAdmin(auth.user);
     
     const [ activeCityId, setActiveCityId ] = useState<number | null>(null);
 
@@ -64,10 +65,10 @@ export default function Index({
     }
 
     return (
-        <PackagesIndexHeaderLayout id={selectedCountry.id} src={selectedCountry.image_url} editable={!!isAdmin}>
+        <PackagesIndexHeaderLayout id={selectedCountry.id} src={selectedCountry.image_url} editable={!!isAdmins}>
             <Head title='Packages' />
             <div className="flex flex-wrap gap-4 p-4">
-                {!!isAdmin && (
+                {!!isAdmins && (
                     <Link
                         href={route('packages.create')} 
                         className="flex-col gap-2 relative w-76 h-84 bg-gray-200 border-gray-600 shadow-lg rounded-xl overflow-hidden flex items-center justify-center text-center cursor-pointer transition-shadow duration-300"
@@ -90,18 +91,20 @@ export default function Index({
                         onClick={() => handleCityClick(city.id)}
                         title={city.name}
                         src={city.image_url}
-                        editable={!!isAdmin}
+                        editable={!!isAdmins}
                     />
                 ))}
             </div>
             <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
-                <PackagesOverview 
-                    currentPackages={allPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}
-                    totalPages={Math.ceil(allPackages.length / ITEMS_PER_PAGE)}
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    isAdmin={!!isAdmin}
-                />
+                <div className="mt-4">
+                    <PackagesOverview 
+                        currentPackages={allPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}
+                        totalPages={Math.ceil(allPackages.length / ITEMS_PER_PAGE)}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        isAdmin={!!isAdmins}
+                    />
+                </div>
             </ModalLarge>
 
         </PackagesIndexHeaderLayout>

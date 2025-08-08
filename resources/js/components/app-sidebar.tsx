@@ -15,6 +15,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { BarChart2, Book, BookOpen, Folder, LayoutGrid, Settings } from 'lucide-react';
 import AppLogo from './app-logo';
 import type { SharedData } from '@/types'; // adjust path if needed
+import { isAdmin } from '@/lib/utils';
 
 const footerNavItems: NavItem[] = [
     // {
@@ -33,7 +34,7 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
     const { url, props } = usePage<SharedData>();
     const { auth } = props;
     const isBookingView = /^\/bookings\/\d+$/.test(url);
-    const isAdmin = auth.user.is_admin;
+    const isAdmins = isAdmin(auth.user);
 
     const mainNavItems: NavItem[] = [
     {
@@ -46,7 +47,7 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
         href: '/bookings',
         icon: Book,
     },
-    ...(isAdmin
+    ...(isAdmins
             ? [
                 {
                     title: 'Analytics',

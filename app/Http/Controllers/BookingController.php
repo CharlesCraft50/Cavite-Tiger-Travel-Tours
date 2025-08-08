@@ -28,12 +28,17 @@ class BookingController extends Controller
 
         $bookings = null;
 
-        if($user->is_admin) {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+        if ($user->isAdmin()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                        ->orderByDesc('created_at')
+                        ->get();
+        } else if ($user->isDriver()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                        ->where('driver_id', $user->id)
                         ->orderByDesc('created_at')
                         ->get();
         } else {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
                         ->where('user_id', $user->id)
                         ->orderByDesc('created_at')
                         ->get();
@@ -91,7 +96,7 @@ class BookingController extends Controller
 
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
-            'isAdmin' => $user->is_admin,
+            'isAdmin' => $user->isAdmin(),
             'otherServices' => $otherServices,
             'packages' => $packages,
             'vans' => $vans,

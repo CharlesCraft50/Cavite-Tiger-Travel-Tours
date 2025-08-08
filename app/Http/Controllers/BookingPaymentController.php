@@ -37,10 +37,16 @@ class BookingPaymentController extends Controller
 
         if($booking->user_id) {
             if($user) {
-                if($user->id !== $booking->user_id) {
+                // Allow admin and driver to access all bookings
+                if($user->isAdmin() || $user->isDriver()) {
+                    // Admin and driver have full access - no restrictions
+                } 
+                // For regular users, only allow access to their own bookings
+                elseif($user->id !== $booking->user_id) {
                     abort(404);
                 }
             } else {
+                // No authenticated user - deny access
                 abort(404);
             }
         }

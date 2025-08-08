@@ -1,3 +1,4 @@
+import { User } from ".";
 import { PreferredVanAvailability } from "./preferred-van-availability";
 
 export interface PreferredVan {
@@ -10,6 +11,9 @@ export interface PreferredVan {
 
     created_at: string;
     updated_at: string;
+    
+    user_id?: number | null;
+    driver?: User | null;
 
     availabilities: PreferredVanAvailability[];
 }

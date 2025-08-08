@@ -1,3 +1,5 @@
+import type { UserRole, User } from '../types';
+
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -18,3 +20,7 @@ export function generateUUID() {
     return v.toString(16);
   });
 }
+
+export const isAdmin = (user: User) => user?.role === 'admin';
+export const isUser = (user: User) => user?.role === 'user';
+export const isDriver = (user: User) => user?.role === 'driver';

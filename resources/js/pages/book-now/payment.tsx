@@ -9,6 +9,7 @@ import { FormEventHandler, useEffect, useState } from "react";
 import { BookingPayment, SharedData } from "@/types";
 import InputError from "@/components/input-error";
 import clsx from "clsx";
+import StyledFileUpload from "@/components/styled-file-upload";
 
 type PaymentProps = {
     booking_id: number;
@@ -36,16 +37,6 @@ export default function Payment({
 
     const [imagePreview, setImagePreview] = useState('');
     const [paymentProofError, setPaymentProofError] = useState('');
-
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-
-        if(file) {
-            const url = URL.createObjectURL(file);
-            setImagePreview(url);
-            setData('payment_proof', file);
-        }
-    }
 
     const { auth } = usePage<SharedData>().props;
 
@@ -167,24 +158,35 @@ export default function Payment({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="payment_proof" required>Upload Proof of Payment</Label>
-                <Input
-                    type="file"
+                <StyledFileUpload
+                    id="payment_proof"
+                    label="Upload Proof of Payment"
+                    required
                     accept="image/*"
-                    onChange={handleImageUpload}
+                    value={data.payment_proof}
+                    error={paymentProofError}
+                    description="Upload a clear screenshot or photo of your payment receipt."
+                    supportedFormats="JPG, PNG, GIF"
+                    maxSize="10MB"
+                    onChange={(file) => {
+                        setData("payment_proof", file);
+                        if (file) {
+                            const url = URL.createObjectURL(file);
+                            setImagePreview(url);
+                            setPaymentProofError("");
+                        } else {
+                            setImagePreview("");
+                        }
+                    }}
                 />
-                <p className="text-sm text-gray-500">
-                    Upload a clear screenshot or photo of your payment receipt.
-                </p>
-
                 {imagePreview && (
                     <img
                         src={imagePreview}
                         className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
                     />
                 )}
-
                 <InputError message={paymentProofError} className="mt-2" />
+
             </div>
 
             <Button type="submit" className="mt-2 w-full btn-primary -md cursor-pointer" tabIndex={5} disabled={processing}>

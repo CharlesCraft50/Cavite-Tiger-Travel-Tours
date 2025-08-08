@@ -21,7 +21,7 @@ export default function PackagesOverview({
   isAdmin,
 }: PackagesOverviewContent) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full justify-between">
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto grid gap-4">
         {currentPackages.map((p) => (
@@ -42,7 +42,7 @@ export default function PackagesOverview({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="sticky bottom-0 z-10 bg-white/80 backdrop-blur-md border-t px-6 py-4 flex justify-between items-center shadow-md rounded-b-xl">
+        <div className="sticky bottom-0 mt-10 z-10 bg-white/80 backdrop-blur-md border-t px-6 py-4 flex justify-between items-center shadow-md rounded-b-xl">
           {/* Prev button */}
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}

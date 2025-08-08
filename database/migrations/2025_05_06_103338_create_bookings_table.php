@@ -29,6 +29,7 @@ return new class extends Migration
             $table->integer('pax_kids');
             $table->text('notes')->nullable();
             $table->foreignId('preferred_van_id')->nullable()->constrained('preferred_vans')->onDelete('set null');
+            $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('set null');
             $table->boolean('is_confirmed')->default(false);
             $table->string('booking_number')->unique();
             $table->decimal('total_amount')->nullable();

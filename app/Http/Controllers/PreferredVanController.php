@@ -79,6 +79,7 @@ class PreferredVanController extends Controller
                     $van = PreferredVan::create([
                         'name' => $vanData['name'],
                         'image_url' => $vanData['image_url'] ?? null,
+                        'user_id' => $vanData['user_id'] ?? null,
                         'additional_fee' => $vanData['additional_fee'],
                         'pax_adult' => $vanData['pax_adult'],
                         'pax_kids' => $vanData['pax_kids'],
@@ -104,6 +105,7 @@ class PreferredVanController extends Controller
                         $van->update([
                             'name' => $vanData['name'],
                             'image_url' => $vanData['image_url'] ?? $van->image_url,
+                            'user_id' => $vanData['user_id'] ?? null,
                             'additional_fee' => $vanData['additional_fee'],
                             'pax_adult' => $vanData['pax_adult'],
                             'pax_kids' => $vanData['pax_kids'],

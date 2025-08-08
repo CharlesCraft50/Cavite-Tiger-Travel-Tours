@@ -1,6 +1,7 @@
 import BookingList from '@/components/booking-list';
 import PriceSign from '@/components/price-sign';
 import DashboardLayout from '@/layouts/dashboard-layout';
+import { isAdmin, isDriver } from '@/lib/utils';
 import { Booking, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
@@ -11,7 +12,8 @@ type DashboardProps = {
 
 export default function Dashboard({ bookingCount, userBookings } : DashboardProps) {
     const { auth } = usePage<SharedData>().props;
-    const isAdmin = auth.user.is_admin;
+    const isAdmins = isAdmin(auth.user);
+    const isDrivers = isDriver(auth.user);
 
 return (
         <DashboardLayout title="Dasboard" href="/dashboard">
@@ -43,7 +45,7 @@ return (
                 </div>
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
                     {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
-                    <h2 className="text-xl font-semibold mt-8 mb-4">My Recent Bookings</h2>
+                    <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'My Recent Bookings'}</h2>
                     <BookingList 
                         bookings={userBookings}
                         limit={3}

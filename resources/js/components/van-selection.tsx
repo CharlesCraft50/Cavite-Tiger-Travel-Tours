@@ -1,4 +1,4 @@
-import { PreferredVan } from "@/types";
+import { PreferredVan, User } from "@/types";
 
 import clsx from "clsx";
 import { Label } from "./ui/label";
@@ -17,6 +17,7 @@ import { format } from "date-fns";
 
 type VanSelectionProps = {
     preferredVans: PreferredVan[];
+    drivers?: User[],
     selectedVanIds?: number[];
     onSelect?: (vanId: number) => void;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -29,6 +30,7 @@ type VanSelectionProps = {
 
 export default function VanSelection({
     preferredVans,
+    drivers = [],
     selectedVanIds,
     onSelect,
     onChange,
@@ -133,6 +135,9 @@ export default function VanSelection({
 
             tempVans.forEach((van, index) => {
                 formData.append(`vans[${index}][id]`, van.id.toString());
+                if(van.user_id != null) {
+                    formData.append(`vans[${index}][user_id]`, van.user_id?.toString());
+                }
                 formData.append(`vans[${index}][name]`, van.name);
                 if(van.image_url_file) {
                     formData.append(`vans[${index}][image_url]`, van.image_url_file);
@@ -385,6 +390,35 @@ export default function VanSelection({
                                     <PriceSign />
                                     {`${van.additional_fee.toLocaleString()}`}
                                 </>
+                            )}
+                        </p>
+
+                        <p className="text-sm font-medium mt-2">
+                            {isEditing ? (
+                                <div className="flex flex-col space-y-2">
+                                    <p>Assigned Driver:</p>
+                                    <select
+                                        value={van.user_id ?? ''}
+                                        onChange={(e) => handleChange(van.id, 'user_id', Number(e.target.value))}
+                                        className="w-full text-md cursor-pointer p-1 border border-r-4"
+                                    >
+                                        <option value="">-- Select Driver --</option>
+                                        {drivers?.map((driver) => (
+                                            <option key={driver.id} value={driver.id}>
+                                                {driver.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            ) : (
+                               <div>
+                                    {(van.driver?.name || drivers.find((d) => d.id === van.user_id)?.name) && (
+                                        <p className="text-sm font-semibold">Assigned Driver</p>
+                                    )}
+                                    <p>
+                                        {van.driver?.name ?? drivers.find((d) => d.id === van.user_id)?.name ?? ''}
+                                    </p>
+                                </div>
                             )}
                         </p>
 

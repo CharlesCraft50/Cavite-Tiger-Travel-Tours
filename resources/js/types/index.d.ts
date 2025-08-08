@@ -43,13 +43,19 @@ export interface SharedData {
     [key: string]: unknown;
 }
 
+export enum UserRole {
+    ADMIN = 'admin',
+    USER = 'user',
+    DRIVER = 'driver',
+}
+
 export interface User {
     id: number;
     name: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;
-    is_admin: boolean;
+    role: UserRole,
     created_at: string;
     updated_at: string;
     bookings_count: number;

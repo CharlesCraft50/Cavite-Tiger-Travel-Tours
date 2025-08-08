@@ -52,6 +52,7 @@ class StoreBookNowRequest extends FormRequest
             'notes' => ['nullable', 'string'],
             'other_services' => 'array',
             'other_services.*' => 'exists:other_services,id',
+            'driver_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }
 }

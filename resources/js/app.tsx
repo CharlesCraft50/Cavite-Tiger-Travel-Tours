@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 import InertiaLoadingListener from '@/components/InertiaLoadingListener';
 import { LoadingProvider } from './components/ui/loading-provider';
+import TravelChatbot from './components/travel-chatbot';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -18,6 +19,7 @@ createInertiaApp({
 
     root.render(
       <LoadingProvider>
+        <TravelChatbot />
         <InertiaLoadingListener />
         <App {...props} />
       </LoadingProvider>

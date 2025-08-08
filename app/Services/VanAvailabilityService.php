@@ -6,7 +6,7 @@ use App\Models\PreferredVanAvailability;
 use App\Models\Booking;
 use Carbon\Carbon;
 
-class VanAvailabilityService 
+class VanAvailabilityService
 {
     public function getAvailableDateRanges(int $vanId)
     {
@@ -33,9 +33,23 @@ class VanAvailabilityService
         }
 
         $fullyBookedDates = [];
+
+        // Old logic (commented out)
+        /*
         foreach ($bookedDates as $date => $count) {
             if ($count >= $availability->count) {
                 $fullyBookedDates[] = $date;
+            }
+        }
+        */
+
+        // New logic to block the entire range from the first to the last booked date
+        if (!empty($bookedDates)) {
+            $firstBooked = Carbon::parse(min(array_keys($bookedDates)));
+            $lastBooked  = Carbon::parse(max(array_keys($bookedDates)));
+
+            for ($date = $firstBooked; $date->lte($lastBooked); $date->addDay()) {
+                $fullyBookedDates[] = $date->toDateString();
             }
         }
 

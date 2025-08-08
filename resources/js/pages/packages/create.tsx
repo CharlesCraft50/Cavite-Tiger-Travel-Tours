@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { City, PackageCategory, TourPackage, PreferredVan, OtherService } from "@/types";
+import { City, PackageCategory, TourPackage, PreferredVan, OtherService, User } from "@/types";
 import { Head } from '@inertiajs/react';
 import PackageContentEditor from "@/components/package-content-editor";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -43,6 +43,7 @@ type PackagesCreateProps = {
     packages?: TourPackage,
     packageCategories?: PackageCategory[];
     preferredVans: PreferredVan[];
+    drivers: User[];
     otherServices: OtherService[];
     vanIds: number[];
     serviceIds: number[];
@@ -54,6 +55,7 @@ export default function Index({
      packages,
      packageCategories,
      preferredVans,
+     drivers,
      otherServices,
      vanIds,
      serviceIds,
@@ -537,6 +539,7 @@ export default function Index({
                 <div className="grid gap-2 mb-12">
                     <VanSelection
                         preferredVans={vanList}
+                        drivers={drivers || []}
                         selectedVanIds={selectedVanIds}
                         onSelect={toggleVanSelection}
                         onChange={handleSelectAllVan}

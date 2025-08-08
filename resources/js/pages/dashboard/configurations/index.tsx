@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { Head, router, useForm } from '@inertiajs/react';
 import CityList from '@/components/city-list';
-import { City, OtherService, PreferredVan } from '@/types';
+import { City, OtherService, PreferredVan, User } from '@/types';
 import { PackageForm } from '@/pages/packages/create';
 import CardImageBackground from '@/components/ui/card-image-bg';
 import VanSelection from '@/components/van-selection';
@@ -11,12 +11,14 @@ import OtherServiceSelection, { EditableOtherService } from '@/components/other-
 type ConfigurationsProps = {
     cities: City[];
     preferredVans: PreferredVan[];
+    drivers: User[];
     otherServices: OtherService[];
 }
 
 export default function Configurations({
     cities,
     preferredVans,
+    drivers,
     otherServices,
 } : ConfigurationsProps) {
 
@@ -132,6 +134,7 @@ export default function Configurations({
           <h2 className="text-xl font-semibold mb-4">Preferred Vans</h2>
           <VanSelection
               preferredVans={vanList}
+              drivers={drivers ?? []}
               textLabel="Edit Vans"
               onSave={(newVans) => addPreferredVans(newVans)}
               required={true}

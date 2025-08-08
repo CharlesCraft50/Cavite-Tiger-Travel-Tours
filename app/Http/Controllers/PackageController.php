@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\User;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
 use App\Models\City;
@@ -31,16 +32,20 @@ class PackageController extends Controller
         $selectedCountry = Country::where('name', $selectedCountryName)->first();
         $cities = $selectedCountry ? $selectedCountry->cities : collect();
 
-        $query = TourPackage::query();
+        $baseQuery = TourPackage::query();
 
         if ($request->has('city_id')) {
-            $query->where('city_id', $request->city_id);
+            $baseQuery->where('city_id', $request->city_id);
         }
 
+        $mainQuery = (clone $baseQuery);
+
+        $chatQuery = TourPackage::query();
+
         if ($request->boolean('no_paginate')) {
-            $packages = $query->get(); // return ALL
+            $packages = $mainQuery->get();
         } else {
-            $packages = $query->paginate(2);
+            $packages = $mainQuery->paginate(2);
         }
 
         return Inertia::render('packages/index', [
@@ -54,12 +59,15 @@ class PackageController extends Controller
     public function create(Request $request) {
 
         $cities = City::all();
-        $preferredVans = PreferredVan::with('availabilities')->get();
+        $preferredVans = PreferredVan::with(['availabilities', 'driver'])->get();
         $otherServices = OtherService::all();
+
+        $drivers = User::where('role', 'driver')->get();
         
         return (Inertia::render('packages/create', [
             'cities' => $cities,
             'preferredVans' => $preferredVans,
+            'drivers' => $drivers,
             'otherServices' => $otherServices,
             'editMode' => false,
         ]));

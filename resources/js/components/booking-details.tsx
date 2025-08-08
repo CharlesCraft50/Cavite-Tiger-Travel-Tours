@@ -1,5 +1,5 @@
-import { Booking, OtherService, OtherServiceTourPackage, PreferredVan, TourPackage } from '@/types'
-import { Link, router, useForm } from '@inertiajs/react';
+import { Booking, OtherService, OtherServiceTourPackage, PreferredVan, SharedData, TourPackage } from '@/types'
+import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
 import {  Mail, Pencil, Phone } from 'lucide-react';
 import { FormEventHandler, useEffect, useMemo, useState } from 'react';
@@ -12,7 +12,7 @@ import { Textarea } from '@headlessui/react';
 import OtherServiceSelection from './other-service-selection';
 import PriceSign from './price-sign';
 import VanSelection from './van-selection';
-import { formatStatus } from '@/lib/utils';
+import { formatStatus, isAdmin, isDriver } from '@/lib/utils';
 
 type BookingDetailsProp = {
     booking: Booking;
@@ -28,6 +28,10 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>(
         booking.other_services?.map((s) => s.id) ?? []
     );
+
+    const { auth } = usePage<SharedData>().props;
+    const isAdmins = isAdmin(auth.user);
+    const isDrivers = isDriver(auth.user);
 
     useEffect(() => {
         const today = new Date();
@@ -555,7 +559,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                     booking.status !== 'past_due' && booking.status !== 'cancelled' && (
                                         <div className="border rounded-lg p-4 mt-4 bg-yellow-50 border-yellow-300">
                                             <p className="text-sm text-yellow-800">
-                                                You haven't completed the payment yet.
+                                                {isAdmins || isDrivers ? "The user haven't completed the payment yet." : "You haven't completed the payment yet."}
                                             </p>
                                             <Link
                                                 href={route('booking.payment', booking.id)}

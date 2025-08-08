@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/dashboard-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Booking, User } from '@/types';
-import { ArrowLeft, ShieldCheck, User2 } from 'lucide-react';
+import { ArrowLeft, Check, Pencil, ShieldCheck, User2, X } from 'lucide-react';
 import clsx from 'clsx';
 import {
   BarChart,
@@ -14,6 +14,9 @@ import {
   Bar
 } from 'recharts';
 import BookingList from '@/components/booking-list';
+import { isAdmin, isDriver } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useLoading } from '@/components/ui/loading-provider';
 
 interface Props {
   user: User;
@@ -33,6 +36,28 @@ export default function Show({ user, bookings, totalSpent }: Props) {
       return acc;
     }, {} as Record<string, { month: string; count: number }>)
   ).sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [userRole, setUserRole] = useState<string>(user.role);
+
+  const { start, stop } = useLoading();
+
+  const saveEdits = () => {
+    start();
+
+    router.post(route('users.update', user.id), {
+      '_method': 'PUT',
+      'role': userRole,
+    }, {
+      forceFormData: true,
+      preserveScroll: true,
+      preserveState: true,
+      onFinish: () => {
+        stop();
+        setIsEditing(false);
+      }
+    });
+  }
 
   return (
     <DashboardLayout title="Users" href="/users">
@@ -67,17 +92,60 @@ export default function Show({ user, bookings, totalSpent }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-gray-700">
           <div>
             <p className="text-gray-500 mb-1">Role</p>
-            <span
-              className={clsx(
-                'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium',
-                user.is_admin
-                  ? 'bg-purple-100 text-purple-800'
-                  : 'bg-gray-100 text-gray-700'
+            <div className="flex flex-row items-center space-x-2">
+              {isEditing ? (
+                <>
+                  <select className="cursor-pointer" value={userRole} onChange={(e) => setUserRole(e.target.value)}>
+                    <option key="user" value="user">User</option>
+                    <option key="admin" value="admin">Admin</option>
+                    <option key="driver" value="driver">Driver</option>
+                  </select>
+                </>
+              ) : (
+                <span
+                  className={clsx(
+                    'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium capitalize',
+                    isAdmin(user)
+                      ? 'bg-purple-100 text-purple-800'
+                      : isDriver(user) 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-700'
+                  )}
+                >
+                  {isAdmin(user) || isDriver(user) && <ShieldCheck className="h-4 w-4" />}
+                  {user.role}
+                </span>
               )}
-            >
-              {user.is_admin && <ShieldCheck className="h-4 w-4" />}
-              {user.is_admin ? 'Admin' : 'User'}
-            </span>
+
+              {isEditing ? (
+                <div className="flex flex-row space-x-2">
+                  <Button
+                    className="cursor-pointer"
+                    onClick={saveEdits}
+                  >
+                    <Check className="text-gray w-2 h-2" />
+                  </Button>
+
+                  <Button
+                    className="cursor-pointer"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    <X className="text-gray w-2 h-2" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setIsEditing(true);
+                    }}
+                  >
+                    <Pencil className="text-gray w-2 h-2" />
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
 
           <div>

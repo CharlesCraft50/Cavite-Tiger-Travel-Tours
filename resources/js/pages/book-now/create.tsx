@@ -1,5 +1,5 @@
 import FormLayout from "@/layouts/form-layout";
-import { OtherService, PackageCategory, PreferredVan, SharedData, TourPackage } from "@/types";
+import { OtherService, PackageCategory, PreferredVan, SharedData, TourPackage, User } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { format } from "date-fns";
 
 type BookNowCreateProps = {
     packages: TourPackage;
+    drivers: User[];
     categories: PackageCategory[];
     selectedCategoryId: number;
     preferredVans: PreferredVan[];
@@ -24,7 +25,8 @@ type BookNowCreateProps = {
 }
 
 export default function Create({ 
-    packages, 
+    packages,
+    drivers,
     categories, 
     selectedCategoryId, 
     preferredVans,
@@ -45,6 +47,7 @@ export default function Create({
         notes: string;
         preferred_van_id: number | null;
         other_services: number[],
+        driver_id: number | null,
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -60,6 +63,7 @@ export default function Create({
         notes: '',
         preferred_van_id: null,
         other_services: [],
+        driver_id: null,
     });
 
     useEffect(() => {
@@ -119,6 +123,7 @@ export default function Create({
             setSelectedVanIds([]);
             setData('preferred_van_id', null);
             setAvailableDates(null);
+            setData('driver_id', null);
         } else {
             setSelectedVanIds([vanId]);
             setData('preferred_van_id', vanId);
@@ -221,6 +226,12 @@ export default function Create({
         preferredVans,
         otherServices
     ]);
+
+    useEffect(() => {
+        if (selectedVan) {
+            setData('driver_id', selectedVan.user_id ? selectedVan.user_id : null);
+        }
+    }, [selectedVan]);
     
     return (
         <FormLayout>
@@ -359,6 +370,7 @@ export default function Create({
                 <div className="grid gap-2">
                     <VanSelection
                         preferredVans={preferredVans}
+                        drivers={drivers ?? []}
                         selectedVanIds={selectedVanIds}
                         onSelect={toggleVanSelection}
                         textLabel="Select your preferred van"

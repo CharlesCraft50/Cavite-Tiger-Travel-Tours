@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Booking;
 use App\Models\PreferredVanAvailability;
+use App\Models\User;
 
 class PreferredVan extends Model
 {
@@ -14,6 +15,7 @@ class PreferredVan extends Model
         'image_url',
         'pax_adult',
         'pax_kids',
+        'user_id',
     ];
 
     public function bookings()
@@ -23,5 +25,9 @@ class PreferredVan extends Model
 
     public function availabilities() {
         return $this->hasMany(PreferredVanAvailability::class);
+    }
+
+    public function driver() {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

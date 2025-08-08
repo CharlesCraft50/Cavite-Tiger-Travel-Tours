@@ -15,6 +15,7 @@ import AddCategories from '@/components/add-categories';
 import LinkLoading from '@/components/link-loading';
 import OtherServiceSelection from '@/components/other-service-selection';
 import VanSelection from '@/components/van-selection';
+import { isAdmin } from '@/lib/utils';
 
 type ShowPageProps = {
   packages: TourPackage;
@@ -37,12 +38,12 @@ export default function ShowPage({
   }, []);
 
   const { auth } = usePage<SharedData>().props;
-  const isAdmin = auth.user?.is_admin;
+  const isAdmins = isAdmin(auth.user);
 
   return (
     <PackageShowLayout
       packages={packages}
-      editable={!!isAdmin}
+      editable={!!isAdmins}
     >
       <Head title={packages.title} />
       <div className="space-y-4">

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Country;
 use App\Models\City;
+use App\Models\User;
 use App\Models\PreferredVan;
 use App\Models\OtherService;
 use App\Models\TourPackage;
@@ -21,10 +22,12 @@ class ConfigurationController extends Controller
         $cities = City::all();
         $preferredVans = PreferredVan::with('availabilities')->get();
         $otherServices = OtherService::all();
+        $drivers = User::where('role', 'driver')->get();
 
         return Inertia::render('dashboard/configurations/index', [
             'cities' => $cities,
             'preferredVans' => $preferredVans,
+            'drivers' => $drivers,
             'otherServices' => $otherServices,
         ]);
     }

@@ -40,6 +40,19 @@ class UserController extends Controller
             'totalSpent' => $totalSpent,
         ]);
     }
+    
+    public function update(Request $request, $id) {
+        $validated = $request->validate([
+            'role' => ['required', 'string', 'in:admin,user,driver'],
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update([
+            'role' => $validated['role'],
+        ]);
+
+        return redirect()->back()->with('success', 'User role updated successfully.');
+    }
 
 }
 
