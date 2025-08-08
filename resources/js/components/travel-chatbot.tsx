@@ -15,6 +15,8 @@ type MessageProps = {
 }
 
 export default function TravelChatbot() {
+
+    const chatRef = useRef<HTMLDivElement | null>(null);
     
     const quickReplies = [
         { text: "View Tour Packages", icon: MapPin },
@@ -156,12 +158,31 @@ export default function TravelChatbot() {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (chatRef.current && !chatRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isOpen]);
+
     return (
         <>
             <div className="fixed bottom-4 right-4 z-[9999] sm:bottom-4 sm:right-4">
                 <div className="relative">
                     {/* Chatbox */}
                     <div
+                        ref={chatRef}
                         className={clsx(
                             "absolute transition-all duration-300",
                             // Mobile: full screen positioning
