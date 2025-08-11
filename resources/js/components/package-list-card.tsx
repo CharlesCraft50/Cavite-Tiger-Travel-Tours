@@ -11,6 +11,14 @@ type PackageListCardProps = {
 export default function PackageListCard({ packages, limit }: PackageListCardProps) {
   const displayedPackages = limit ? packages.slice(0, limit) : packages;
 
+  if (displayedPackages.length === 0) {
+    return (
+      <div className="flex justify-center items-center min-h-[100px]">
+        <p className="text-gray-500 text-lg font-medium">No packages</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-center">
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 lg:gap-12 max-w-7xl w-full">
