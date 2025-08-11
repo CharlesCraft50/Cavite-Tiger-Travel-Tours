@@ -23,6 +23,7 @@ type ShowPageProps = {
   category: PackageCategory;
   preferredVans: PreferredVan[];
   otherServices: OtherService[];
+  isWishlisted?: boolean;
 };
 
 export default function ShowPage({
@@ -31,6 +32,7 @@ export default function ShowPage({
   category,
   preferredVans,
   otherServices,
+  isWishlisted,
 } : ShowPageProps) {
 
   useEffect(() => {
@@ -44,6 +46,8 @@ export default function ShowPage({
     <PackageShowLayout
       packages={packages}
       editable={!!isAdmins}
+      auth={auth}
+      isWishlisted={isWishlisted}
     >
       <Head title={packages.title} />
       <div className="space-y-4">

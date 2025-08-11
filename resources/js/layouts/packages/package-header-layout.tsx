@@ -1,6 +1,6 @@
 import { useState, type PropsWithChildren } from 'react';
 import PackageHeader from '@/components/package-header';
-import { TourPackage } from '@/types';
+import { Auth, TourPackage } from '@/types';
 import { Check, PencilIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLoading } from '@/components/ui/loading-provider';
@@ -9,6 +9,8 @@ import { router } from '@inertiajs/react';
 interface PackagHeaderLayoutProps {
   id?: number;
   packages: TourPackage;
+  auth?: Auth,
+  isWishlisted?: boolean;
   editable?: boolean;
 }
 
@@ -16,6 +18,8 @@ export default function PackagHeaderLayout({
   id,
   children,
   packages,
+  auth,
+  isWishlisted,
   editable,
 }: PropsWithChildren<PackagHeaderLayoutProps>) {
 
@@ -78,6 +82,7 @@ export default function PackagHeaderLayout({
       
       {!isEditing && (
         <PackageHeader
+          id={id}
           title={packages.title}
           base_price={packages.base_price}
           imageBanner={packages.image_banner as string}
@@ -85,6 +90,8 @@ export default function PackagHeaderLayout({
           updated_at={packages.updated_at}
           textSize="large"
           slug={packages.slug}
+          auth={auth}
+          isWishlisted={isWishlisted}
         >
           {editable && (
             <div

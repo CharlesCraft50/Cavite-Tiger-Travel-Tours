@@ -12,6 +12,7 @@ export * from './other-service';
 export * from './other-service-tour-package';
 export * from './paginated';
 export * from './booking-payment';
+export * from './wishlist';
 
 export interface Auth {
     user: User;
@@ -32,6 +33,7 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    children?: NavItem[];
 }
 
 export interface SharedData {

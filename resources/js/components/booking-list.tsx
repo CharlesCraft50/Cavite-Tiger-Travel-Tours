@@ -2,7 +2,7 @@ import { formatStatus } from '@/lib/utils';
 import { Booking } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -17,13 +17,15 @@ type BookingListProps = {
   bookings: Booking[];
   limit?: number;
   searchByUserId?: string;
+  statusFilter?: string;
 };
 
-export default function BookingList({ bookings, limit, searchByUserId }: BookingListProps) {
+export default function BookingList({ bookings, limit, searchByUserId, statusFilter }: BookingListProps) {
   const [searchQuery, setSearchQuery] = useState(searchByUserId ?? '');
-  const [searchBy, setSearchBy] = useState<'name' | 'package' | 'booking_number' | 'user_id'>(
-    searchByUserId ? 'user_id' : 'name'
+  const [searchBy, setSearchBy] = useState< 'package' | 'name' | 'booking_number' | 'user_id'>(
+    searchByUserId ? 'user_id' : 'package'
   );
+  const [status, setStatus] = useState(statusFilter);
   const [sortByDate, setSortByDate] = useState<'newest' | 'oldest'>('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
@@ -32,19 +34,22 @@ export default function BookingList({ bookings, limit, searchByUserId }: Booking
   const filteredBookings = bookings
     .filter((booking) => {
       const query = searchQuery.toLowerCase();
-      switch (searchBy) {
-        case 'name':
-          return (`${booking.first_name} ${booking.last_name}`.toLowerCase().includes(query));
-        case 'package':
-          return (booking.tour_package?.title?.toLowerCase().includes(query) || '');
-        case 'booking_number':
-          return booking.booking_number?.toLowerCase().includes(query);
-        case 'user_id':
-          // return booking.user_id?.toString().includes(query);
-          return booking.user_id?.toString() === query;
-        default:
-          return true;
-      }
+      const matchesSearch = (() => {
+        switch (searchBy) {
+          case 'name':
+            return (`${booking.first_name} ${booking.last_name}`.toLowerCase().includes(query));
+          case 'package':
+            return booking.tour_package?.title?.toLowerCase().includes(query) || '';
+          case 'booking_number':
+            return booking.booking_number?.toLowerCase().includes(query);
+          case 'user_id':
+            return booking.user_id?.toString() === query;
+          default:
+            return true;
+        }
+      })();
+      const matchesStatus = !status || booking.status === status;
+      return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       const dateA = new Date(a.departure_date).getTime();
@@ -66,10 +71,34 @@ export default function BookingList({ bookings, limit, searchByUserId }: Booking
     setBookingToCancel(null);
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (status) {
+      params.set('status', status);
+    } else {
+      params.delete('status');
+    }
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+  }, [status]);
+
   return (
     <div className="overflow-x-auto rounded-lg border">
       <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {/* Status filter */}
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Accepted</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="past_due">Past Due</option>
+          </select>
+
+          {/* Search */}
           <input
             type="text"
             placeholder={`Search by ${searchBy.replace('_', ' ')}`}
@@ -82,12 +111,14 @@ export default function BookingList({ bookings, limit, searchByUserId }: Booking
             onChange={(e) => setSearchBy(e.target.value as any)}
             className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
           >
-            <option value="name">Name</option>
+            
             <option value="package">Package</option>
+            <option value="name">Name</option>
             <option value="booking_number">Booking No.</option>
             <option value="user_id">User ID</option>
           </select>
         </div>
+        {/* Sort */}
         <select
           value={sortByDate}
           onChange={(e) => setSortByDate(e.target.value as any)}

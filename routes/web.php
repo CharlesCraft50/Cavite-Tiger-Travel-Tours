@@ -12,6 +12,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\PreferredVanController;
 use App\Http\Controllers\OtherServiceController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use \App\Models\TourPackage;
@@ -42,6 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('bookings', BookingController::class);
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+    Route::resource('wishlists', WishlistController::class);
 });
 
 Route::post('/image/upload', [ImageController::class, 'store'])->name('image.store');

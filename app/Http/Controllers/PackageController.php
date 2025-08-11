@@ -8,8 +8,10 @@ use Inertia\Inertia;
 use App\Models\User;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
+use App\Models\Wishlist;
 use App\Models\City;
 use App\Models\PreferredVan;
+use Illuminate\Support\Facades\Auth;
 use App\Models\OtherService;
 use App\Models\Country;
 use App\Http\Requests\StorePackageRequest;
@@ -150,13 +152,23 @@ class PackageController extends Controller
     {
         //
         $package = TourPackage::where('slug', $slug)->firstOrFail();
+
+        $user = Auth::user();
+
+        $exists = null;
+
+        if ($user) {
+            $exists = Wishlist::where('tour_package_id', $package->id)
+                ->where('user_id', $user->id)
+                ->exists();
+        }
        
         $package->load([
             'categories', 
             'preferredVans.availabilities', 
             'otherServices' => function ($query) {
                 $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
-            }
+            },
         ]);
         
         return (inertia::render('packages/show', [
@@ -164,6 +176,7 @@ class PackageController extends Controller
             'categories' => $package->categories,
             'preferredVans' => $package->preferredVans,
             'otherServices' => $package->otherServices,
+            'isWishlisted' => $exists,
         ]));
     }
 

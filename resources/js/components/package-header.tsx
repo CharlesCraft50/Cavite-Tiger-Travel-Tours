@@ -1,12 +1,16 @@
 import clsx from "clsx";
 import dayjs from "dayjs";
-import { FilePlus } from "lucide-react";
+import { Check, FilePlus, Plus } from "lucide-react";
 import LinkLoading from "./link-loading";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import PriceSign from "./price-sign";
 import { format } from "date-fns";
+import { Auth } from "@/types";
+import { router } from "@inertiajs/react";
+import { Button } from "@headlessui/react";
 
 type PackageBannerProps = {
+    id?: number;
     title?: string;
     imageBanner?: string;
     base_price?: number;
@@ -16,10 +20,13 @@ type PackageBannerProps = {
     updated_at?: string;
     slug?: string;
     textSize?: 'small' | 'medium' | 'large';
+    auth?: Auth;
+    isWishlisted?: boolean;
     editable?: boolean;
 }
 
 export default function PackageHeader({
+    id,
     title,
     imageBanner,
     base_price,
@@ -30,8 +37,11 @@ export default function PackageHeader({
     slug,
     textSize = 'small',
     editable = false,
+    auth,
+    isWishlisted,
     children,
 }: PropsWithChildren<PackageBannerProps>) {
+
   return (
     <header className="mb-6">
         <div className={clsx("relative w-full ", size, " rounded-xl overflow-hidden mb-6")}>
@@ -99,13 +109,52 @@ export default function PackageHeader({
                 )}
             </div>
 
-            <LinkLoading
-                href={slug ? route("booking.create", { slug: slug }) : undefined}
-                useUI={false}
-                className="btn-primary"
-            >
-                Book Now
-            </LinkLoading>
+            <div className="flex flex-row gap-2">
+                <LinkLoading
+                    href={slug ? route("booking.create", { slug: slug }) : undefined}
+                    useUI={false}
+                    className="btn-primary"
+                >
+                    Book Now
+                </LinkLoading>
+
+                {auth?.user && (
+                    <div className="flex flex-row items-center gap-2">
+                        <Button
+                            onClick={() => {
+                                if (!isWishlisted) {
+                                    router.post(route('wishlists.store'), {
+                                        tour_package_id: id,
+                                        user_id: auth?.user.id
+                                    }, {
+                                        forceFormData: true,
+                                        preserveScroll: true,
+                                        preserveState: true,
+                                    });
+                                }
+                            }}
+                            disabled={isWishlisted}
+                            className={`btn-primary text-sm px-3 py-2 ${
+                                isWishlisted ? "bg-green-500 cursor-not-allowed" : "bg-gray-500 cursor-pointer"
+                            }`}
+                        >
+                            {isWishlisted ? (
+                                <span className="flex flex-row items-center mt-1 mb-1">
+                                    <Check className="mr-1" />
+                                    <p>Wishlisted</p>
+                                </span>
+                            ) : (
+                                <span className="flex flex-row items-center mt-1 mb-1">
+                                    <Plus className="mr-1" />
+                                    <p>Wishlist</p>
+                                </span>
+                            )}
+                        </Button>
+                    </div>
+                )}
+
+
+            </div>
         </div>
 
         <p className="text-sm text-gray-500">

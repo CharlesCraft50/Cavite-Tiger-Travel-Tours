@@ -8,15 +8,23 @@ type DashboardProps = {
     userBookings: Booking[];
 };
 
-export default function Bookings({ userBookings } : DashboardProps) {
-    const { auth } = usePage<SharedData>().props;
+export default function Bookings({ userBookings }: DashboardProps) {
+    const { auth, ziggy } = usePage<SharedData>().props;
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
-return (
+
+    // Get query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusFilter = urlParams.get('status') ?? '';
+
+    return (
         <DashboardLayout title="Bookings" href="/bookings">
-            <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'My Recent Bookings'}</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4">
+                {isDrivers ? 'Bookings from Users' : 'My Recent Bookings'}
+            </h2>
             <BookingList 
                 bookings={userBookings}
+                statusFilter={statusFilter}
             />
         </DashboardLayout>
     );

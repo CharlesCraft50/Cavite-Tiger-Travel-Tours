@@ -1,17 +1,19 @@
 
 import Navbar from '@/components/ui/navbar';
 import PackagHeaderLayout from './packages/package-header-layout';
-import { TourPackage } from '@/types';
+import { Auth, TourPackage } from '@/types';
 import BackButton from '@/components/ui/back-button';
 
 interface PackageShowLayoutProps {
     id?: number;
     children: React.ReactNode;
     packages: TourPackage;
+    auth?: Auth;
+    isWishlisted?: boolean;
     editable?: boolean;
 }
 
-export default function PackageShowLayout({ id, children, packages, editable, ...props }: PackageShowLayoutProps) {
+export default function PackageShowLayout({ id, children, packages, editable, auth, isWishlisted, ...props }: PackageShowLayoutProps) {
 
     return (
         <>
@@ -22,6 +24,8 @@ export default function PackageShowLayout({ id, children, packages, editable, ..
             />
             <PackagHeaderLayout 
                 id={packages.id}
+                auth={auth}
+                isWishlisted={isWishlisted}
                 packages={packages}
                 editable={editable}
                 {...props}

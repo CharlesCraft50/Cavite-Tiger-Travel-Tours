@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\City;
-use App\Http\Requests\CreateCityRequest;
+use App\Http\Requests\StoreCityRequest;
 use App\Http\Requests\UpdateCityRequest;
 use App\Traits\StoresImages;
 
@@ -32,7 +32,7 @@ class CityController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreateCityRequest $request)
+    public function store(StoreCityRequest $request)
     {
         $validated = $request->validated();
 

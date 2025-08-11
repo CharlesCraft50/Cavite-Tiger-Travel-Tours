@@ -10,7 +10,7 @@ class PackageApiController extends Controller
 {
     public function getLatestPackages() {
         $packages = TourPackage::with('categories')
-            ->select('title', 'subtitle', 'overview', 'base_price', 'slug')
+            ->select('title', 'subtitle', 'overview', 'base_price', 'slug', 'image_overview')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();

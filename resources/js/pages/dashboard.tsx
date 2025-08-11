@@ -1,9 +1,12 @@
 import BookingList from '@/components/booking-list';
+import BookingListCard from '@/components/booking-list-card';
+import PackageListCard from '@/components/package-list-card';
 import PriceSign from '@/components/price-sign';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { isAdmin, isDriver } from '@/lib/utils';
-import { Booking, SharedData } from '@/types';
+import { Booking, SharedData, TourPackage } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 type DashboardProps = {
     bookingCount: number;
@@ -14,11 +17,26 @@ export default function Dashboard({ bookingCount, userBookings } : DashboardProp
     const { auth } = usePage<SharedData>().props;
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
+    const [packages, setPackages] = useState<TourPackage[]>([]);
+
+    useEffect(() => {
+        const fetchPackages = async () => {
+            try {
+                const response = await fetch('/api/packages/latest');
+                const packages = response.json();
+                setPackages(await packages);
+            } catch (error) {
+                console.error('Error fetching packages: ', error);
+            }
+        }
+
+        fetchPackages();
+    }, []);
 
 return (
         <DashboardLayout title="Dasboard" href="/dashboard">
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <h1 className="text-4xl">Hello {auth.user.name}!</h1>
+                <h1 className="text-4xl">Welcome back, {auth.user.name}!</h1>
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     {/* Total Bookings */}
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border flex flex-col items-center justify-center">
@@ -43,19 +61,54 @@ return (
                         </h1>
                     </div>
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
-                    {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
-                    <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'My Recent Bookings'}</h2>
-                    <BookingList 
-                        bookings={userBookings}
-                        limit={3}
-                    />
-                    {userBookings.length > 2 && (
-                        <div className="w-full flex">
-                            <Link href="/bookings" className="btn-primary text-center w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded rounded-t-none cursor-pointer">Show All</Link>
+
+                {(isAdmins || isDrivers) && (
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
+                        {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
+                        <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'My Recent Bookings'}</h2>
+                        <BookingList 
+                            bookings={userBookings}
+                            limit={3}
+                        />
+                        {userBookings.length > 2 && (
+                            <div className="w-full flex">
+                                <Link href="/bookings" className="btn-primary text-center w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded rounded-t-none cursor-pointer">Show All</Link>
+                            </div>
+                        )}
+                    </div>
+                )}            
+
+                {!(isAdmins || isDrivers) && (
+                    <>
+                        <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
+                            {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
+                            <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'Upcoming Trips'}</h2>
+                            <BookingListCard 
+                                bookings={userBookings}
+                                limit={3}
+                            />
+                            {userBookings.length > 2 && (
+                                <div className="w-full flex">
+                                    <Link href="/bookings" className="btn-primary text-center w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded rounded-t-none cursor-pointer">Show All</Link>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
+
+                        <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
+                            {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
+                            <h2 className="text-xl font-semibold mt-8 mb-4">Recommended for you</h2>
+                            <PackageListCard 
+                                packages={packages}
+                                limit={3}
+                            />
+                            {userBookings.length > 2 && (
+                                <div className="w-full flex">
+                                    <Link href="/bookings" className="btn-primary text-center w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded rounded-t-none cursor-pointer">Show All</Link>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
                 
             </div>
         </DashboardLayout>
