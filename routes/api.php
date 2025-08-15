@@ -11,3 +11,4 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/van/{vanId}/availability', [VanApiController::class, 'availability']);
 Route::get('/packages/latest', [PackageApiController::class, 'getLatestPackages']);
+Route::get('/packages', [PackageApiController::class, 'search'])->name('packages.search');

@@ -5,6 +5,7 @@ import { Booking, SharedData, type BreadcrumbItem } from '@/types';
 import { Button } from '@headlessui/react';
 import { Head, usePage } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
+import AppLayoutSearch from './app-layout-search';
 
 type DashboardProps = {
     title: string,
@@ -21,10 +22,10 @@ export default function DashboardLayout({ title, href, children } : PropsWithChi
     ];
 
 return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayoutSearch breadcrumbs={breadcrumbs}>
             <Head title={title} />
             
             <main className="p-8">{children}</main>
-        </AppLayout>
+        </AppLayoutSearch>
     );
 }

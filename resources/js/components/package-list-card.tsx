@@ -6,10 +6,18 @@ import PriceSign from './price-sign';
 type PackageListCardProps = {
   packages: TourPackage[];
   limit?: number;
+  searchable?: boolean;
+  searchQuery?: string;
 };
 
-export default function PackageListCard({ packages, limit }: PackageListCardProps) {
-  const displayedPackages = limit ? packages.slice(0, limit) : packages;
+export default function PackageListCard({ packages, limit, searchable, searchQuery }: PackageListCardProps) {
+  const filteredPackages = searchable && searchQuery
+    ? packages.filter(pkg =>
+        pkg.title?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : packages;
+
+  const displayedPackages = limit ? filteredPackages.slice(0, limit) : filteredPackages;
 
   if (displayedPackages.length === 0) {
     return (

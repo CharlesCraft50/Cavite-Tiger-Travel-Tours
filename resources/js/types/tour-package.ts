@@ -1,3 +1,4 @@
+import { City } from "./city";
 import { OtherService } from "./other-service";
 import { PackageCategory } from "./package-category";
 
@@ -25,6 +26,7 @@ export interface TourPackage {
     base_price: number;
     other_services: OtherService[];
     package_categories: PackageCategory[];
+    city?: City;
 
     created_at: string;
     updated_at: string;
