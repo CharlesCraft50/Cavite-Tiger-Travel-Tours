@@ -54,8 +54,8 @@ export default function ImageSimpleBox({ id, imagePreview, setImagePreview, setI
                         </span>
                     ) : (
                         <div className="flex flex-col items-center justify-center text-center gap-2">
-                            <Image className="w-12 h-12" />
-                            <p>No Image</p>
+                            <div className="text-2xl mb-1">🏞️</div>
+                            <div className="text-xs">No image</div>
                         </div>
                     )
                 )}

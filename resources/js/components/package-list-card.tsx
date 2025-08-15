@@ -13,55 +13,86 @@ export default function PackageListCard({ packages, limit }: PackageListCardProp
 
   if (displayedPackages.length === 0) {
     return (
-      <div className="flex justify-center items-center min-h-[100px]">
-        <p className="text-gray-500 text-lg font-medium">No packages</p>
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🏖️</div>
+          <p className="text-gray-500 dark:text-gray-400 text-lg font-medium mb-2">No packages available</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">Check back later for amazing deals!</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center">
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 lg:gap-12 max-w-7xl w-full">
-        {displayedPackages.map((pkg) => (
-          <div
-            key={pkg.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 w-full"
-          >
+    <div className="space-y-4">
+      {displayedPackages.map((pkg) => (
+        <div
+          key={pkg.id}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 group"
+        >
+          <div className="flex flex-col sm:flex-row">
             {/* Image */}
-            <div className="relative w-full aspect-[16/9] overflow-hidden">
-              <img
-                src={pkg.image_overview ?? ''}
-                alt={pkg.title ?? 'Tour package'}
-                className="w-full h-full object-cover"
-              />
+            <div className="relative w-full sm:w-32 md:w-40 h-32 sm:h-24 md:h-28 overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
+              {pkg.image_overview ? (
+                <img
+                  src={pkg.image_overview}
+                  alt={pkg.title ?? 'Tour package'}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🏞️</div>
+                    <div className="text-xs">No image</div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Content */}
-            <div className="p-3">
-              <h3 className="font-semibold text-base text-gray-900 mb-1 line-clamp-2">
-                {pkg?.title}
-              </h3>
+            <div className="flex-1 p-4 flex flex-col justify-between">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-200">
+                  {pkg?.title || 'Untitled Package'}
+                </h3>
 
-              <p className="text-md text-gray-900 mb-2 font-semibold flex items-center gap-1">
-                <PriceSign />
-                {pkg.base_price}
-              </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <p className="text-xl font-bold text-primary flex items-center gap-1">
+                      <PriceSign />
+                      <span>{pkg.base_price?.toLocaleString() || 'N/A'}</span>
+                    </p>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">per person</span>
+                  </div>
 
-              <div className="flex justify-end">
-                <Link
-                  href={route('packages.show', {
-                    slug: pkg?.slug,
-                  })}
-                >
-                  <Button type="button" className="px-4 py-1 cursor-pointer">
-                    View
-                  </Button>
-                </Link>
+                  <Link
+                    href={route('packages.show', {
+                      slug: pkg?.slug,
+                    })}
+                    className="flex-shrink-0"
+                  >
+                    <Button 
+                      type="button" 
+                      className="bg-primary hover:bg-primary hover:opacity-90 text-white px-2 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-md"
+                    >
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
+
+      {/* Show all packages hint */}
+      {limit && packages.length > limit && (
+        <div className="text-center pt-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Showing {limit} of {packages.length} packages
+          </p>
+        </div>
+      )}
     </div>
   );
 }

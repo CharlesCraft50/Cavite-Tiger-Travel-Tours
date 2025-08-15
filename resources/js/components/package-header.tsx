@@ -122,20 +122,17 @@ export default function PackageHeader({
                     <div className="flex flex-row items-center gap-2">
                         <Button
                             onClick={() => {
-                                if (!isWishlisted) {
-                                    router.post(route('wishlists.store'), {
-                                        tour_package_id: id,
-                                        user_id: auth?.user.id
-                                    }, {
-                                        forceFormData: true,
-                                        preserveScroll: true,
-                                        preserveState: true,
-                                    });
-                                }
+                                router.post(route('wishlists.store'), {
+                                    tour_package_id: id,
+                                    user_id: auth?.user.id
+                                }, {
+                                    forceFormData: true,
+                                    preserveScroll: true,
+                                    preserveState: true,
+                                });
                             }}
-                            disabled={isWishlisted}
                             className={`btn-primary text-sm px-3 py-2 ${
-                                isWishlisted ? "bg-green-500 cursor-not-allowed" : "bg-gray-500 cursor-pointer"
+                                isWishlisted ? "bg-green-500 cursor-pointer" : "bg-gray-500 cursor-pointer"
                             }`}
                         >
                             {isWishlisted ? (

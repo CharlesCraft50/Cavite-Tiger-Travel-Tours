@@ -30,6 +30,10 @@ class WishlistController extends Controller
 
         if (!$exists) {
             Wishlist::create($validated);
+        } else {
+            Wishlist::where('tour_package_id', $validated['tour_package_id'])
+                ->where('user_id', $validated['user_id'])
+                ->delete();
         }
 
         return redirect()->back();

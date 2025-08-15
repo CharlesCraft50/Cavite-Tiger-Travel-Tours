@@ -7,13 +7,14 @@ import { isAdmin, isDriver } from '@/lib/utils';
 import { Booking, SharedData, TourPackage } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import '../../css/dashboard.css';
 
 type DashboardProps = {
     bookingCount: number;
     userBookings: Booking[];
 };
 
-export default function Dashboard({ bookingCount, userBookings } : DashboardProps) {
+export default function Dashboard({ bookingCount, userBookings }: DashboardProps) {
     const { auth } = usePage<SharedData>().props;
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
@@ -33,83 +34,162 @@ export default function Dashboard({ bookingCount, userBookings } : DashboardProp
         fetchPackages();
     }, []);
 
-return (
-        <DashboardLayout title="Dasboard" href="/dashboard">
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <h1 className="text-4xl">Welcome back, {auth.user.name}!</h1>
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    {/* Total Bookings */}
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border flex flex-col items-center justify-center">
-                        <h2 className="text-sm text-muted-foreground mb-1">Total Bookings</h2>
-                        <h1 className="text-4xl font-bold text-primary">{bookingCount}</h1>
-                    </div>
-                    {/* Upcoming Trips */}
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border flex flex-col items-center justify-center">
-                        <h2 className="text-sm text-muted-foreground mb-1">Upcoming Trips</h2>
-                        <h1 className="text-4xl font-bold text-green-600">
-                            {
-                                userBookings.filter(b => new Date(b.departure_date) > new Date()).length
-                            }
-                        </h1>
-                    </div>
-                    {/* Total Spent */}
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border flex flex-col items-center justify-center">
-                        <h2 className="text-sm text-muted-foreground mb-1">Total Spent</h2>
-                        <h1 className="flex flex-row items-center text-4xl font-bold text-yellow-600">
-                            <PriceSign />
-                            {userBookings.reduce((sum, b) => sum + Number(b.total_amount ?? 0), 0).toLocaleString()}
-                        </h1>
-                    </div>
-                </div>
+    const upcomingTrips = userBookings.filter(b => new Date(b.departure_date) > new Date()).length;
+    const totalSpent = userBookings.reduce((sum, b) => sum + Number(b.total_amount ?? 0), 0);
 
-                {(isAdmins || isDrivers) && (
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
-                        {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
-                        <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'My Recent Bookings'}</h2>
-                        <BookingList 
-                            bookings={userBookings}
-                            limit={3}
-                        />
-                        {userBookings.length > 2 && (
-                            <div className="w-full flex">
-                                <Link href="/bookings" className="btn-primary text-center w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded rounded-t-none cursor-pointer">Show All</Link>
+    return (
+        <DashboardLayout title="Dashboard" href="/dashboard">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+                <div className="container mx-auto px-4 py-8">
+                    {/* Header Section */}
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
+                            Welcome back, {auth.user.name}!
+                        </h1>
+                        <p className="text-gray-600 dark:text-gray-300">
+                            You have {upcomingTrips} upcoming trip{upcomingTrips !== 1 ? 's' : ''} — ready for adventure?
+                        </p>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        {/* Upcoming Trips */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                            <div className="text-center">
+                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Upcoming Trips</h3>
+                                <div className="text-4xl font-bold text-primary mb-2">
+                                    {upcomingTrips}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Total Completed */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                            <div className="text-center">
+                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Completed Trips</h3>
+                                <div className="text-4xl font-bold text-green-600 mb-2">
+                                    {bookingCount - upcomingTrips}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Total Spent */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+                            <div className="text-center">
+                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Spent</h3>
+                                <div className="flex items-center justify-center text-4xl font-bold text-yellow-600 mb-2">
+                                    <PriceSign />
+                                    <span>{totalSpent.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Content Sections */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        {/* Upcoming Trips Section */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                    {(isAdmins || isDrivers) ? 'Recent Bookings' : 'Upcoming Trips'}
+                                </h2>
+                                {userBookings.length > 3 && (
+                                    <Link 
+                                        href="/bookings" 
+                                        className="text-primary hover:opacity-80 font-medium text-sm transition-opacity duration-200"
+                                    >
+                                        View All →
+                                    </Link>
+                                )}
+                            </div>
+                            
+                            <div className="space-y-4">
+                                {(isAdmins || isDrivers) ? (
+                                    <BookingList bookings={userBookings} limit={3} />
+                                ) : (
+                                    <BookingListCard bookings={userBookings} limit={3} />
+                                )}
+                                
+                                {userBookings.length === 0 && (
+                                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                                        <p>No trips scheduled yet</p>
+                                        <Link 
+                                            href="/packages" 
+                                            className="inline-block mt-4 bg-primary hover:opacity-90 text-white px-6 py-2 rounded-lg transition-opacity duration-200"
+                                        >
+                                            Browse Packages
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Recommended Packages Section */}
+                        {!(isAdmins || isDrivers) && (
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                        Recommended for You
+                                    </h2>
+                                    <Link 
+                                        href="/packages" 
+                                        className="text-primary hover:opacity-80 font-medium text-sm transition-opacity duration-200"
+                                    >
+                                        View All →
+                                    </Link>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    <PackageListCard packages={packages} limit={3} />
+                                    
+                                    {packages.length === 0 && (
+                                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                                            <div className="animate-pulse">
+                                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-2"></div>
+                                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
-                )}            
 
-                {!(isAdmins || isDrivers) && (
-                    <>
-                        <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
-                            {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
-                            <h2 className="text-xl font-semibold mt-8 mb-4">{isDrivers ? 'Bookings from Users' : 'Upcoming Trips'}</h2>
-                            <BookingListCard 
-                                bookings={userBookings}
-                                limit={3}
-                            />
-                            {userBookings.length > 2 && (
-                                <div className="w-full flex">
-                                    <Link href="/bookings" className="btn-primary text-center w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded rounded-t-none cursor-pointer">Show All</Link>
+                    {/* Additional Action Cards for regular users */}
+                    {!(isAdmins || isDrivers) && (
+                        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Link 
+                                href="/packages" 
+                                className="bg-primary hover:opacity-90 text-white rounded-2xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 group"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2">Explore Packages</h3>
+                                        <p className="text-pink-100">Discover amazing destinations</p>
+                                    </div>
+                                    <div className="text-3xl group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
+                                        ✈️
+                                    </div>
                                 </div>
-                            )}
-                        </div>
+                            </Link>
 
-                        <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min p-4">
-                            {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
-                            <h2 className="text-xl font-semibold mt-8 mb-4">Recommended for you</h2>
-                            <PackageListCard 
-                                packages={packages}
-                                limit={3}
-                            />
-                            {userBookings.length > 2 && (
-                                <div className="w-full flex">
-                                    <Link href="/bookings" className="btn-primary text-center w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded rounded-t-none cursor-pointer">Show All</Link>
+                            <Link 
+                                href="/bookings" 
+                                className="bg-green-500 hover:bg-green-600 text-white rounded-2xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 group"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2">My Bookings</h3>
+                                        <p className="text-green-100">View your travel history</p>
+                                    </div>
+                                    <div className="text-3xl group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
+                                        📋
+                                    </div>
                                 </div>
-                            )}
+                            </Link>
                         </div>
-                    </>
-                )}
-                
+                    )}
+                </div>
             </div>
         </DashboardLayout>
     );
