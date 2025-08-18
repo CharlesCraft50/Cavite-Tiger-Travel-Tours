@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from "@/compon
 import { UserMenuContent } from "../user-menu-content";
 
 
-export default function navbar({ hasSearchBar, inDashboard } : { hasSearchBar?: boolean, inDashboard?: boolean }) {
+export default function navbar({ hasSearchBar, removeNavItems = false, inDashboard } : { hasSearchBar?: boolean, removeNavItems?: boolean, inDashboard?: boolean }) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [menuOpen, setMenuOpen] = useState(false);
     const  {auth } = usePage<SharedData>().props;
@@ -93,23 +93,25 @@ export default function navbar({ hasSearchBar, inDashboard } : { hasSearchBar?: 
                             </div>
                         </div>
                     ) : (
-                        <div className="hidden md:flex space-x-6">
-                            <LinkLoading href="/" useUI={false} className="text-white hover:text-indigo-600">
-                                Home
-                            </LinkLoading>
+                        !removeNavItems && (
+                            <div className="hidden md:flex space-x-6">
+                                <LinkLoading href="/" useUI={false} className="text-white hover:text-indigo-600">
+                                    Home
+                                </LinkLoading>
 
-                            <LinkLoading href="/packages" useUI={false} className="text-white hover:text-indigo-600">
-                                Packages
-                            </LinkLoading>
+                                <LinkLoading href="/packages" useUI={false} className="text-white hover:text-indigo-600">
+                                    Packages
+                                </LinkLoading>
 
-                            <LinkLoading href="/about" useUI={false} className="text-white hover:text-indigo-600">
-                                About
-                            </LinkLoading>
+                                <LinkLoading href="/about" useUI={false} className="text-white hover:text-indigo-600">
+                                    About
+                                </LinkLoading>
 
-                            <LinkLoading href="/contact" useUI={false} className="text-white hover:text-indigo-600">
-                                Contact
-                            </LinkLoading>
-                        </div>
+                                <LinkLoading href="/contact" useUI={false} className="text-white hover:text-indigo-600">
+                                    Contact
+                                </LinkLoading>
+                            </div>
+                        )
                     )}
 
                     {/* Book Now Button */}

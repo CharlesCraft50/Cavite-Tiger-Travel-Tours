@@ -5,12 +5,14 @@ import Navbar from '@/components/ui/navbar';
 
 interface AppLayoutSearchProps {
     children: ReactNode;
+    hasSearchBar?: boolean;
+    removeNavItems?: boolean;
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default ({ children, breadcrumbs, ...props }: AppLayoutSearchProps) => (
+export default ({ children, hasSearchBar, removeNavItems, breadcrumbs, ...props }: AppLayoutSearchProps) => (
     <>
-        <Navbar hasSearchBar={true} inDashboard={true} />
+        <Navbar hasSearchBar={hasSearchBar} inDashboard={true} removeNavItems={removeNavItems} />
         
         <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
             {children}

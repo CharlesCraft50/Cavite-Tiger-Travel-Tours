@@ -1,11 +1,8 @@
-import BookingList from '@/components/booking-list';
-import PriceSign from '@/components/price-sign';
-import AppLayout from '@/layouts/app-layout';
 import { Booking, SharedData, type BreadcrumbItem } from '@/types';
-import { Button } from '@headlessui/react';
 import { Head, usePage } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
 import AppLayoutSearch from './app-layout-search';
+import { isAdmin, isDriver } from '@/lib/utils';
 
 type DashboardProps = {
     title: string,
@@ -21,8 +18,12 @@ export default function DashboardLayout({ title, href, children } : PropsWithChi
         },
     ];
 
+    const { auth } = usePage<SharedData>().props;
+    const isAdmins = isAdmin(auth.user);
+    const isDrivers = isDriver(auth.user);
+
 return (
-        <AppLayoutSearch breadcrumbs={breadcrumbs}>
+        <AppLayoutSearch breadcrumbs={breadcrumbs} hasSearchBar={!(isAdmins || isDrivers) ? true : false} removeNavItems={!(isAdmins || isDrivers) ? false : true}>
             <Head title={title} />
             
             <main className="p-8">{children}</main>
