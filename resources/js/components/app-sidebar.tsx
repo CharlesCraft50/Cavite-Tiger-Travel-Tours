@@ -15,7 +15,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { BarChart2, Book, BookOpen, Folder, HeartIcon, Home, LayoutGrid, Settings } from 'lucide-react';
 import AppLogo from './app-logo';
 import type { SharedData } from '@/types'; // adjust path if needed
-import { isAdmin } from '@/lib/utils';
+import { isAdmin, isDriver } from '@/lib/utils';
 
 const footerNavItems: NavItem[] = [
     // {
@@ -35,6 +35,7 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
     const { auth } = props;
     const isBookingView = /^\/bookings\/\d+$/.test(url);
     const isAdmins = isAdmin(auth.user);
+    const isDrivers = isDriver(auth.user);
 
     const mainNavItems: NavItem[] = [
     {
@@ -61,11 +62,13 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
             },
         ],
     },
-    {
-        title: 'Wishlist',
-        href: '/wishlists',
-        icon: HeartIcon,
-    },
+    ...(!(isAdmins || isDrivers) ? [
+        {
+            title: 'Wishlist',
+            href: '/wishlists',
+            icon: HeartIcon,
+        },
+    ] : []),
     ...(isAdmins
             ? [
                 {

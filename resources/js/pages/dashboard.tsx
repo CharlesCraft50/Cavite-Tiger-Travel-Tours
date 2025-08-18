@@ -8,6 +8,8 @@ import { Booking, SharedData, TourPackage } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import '../../css/dashboard.css';
+import BottomNav from '@/components/ui/bottom-nav';
+import clsx from 'clsx';
 
 type DashboardProps = {
     bookingCount: number;
@@ -46,9 +48,11 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
                             Welcome back, {auth.user.name}!
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-300">
-                            You have {upcomingTrips} upcoming trip{upcomingTrips !== 1 ? 's' : ''} — ready for adventure?
-                        </p>
+                        {!(isAdmins || isDrivers) && (
+                            <p className="text-gray-600 dark:text-gray-300">
+                                You have {upcomingTrips} upcoming trip{upcomingTrips !== 1 ? 's' : ''} — ready for adventure?
+                            </p>
+                        )}
                     </div>
 
                     {/* Stats Grid */}
@@ -66,7 +70,7 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                         {/* Total Completed */}
                         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
                             <div className="text-center">
-                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Completed Trips</h3>
+                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{!(isAdmins || isDrivers) ? "Total Completed Trips" : "Accepted"}</h3>
                                 <div className="text-4xl font-bold text-green-600 mb-2">
                                     {bookingCount - upcomingTrips}
                                 </div>
@@ -76,7 +80,7 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                         {/* Total Spent */}
                         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
                             <div className="text-center">
-                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Spent</h3>
+                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{!(isAdmins || isDrivers) ? "Total Spent" : "Revenue"}</h3>
                                 <div className="flex items-center justify-center text-4xl font-bold text-yellow-600 mb-2">
                                     <PriceSign />
                                     <span>{totalSpent.toLocaleString()}</span>
@@ -86,7 +90,7 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                     </div>
 
                     {/* Content Sections */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div className={clsx("grid gap-8", !(isAdmins || isDrivers) && "grid-cols-1 xl:grid-cols-2")}>
                         {/* Upcoming Trips Section */}
                         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                             <div className="flex items-center justify-between mb-6">
@@ -113,12 +117,14 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                                 {userBookings.length === 0 && (
                                     <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                                         <p>No trips scheduled yet</p>
-                                        <Link 
-                                            href="/packages" 
-                                            className="inline-block mt-4 bg-primary hover:opacity-90 text-white px-6 py-2 rounded-lg transition-opacity duration-200"
-                                        >
-                                            Browse Packages
-                                        </Link>
+                                        {!(isAdmins || !isDrivers) && (
+                                            <Link 
+                                                href="/packages" 
+                                                className="inline-block mt-4 bg-primary hover:opacity-90 text-white px-6 py-2 rounded-lg transition-opacity duration-200"
+                                            >
+                                                Browse Packages
+                                            </Link>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -191,6 +197,9 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                     )}
                 </div>
             </div>
+            {!(isAdmins || isDrivers) && (
+                <BottomNav />
+            )}
         </DashboardLayout>
     );
 }

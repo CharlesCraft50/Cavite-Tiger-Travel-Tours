@@ -44,6 +44,9 @@ export default function navbar({ hasSearchBar, inDashboard } : { hasSearchBar?: 
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const { component } = usePage();
+    const isDashboard = component.startsWith("dashboard");
     
     return (
         <nav className="bg-neutral-800 border-b shadow-sm sticky top-0 z-50">
@@ -53,7 +56,11 @@ export default function navbar({ hasSearchBar, inDashboard } : { hasSearchBar?: 
 
                     <div className="flex items-center gap-2 whitespace-nowrap">
                         <AppLogoIcon className="h-14 w-auto shrink-0 text-red-800" />
-                        <Link href="/" className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
+                        {isDashboard ? (
+                            <Link href="/dashboard" className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
+                        ) : (
+                            <Link href="/" className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
+                        )}
                     </div>
 
                     {/* Desktop Nav */}

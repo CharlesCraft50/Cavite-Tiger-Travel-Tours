@@ -15,7 +15,7 @@ export function NavUser() {
     return (
         <SidebarMenu>
             <SidebarMenuItem>
-                <DropdownMenu>
+                {/* <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton size="lg" className="text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent group">
                             <UserInfo user={auth.user} />
@@ -29,7 +29,7 @@ export function NavUser() {
                     >
                         <UserMenuContent user={auth.user} />
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu> */}
             </SidebarMenuItem>
         </SidebarMenu>
     );

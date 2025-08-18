@@ -1,5 +1,5 @@
 import { Link, usePage } from "@inertiajs/react";
-import { Package, User, Facebook, Mail, Phone, BookOpenText } from "lucide-react";
+import { Package, User, Facebook, Mail, Phone, BookOpenText, House } from "lucide-react";
 
 import { SharedData } from "@/types";
 
@@ -10,6 +10,10 @@ export default function BottomNav() {
       {/* Tabs (center) */}
       <div className="flex gap-6 ml-12">
 
+        <Link href="/" className="flex flex-col cursor-pointer items-center text-gray-600 hover:text-blue-500">
+          <House size={20} />
+          <span className="text-xs">Home</span>
+        </Link>
         <Link href="/about" className="flex flex-col cursor-pointer items-center text-gray-600 hover:text-blue-500">
           <BookOpenText size={20} />
           <span className="text-xs">About</span>
