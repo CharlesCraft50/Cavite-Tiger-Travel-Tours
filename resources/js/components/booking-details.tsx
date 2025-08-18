@@ -205,6 +205,10 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('total_amount', data.total_amount.toString());
         formData.append('payment_status', data.payment_status || 'pending');
 
+        if(data.payment_status != null || data.payment_status != '') {
+            formData.append('status', data.payment_status);
+        }
+
         selectedOtherServiceIds.forEach((id) => {
             formData.append('other_services[]', id.toString());
         });

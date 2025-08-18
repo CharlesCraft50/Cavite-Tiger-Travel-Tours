@@ -131,7 +131,7 @@ class BookingController extends Controller
         }
 
         $fieldsToUpdate = collect(['preferred_van_id', 'departure_date', 'return_date', 'status', 'notes', 'total_amount'])
-            ->filter(fn($field) => $request->filled($field))
+            ->filter(fn($field) => $request->has($field))
             ->mapWithKeys(fn($field) => [$field => $request->input($field)])
             ->toArray();
 

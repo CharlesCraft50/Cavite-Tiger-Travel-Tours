@@ -96,6 +96,7 @@ export default function BookingList({ bookings, limit, searchByUserId, statusFil
             <option value="accepted">Accepted</option>
             <option value="cancelled">Cancelled</option>
             <option value="past_due">Past Due</option>
+            <option value="declined">Declined</option>
           </select>
 
           {/* Search */}
