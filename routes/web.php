@@ -75,7 +75,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/otherservice/update', [OtherServiceController::class, 'update'])->name('otherservice.update');
     Route::get('/analytics', [BookingController::class, 'analytics'])->name('bookings.analytics');
     Route::resource('users', UserController::class);
-    Route::resource('configurations', ConfigurationController::class);
+    Route::get('/configurations/packages', [ConfigurationController::class, 'packages'])->name('configurations.packages');
+    Route::get('/configurations/vehicles', [ConfigurationController::class, 'vehicles'])->name('configurations.vehicles');
+    Route::get('/configurations/cities', [ConfigurationController::class, 'cities'])->name('configurations.cities');
+    Route::get('/configurations/other-services', [ConfigurationController::class, 'otherServices'])->name('configurations.otherServices');
 });
 
 Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');

@@ -42,8 +42,6 @@ class PackageController extends Controller
 
         $mainQuery = (clone $baseQuery);
 
-        $chatQuery = TourPackage::query();
-
         if ($request->boolean('no_paginate')) {
             $packages = $mainQuery->get();
         } else {

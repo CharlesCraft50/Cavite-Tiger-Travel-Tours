@@ -83,8 +83,26 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
                 },
                 {
                     title: 'Configurations',
-                    href: '/configurations',
+                    href: '#',
                     icon: Settings,
+                    children: [
+                        {
+                            title: 'Packages',
+                            href: '/configurations/packages',
+                        },
+                        {
+                            title: 'Vehicles',
+                            href: '/configurations/vehicles',
+                        },
+                        {
+                            title: 'Cities',
+                            href: '/configurations/cities',
+                        },
+                        {
+                            title: 'Other Services',
+                            href: '/configurations/other-services',
+                        },
+                    ],
                 },
             ]
             : []),
