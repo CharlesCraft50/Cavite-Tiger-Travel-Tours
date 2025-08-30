@@ -14,6 +14,8 @@ import DatePicker from "react-datepicker";
 import OtherServiceSelection from "@/components/other-service-selection";
 import PriceSign from "@/components/price-sign";
 import { format } from "date-fns";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 type BookNowCreateProps = {
     packages: TourPackage;
@@ -107,6 +109,7 @@ export default function Create({
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>([]);
     const [totalAmount, setTotalAmount] = useState<number>();
     const [reminderSignUp, setReminderSignUp] = useState(false);
+    const [contactNumberError, setContactNumberError] = useState('');
 
     useEffect(() => {
         if (!user) {
@@ -145,13 +148,30 @@ export default function Create({
         setData('other_services', updatedIds);
     };
 
+    const [formError, setFormError] = useState('');
+
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        setFormError('');
 
         // if(!data.preferred_van_id) {
         //     setPreferredVanError("Please choose a van")
         //     return;
         // }
+
+        if (!phoneNumber) {
+            setContactNumberError('Contact Number is required.');
+            setFormError('Please check the required fields.');
+            return;
+        }
+
+        if (phoneNumber.length < 9) {
+            setContactNumberError('Contact Number is too short.');
+            setFormError('Please check the required fields.');
+            return;
+        }
 
         post('/book-now/booked', {
             preserveScroll: true,
@@ -159,6 +179,7 @@ export default function Create({
             },
             onError: (errors) => {
                 console.error("Booking error:", errors);
+                setFormError('Please check the required fields.');
             }
         });
     }
@@ -232,6 +253,9 @@ export default function Create({
             setData('driver_id', selectedVan.user_id ? selectedVan.user_id : null);
         }
     }, [selectedVan]);
+
+    const [rawPhone, setRawPhone] = useState(''); // full +63...
+    const [phoneNumber, setPhoneNumber] = useState(''); // stripped number
     
     return (
         <FormLayout>
@@ -324,16 +348,21 @@ export default function Create({
                 <div className="grid grid-cols-2 gap-6">
                     <div className="grid gap-2">
                         <Label htmlFor="contact_number">Contact No.</Label>
-                        <Input
-                            id="contact_number"
-                            type="number"
-                            required
-                            value={data.contact_number}
+                        <PhoneInput
+                            country={'ph'}
+                            value={rawPhone}
                             disabled={processing}
                             placeholder="Ex. +639123456789"
-                            onChange={(e) => setData('contact_number', e.target.value)}
+                            onChange={(fullValue: string, data: any, event: any, formattedValue: string) => {
+                                setRawPhone(fullValue);
+                                // strip the country dial code
+                                const stripped = fullValue.replace(`+${data.dialCode}`, '').trim();
+                                setPhoneNumber(stripped);
+                                setData('contact_number', fullValue);
+                                setContactNumberError('');
+                            }}
                         />
-                        <InputError message={errors.contact_number} className="mt-2" />
+                        <InputError message={contactNumberError} className="mt-2" />
                     </div>
 
                     <div className="grid gap-2">
@@ -494,6 +523,12 @@ export default function Create({
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     SUBMIT
                 </Button>
+
+                {formError && (
+                    <div className="bg-red-100 text-red-800 p-3 rounded mb-4 text-center">
+                        {formError}
+                    </div>
+                )}
             </form>
         </FormLayout>
     );
