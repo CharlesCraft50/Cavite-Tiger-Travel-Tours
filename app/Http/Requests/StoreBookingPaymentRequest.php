@@ -25,7 +25,7 @@ class StoreBookingPaymentRequest extends FormRequest
             'booking_id' => ['nullable', 'integer', 'exists:bookings,id'],
             'payment_method' => ['required', 'string'],
             'reference_number' => ['required', 'string'],
-            'payment_proof' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'payment_proof' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg'],
             'status' => ['nullable', 'in:pending,accepted,declined'],
         ];
 

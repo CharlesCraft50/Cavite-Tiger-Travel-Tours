@@ -23,7 +23,7 @@ class UpdateCountryRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:255'],
-            'image_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'image_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
         ];
 
     }

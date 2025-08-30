@@ -43,8 +43,8 @@ class UpdatePackageRequest extends FormRequest
             'duration' => ['nullable', 'string', 'max:10'],
             'available_from' => ['nullable', 'date', 'required_if:activeExpiry,true'],
             'available_until' => ['nullable', 'date', 'required_if:activeExpiry,true', 'after_or_equal:available_from'],
-            'image_overview' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'image_banner' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:4096'],
+            'image_overview' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
+            'image_banner' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'base_price' => ['nullable', 'required', 'integer'],
 
             // ✅ Validate categories as array

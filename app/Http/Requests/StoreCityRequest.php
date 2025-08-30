@@ -24,7 +24,7 @@ class StoreCityRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:cities,name'],
             'overview' => ['sometimes', 'string'],
-            'image_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'image_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'country_id' => ['sometimes', 'exists:countries,id'],
         ];
 

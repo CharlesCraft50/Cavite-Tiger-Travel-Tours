@@ -26,7 +26,7 @@ class UpdatePreferredVanRequest extends FormRequest
             'vans.*.id' => ['nullable', 'integer'],
             'vans.*.user_id' => ['nullable', 'integer'],
             'vans.*.name' => ['required', 'string'],
-            'vans.*.image_url' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'vans.*.image_url' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'vans.*.additional_fee' => ['required', 'numeric'],
             'vans.*.pax_adult' => ['required', 'integer'],
             'vans.*.pax_kids' => ['required', 'integer'],

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import { router } from "@inertiajs/react";
 import { useLoading } from "./loading-provider";
+import { Input } from "./input";
 
 type CardImageBackgroundProps = {
     id?: number;
@@ -12,6 +13,7 @@ type CardImageBackgroundProps = {
     onClick?: () => void;
     title?: string;
     editable?: boolean;
+    editableText?: boolean;
 };
 
 export default function CardImageBackground({
@@ -21,6 +23,7 @@ export default function CardImageBackground({
     onClick,
     title,
     editable,
+    editableText,
 }: CardImageBackgroundProps) {
 
     const { start, stop } = useLoading();
@@ -40,9 +43,13 @@ export default function CardImageBackground({
             formData.append('image_url', imageFile);
         }
 
+        if(cityTitle != title && cityTitle.trim() != '') {
+            formData.append('name', cityTitle);
+        }
+
         formData.append("_method", "PUT");
 
-        if(imagePreview) {
+        if(imagePreview || (cityTitle != title && cityTitle.trim() != '')) {
             start();
             
             router.post(`/cities/${id}`, formData, {
@@ -51,6 +58,9 @@ export default function CardImageBackground({
                 onSuccess: () => {
                     setIsEditing(false);
                     stop();
+                },
+                onError: () => {
+                    
                 }
             });
 
@@ -62,6 +72,7 @@ export default function CardImageBackground({
 
     const [ imagePreview, setImagePreview ] = useState<string>();
     const [ imageFile, setImageFile ] = useState<File | null>(null);
+    const [ cityTitle, setCityTitle ] = useState(title ?? '');
 
     const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.stopPropagation();
@@ -156,9 +167,22 @@ export default function CardImageBackground({
 
         <div className="absolute inset-0 bg-black/40" />
         
-        <p className={clsx("relative text-white text-3xl font-bold uppercase", imagePreview && "z-40")}>
+        {editableText 
+        ? isEditing ?
+            <div className="flex justify-center w-full">
+                <Input
+                    className={clsx("relative text-white bg-gray-500/50 text-3xl font-bold uppercase z-999 w-[90%] text-center", imagePreview && "z-40")} 
+                    type="text"
+                    value={cityTitle}
+                    onChange={(e) => setCityTitle(e.target.value)} />
+            </div>
+            : <p className={clsx("relative text-white text-3xl font-bold uppercase", imagePreview && "z-40")}>
+                {title}
+            </p>
+        : <p className={clsx("relative text-white text-3xl font-bold uppercase", imagePreview && "z-40")}>
             {title}
-        </p>
+        </p>}
+        
     </div>
   )
 }

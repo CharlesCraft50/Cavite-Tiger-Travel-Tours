@@ -25,7 +25,7 @@ class UpdateOtherServiceRequest extends FormRequest
             'services' => ['required', 'array'],
             'services.*.id' => ['nullable', 'integer'],
             'services.*.name' => ['required', 'string'],
-            'services.*.image_url' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'services.*.image_url' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'services.*.description' => ['nullable', 'string', 'max:130'],
             'services.*.price' => ['required', 'numeric'],
             'services.*.action' => ['sometimes', 'string'],

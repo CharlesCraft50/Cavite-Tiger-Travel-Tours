@@ -104,6 +104,7 @@ export default function Cities({
                     title={city.name}
                     src={city.image_url}
                     editable={true}
+                    editableText={true}
                 />
               )))}
             </div>
