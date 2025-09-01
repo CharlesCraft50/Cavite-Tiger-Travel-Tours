@@ -234,29 +234,33 @@ export default function VanSelection({
             </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="flex flex-row mb-2 gap-2">
             {editable && (
                 <>
                     {isEditing && (
                         <div>
-                            <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={handleSave}>
-                                <Check className="w-24 h-24 text-gray-400" />
-                                <p className="text-sm text-gray-500">Save</p>
-                            </div>
+                            <Button className="items-center justify-center cursor-pointer" onClick={handleSave}>
+                                <Check className="w-24 h-24 text-white" />
+                                <p className="text-sm text-white">Save</p>
+                            </Button>
                         </div>
                     )}
 
-                    <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={toggleIsEditing}>
+                    <Button className="items-center justify-center cursor-pointer" onClick={toggleIsEditing}>
                         {isEditing ? (
-                            <X className="w-24 h-24 text-gray-400" />
+                            <X className="w-24 h-24 text-white" />
                         ) : (
-                            <PencilIcon className="w-24 h-24 text-gray-400" />
+                            <PencilIcon className="w-12 h-12 text-white" />
                         )}
-                        <p className="text-sm text-gray-500">{isEditing ? "Cancel Editing" : "Edit Vans"}</p>
-                    </div>
+                        <p className="text-sm text-white">{isEditing ? "Cancel Editing" : "Edit Vans"}</p>
+                    </Button>
                     
                 </>
             )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            
 
             {editable && (
                 isEditing && (

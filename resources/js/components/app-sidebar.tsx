@@ -98,10 +98,6 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
                             title: 'Cities',
                             href: '/configurations/cities',
                         },
-                        {
-                            title: 'Other Services',
-                            href: '/configurations/other-services',
-                        },
                     ],
                 },
             ]
