@@ -234,7 +234,7 @@ export default function VanSelection({
             </div>
         )}
 
-        <div className="flex flex-row mb-2 gap-2">
+        <div className="flex flex-row mb-2 gap-2 justify-end">
             {editable && (
                 <>
                     {isEditing && (
