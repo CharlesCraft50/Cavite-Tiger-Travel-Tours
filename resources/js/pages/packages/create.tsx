@@ -1,5 +1,5 @@
-import { router, useForm } from "@inertiajs/react";
-import { FormEventHandler, useEffect, useState } from "react";
+import { router, useForm, usePage } from "@inertiajs/react";
+import { FormEventHandler, useEffect, useMemo, useState } from "react";
 import { LoaderCircle, X } from 'lucide-react';
 import FormLayout from "@/layouts/form-layout";
 import { Label } from "@/components/ui/label";
@@ -60,6 +60,13 @@ export default function Index({
      vanIds,
      serviceIds,
     }: PackagesCreateProps ) {
+
+    const { url } = usePage();
+  
+     const fromQuery = useMemo(() => {
+        const params = new URLSearchParams(url.split('?')[1]);
+        return params.get('from');
+    }, [url]);
 
     const [contentError, setContentError] = useState('');
       
@@ -290,6 +297,10 @@ export default function Index({
                     formData.append(`other_services[${index}][sort_order]`, service.sort_order?.toString() ?? '0');
                 }
             });
+        }
+
+        if (fromQuery) {
+            formData.append('from', fromQuery.toString());
         }
 
         if(editMode) {

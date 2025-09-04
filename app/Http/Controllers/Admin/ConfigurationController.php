@@ -93,11 +93,7 @@ class ConfigurationController extends Controller
 
         $mainQuery = (clone $baseQuery);
 
-        if ($request->boolean('no_paginate')) {
-            $packages = $mainQuery->get();
-        } else {
-            $packages = $mainQuery->paginate(2);
-        }
+        $packages = $mainQuery->get();
 
         return Inertia::render('dashboard/configurations/packages', [
             'packages' => $packages,

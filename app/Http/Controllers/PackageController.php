@@ -80,6 +80,8 @@ class PackageController extends Controller
     {
         $validated = $request->validated();
 
+        $redirectUrl = null;
+
         if ($request->hasFile('image_overview')) {
             $validated['image_overview'] = asset('storage/' . $this->storeGetImage($request, 'image_overview', 'packages'));
         }
@@ -130,10 +132,14 @@ class PackageController extends Controller
 
             DB::commit();
 
+            $redirectUrl = $validated['from'] 
+                ? '/configurations/' . $validated['from'] 
+                : '/packages/' . $package->slug;
+
             return Inertia::render('success-page', [
                 'title' => 'Package Created!',
                 'description' => 'The package "' . $request->title . '" has been successfully created.',
-                'redirectUrl' => '/packages/' . $package->slug,
+                'redirectUrl' => $redirectUrl,
             ]);
 
         } catch (\Exception $e) {
@@ -239,15 +245,18 @@ class PackageController extends Controller
     public function update(UpdatePackageRequest $request, string $id)
     {
         $package = TourPackage::findOrFail($id);
+
         $validated = $request->validated();
 
-        if($request->hasFile('image_banner')) {
+        $redirectUrl = null;
+
+        if ($request->hasFile('image_banner')) {
             $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner', 'packages'));
         } else {
             unset($validated['image_banner']);
         }
 
-        if($request->hasFile('image_overview')) {
+        if ($request->hasFile('image_overview')) {
             $validated['image_overview'] = asset('storage/' . $this->storeGetImage($request, 'image_overview', 'packages'));
         } else {
             unset($validated['image_overview']);
@@ -296,12 +305,12 @@ class PackageController extends Controller
 
             DB::commit();
 
-            return Inertia::render('success-page', [
-                'title' => 'Package Updated!',
-                'description' => 'The package "' . $package->title . '" has been successfully updated.',
-                'redirectUrl' => '/packages/' . $package->slug,
-                'redirectTimer' => 500,
-            ]);
+            $redirectUrl = $validated['from'] 
+                ? '/configurations/' . $validated['from'] 
+                : '/packages/' . $package->slug;
+
+            return redirect($redirectUrl)->with('success', 'Package updated successfully!');
+
 
         } catch (\Exception $e) {
             DB::rollback();

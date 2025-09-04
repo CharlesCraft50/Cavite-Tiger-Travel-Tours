@@ -63,6 +63,8 @@ class UpdatePackageRequest extends FormRequest
             // ✅ Validate other_service_ids as array
             'other_service_ids' => ['nullable', 'array'],
             'other_service_ids.*' => ['integer', 'exists:other_service_ids,id'],
+
+            'from' => ['nullable', 'string'],
         ];
 
     }
