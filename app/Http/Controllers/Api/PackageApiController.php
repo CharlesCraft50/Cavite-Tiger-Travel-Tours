@@ -39,4 +39,27 @@ class PackageApiController extends Controller
             'search' => $search
         ]);
     }
+
+    public function index(Request $request)
+    {
+        $query = TourPackage::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        $sort = $request->input('sort', 'desc');
+        $query->orderBy('created_at', $sort === 'asc' ? 'asc' : 'desc');
+
+        $perPage = $request->input('per_page', 20);
+        $packages = $query->paginate($perPage);
+
+        return response()->json([
+            'packages' => $packages->items(),
+            'current_page' => $packages->currentPage(),
+            'last_page' => $packages->lastPage(),
+            'total' => $packages->total(),
+        ]);
+    }
 }

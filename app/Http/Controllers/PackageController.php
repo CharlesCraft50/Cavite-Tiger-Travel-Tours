@@ -132,9 +132,11 @@ class PackageController extends Controller
 
             DB::commit();
 
-            $redirectUrl = $validated['from'] 
-                ? '/configurations/' . $validated['from'] 
-                : '/packages/' . $package->slug;
+            $redirectUrl = '/packages/' . $package->slug;
+
+            if ($validated['from']) {
+                return redirect()->back()->with('success', 'Package created successfully!');
+            }
 
             return Inertia::render('success-page', [
                 'title' => 'Package Created!',
@@ -305,9 +307,11 @@ class PackageController extends Controller
 
             DB::commit();
 
-            $redirectUrl = $validated['from'] 
-                ? '/configurations/' . $validated['from'] 
-                : '/packages/' . $package->slug;
+            $redirectUrl = '/packages/' . $package->slug;
+
+            if ($validated['from']) {
+                return redirect()->back()->with('success', 'Package updated successfully!');
+            }
 
             return redirect($redirectUrl)->with('success', 'Package updated successfully!');
 
@@ -323,6 +327,29 @@ class PackageController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $package = TourPackage::findOrFail($id);
+
+        DB::beginTransaction();
+
+        try {
+            // Detach related many-to-many relationships
+            $package->preferredVans()->detach();
+            $package->otherServices()->detach();
+
+            // Delete related categories
+            $package->categories()->delete();
+
+            // Delete the package itself
+            $package->delete();
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Package deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return redirect()->back()->with('error', 'Failed to delete package: ' . $e->getMessage());
+        }
     }
+
 }

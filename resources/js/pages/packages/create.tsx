@@ -1,5 +1,5 @@
 import { router, useForm, usePage } from "@inertiajs/react";
-import { FormEventHandler, useEffect, useMemo, useState } from "react";
+import { FormEventHandler, useEffect, useMemo, useRef, useState } from "react";
 import { LoaderCircle, X } from 'lucide-react';
 import FormLayout from "@/layouts/form-layout";
 import { Label } from "@/components/ui/label";
@@ -63,10 +63,23 @@ export default function Index({
 
     const { url } = usePage();
   
-     const fromQuery = useMemo(() => {
+    const fromQuery = useMemo(() => {
         const params = new URLSearchParams(url.split('?')[1]);
         return params.get('from');
     }, [url]);
+
+    const disableNavQuery = useMemo(() => {
+        const params = new URLSearchParams(url.split('?')[1]);
+        return params.get('disableNav');
+    }, [url]);
+
+    const [disableNav, setDisableNav] = useState(false);
+
+    useEffect(() => {
+        if (disableNavQuery) {
+            setDisableNav(disableNavQuery === 'true' || disableNavQuery.toString() == '1');
+        }
+    }, [disableNavQuery]);
 
     const [contentError, setContentError] = useState('');
       
@@ -92,6 +105,9 @@ export default function Index({
 
     });
     
+
+    const contentRef = useRef<HTMLDivElement>(null);
+
     const [activeExpiry, setActiveExpiry] = useState<boolean>(false);
     const [imageOverview, setImageOverview] = useState<File | null>(null);
     const [imageBanner, setImageBanner] = useState<File | null>(null);
@@ -225,6 +241,8 @@ export default function Index({
 
         if(!data.content.trim()) {
             setContentError('Content is required.');
+
+            contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
 
@@ -309,12 +327,19 @@ export default function Index({
             
             router.post(`/packages/${packages?.id}`, formData, {
                 forceFormData: true,
+                onSuccess: () => {
+                    if (fromQuery) {
+                        window.parent.postMessage('PACKAGE_EDITED', window.location.origin);
+                    }
+                }
             });
         } else {
             router.post('/packages', formData, {
                 forceFormData: true,
                 onSuccess: () => {
-                    
+                    if (fromQuery) {
+                        window.parent.postMessage('PACKAGE_CREATED', window.location.origin);
+                    }
                 }
             });
         }
@@ -376,7 +401,7 @@ export default function Index({
     };
 
     return (
-        <FormLayout title="Create a Package" description="Enter the package details below to create a new package">
+        <FormLayout title="Create a Package" description="Enter the package details below to create a new package" disableNav={disableNav}>
             <Head title="Create a Package" />
             <form onSubmit={submit} className="flex flex-col gap-6">
                 <div className="grid grid-cols-2 gap-6">
@@ -421,14 +446,15 @@ export default function Index({
                         data={data} 
                         setData={setData}
                         existingImageOverview={existingImageOverview}
-                        setImageOverview={setImageOverview} 
+                        setImageOverview={setImageOverview}
+                        disableAutomaticShortDescription={true}
                         automaticShortDescription={automaticShortDescription} 
                         setAutomaticShortDescription={setAutomaticShortDescription} 
                         editable 
                     />
                 </div>
 
-                <div className="grid gap-2">
+                <div className="grid gap-2" ref={contentRef}>
                     <PackageContentEditor 
                         value={data.content} 
                         onChange={(value) => {
@@ -462,6 +488,7 @@ export default function Index({
                         handleAddCity={handleAddCity}
                         processing={processing}
                         handleDeletionCity={handleDeletionCity}
+                        editable={false}
                         selectedCityId={selectedCityId}
                     />
 
@@ -473,7 +500,6 @@ export default function Index({
                             key={city.id}
                             title={city.name}
                             src={city.image_url}
-                            editable={true}
                         />
                         )))}
                     </div>

@@ -18,6 +18,7 @@ type OverviewContentProps = {
     setImageOverview?: React.Dispatch<React.SetStateAction<File | null>>;
     existingImageOverview?: string;
     automaticShortDescription?: boolean;
+    disableAutomaticShortDescription?: boolean;
     setAutomaticShortDescription?: (e: boolean) => void;
     editable?: boolean;
 }
@@ -34,6 +35,7 @@ export default function OverviewContent({
     setImageOverview, 
     existingImageOverview, 
     automaticShortDescription, 
+    disableAutomaticShortDescription,
     setAutomaticShortDescription, 
     editable,
  }: OverviewContentProps) {
@@ -144,7 +146,7 @@ export default function OverviewContent({
             </div>
         </div>
 
-        {editable && (
+        {editable && !disableAutomaticShortDescription && (
             <div className="gray-card">
                 <label>
                     <input

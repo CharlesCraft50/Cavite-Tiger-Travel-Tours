@@ -5,12 +5,13 @@ interface FormLayoutProps {
     children: React.ReactNode;
     title?: string;
     description?: string;
+    disableNav?: boolean;
 }
 
-export default function FormLayout({ children, title, description, ...props }: FormLayoutProps) {
+export default function FormLayout({ children, title, description, disableNav, ...props }: FormLayoutProps) {
     return (
         <>
-            <Navbar />
+            {disableNav ? null : <Navbar />}
             <div className="p-4 md:p-6">
                 <FormSimpleLayout title={title} description={description} {...props}>
                     {children}

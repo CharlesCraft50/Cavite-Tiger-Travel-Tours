@@ -6,14 +6,14 @@ import { Button } from "./ui/button";
 import { useLoading } from "./ui/loading-provider";
 import { router } from "@inertiajs/react";
 import { Check, PencilIcon, PlusSquareIcon, TrashIcon, Undo, X } from "lucide-react";
-import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from '@/components/ui/dialog';
-import { DialogFooter } from "./ui/dialog";
 import { Input } from "./ui/input";
 import ImageSimpleBox from "./ui/image-simple-box";
 import PriceSign from "./price-sign";
 import { Textarea } from "@headlessui/react";
 import { format } from "date-fns";
 import { formatPrice } from "@/lib/utils";
+import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from '@/components/ui/dialog';
+import { DialogFooter } from "./ui/dialog";
 
 type OtherServiceSelectionProps = {
     otherServices: OtherService[];

@@ -4,11 +4,13 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { useLoading } from '@/components/ui/loading-provider';
 import { Button, Listbox, Transition } from '@headlessui/react';
-import { Search, PencilIcon, ChevronDownIcon } from 'lucide-react';
+import { Search, PencilIcon, ChevronDownIcon, Loader2Icon, X, Trash2 } from 'lucide-react';
 import CardImageBackground from '@/components/ui/card-image-bg';
 import clsx from 'clsx';
 import { isAdmin } from '@/lib/utils';
 import { Fragment } from 'react';
+import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import PackageModal from '@/components/ui/package-modal';
 
 type PackagesIndexProps = {
   packages: TourPackage[];
@@ -25,8 +27,66 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
   const [searchResults, setSearchResults] = useState<TourPackage[]>([]);
   const [sortOption, setSortOption] = useState<'newest' | 'oldest'>('newest');
   const searchRef = useRef<HTMLDivElement>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editModalPackage, setEditModalPackage] = useState<TourPackage | null>(null);
+  const [iframeLoading, setIframeLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<TourPackage | null>(null);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+
+      if (event.data === 'PACKAGE_CREATED' || event.data === 'PACKAGE_EDITED') {
+        setShowAddModal(false);
+        setEditModalPackage(null);
+        setIframeLoading(true);
+
+        // refetch latest packages
+        fetch('/api/packages')
+          .then((res) => res.json())
+          .then((data) => {
+            const sorted = data.packages.sort(
+              (a: TourPackage, b: TourPackage) =>
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            setVisiblePackages(sorted.slice(0, ITEMS_PER_LOAD));
+            setCurrentIndex(ITEMS_PER_LOAD);
+            setHasMore(sorted.length > ITEMS_PER_LOAD);
+          })
+          .finally(() => setIframeLoading(false));
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+
+  useEffect(() => {
+    document.body.style.overflow = showAddModal ? 'hidden' : 'auto';
+  }, [showAddModal]);
 
   const { start, stop } = useLoading();
+
+  const handleDelete = async (pkg: TourPackage | null) => {
+    if (!pkg) return;
+
+    try {
+      await router.delete(`/packages/${pkg.id}`, {
+        onSuccess: () => {
+          setVisiblePackages((prev) => prev.filter((p) => p.id !== pkg.id));
+          setDeleteTarget(null);
+        },
+        onError: (err) => {
+          console.error('Failed to delete package', err);
+          alert('Failed to delete package.');
+        },
+      });
+    } catch (error) {
+      console.error('Delete error', error);
+      alert('An unexpected error occurred.');
+    }
+  };
 
   const sortedPackages = [...initialPackages].sort((a, b) => {
     const diff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -188,12 +248,15 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
             >
               Edit Packages
             </Button>
-            <Link
-              href={route('packages.create', { from: 'packages' })}
-              className="btn-primary text-sm"
+            <Button
+              onClick={() => {
+                setIframeLoading(true); 
+                setShowAddModal(true);
+              }}
+              className="btn-primary text-sm cursor-pointer"
             >
               Add Packages
-            </Link>
+            </Button>
           </div>
         )}
       </div>
@@ -216,13 +279,23 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
             />
 
             {toggleEdit && isAdmins && (
-              <div className="absolute top-2 right-8">
+              <div className="flex flex-row absolute top-2 right-8 gap-2">
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    router.get(`/packages/${pkg.id}/edit?from=packages`);
+                    setDeleteTarget(pkg); // set the package to delete
                   }}
-                  className="btn-primary cursor-pointer"
+                  className="btn-primary cursor-pointer p-0 w-10 h-10 flex items-center justify-center"
+                >
+                  <Trash2 className="w-4 h-4 text-white" />
+                </Button>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditModalPackage(pkg);
+                    setIframeLoading(true);
+                  }}
+                  className="btn-primary cursor-pointer p-0 w-10 h-10 flex items-center justify-center"
                 >
                   <PencilIcon className="w-4 h-4 text-white" />
                 </Button>
@@ -231,6 +304,67 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
           </div>
         ))}
       </div>
+
+      <PackageModal
+        isOpen={showAddModal || !!editModalPackage}
+        onClose={() => {
+          setShowAddModal(false);
+          setEditModalPackage(null);
+        }}
+        route={
+          showAddModal
+            ? route('packages.create', { from: 'packages', disableNav: true }) as string
+            : editModalPackage
+            ? route(
+                'packages.edit',
+                { package: editModalPackage.id, from: 'packages', disableNav: true } // 👈 id goes inside the params object
+              ) as string
+            : ''
+        }
+      />
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
+            {/* Close button */}
+            <button
+              onClick={() => setDeleteTarget(null)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Title */}
+            <h2 className="text-lg font-semibold text-center mb-2">
+              Are you sure you want to delete "{deleteTarget.title}"?
+            </h2>
+
+            {/* Description */}
+            <p className="text-sm text-gray-500 text-center mb-6">
+              This action cannot be undone. Please confirm if you want to proceed.
+            </p>
+
+            {/* Buttons */}
+            <div className="flex justify-center gap-4">
+              <Button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 cursor-pointer rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  handleDelete(deleteTarget);
+                }}
+                className="px-4 py-2 rounded cursor-pointer bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {loadingMore && <p className="text-center mt-2">Loading more packages...</p>}
     </DashboardLayout>

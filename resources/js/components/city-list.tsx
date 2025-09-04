@@ -28,6 +28,7 @@ type CityListProps = {
   handleAddCity: () => void;
   handleDeletionCity: (cityId: number) => void;
   selectedCityId?: (e: string) => void;
+  editable?: boolean;
 };
 
 export default function CityList({
@@ -42,6 +43,7 @@ export default function CityList({
   handleAddCity,
   handleDeletionCity,
   selectedCityId,
+  editable,
 }: CityListProps) {
   const [cityToDelete, setCityToDelete] = useState<City | null>(null);
 
@@ -79,10 +81,12 @@ export default function CityList({
               {city.name}
             </option>
           ))}
-          <option value="__new">+ Add New City</option>
+          {editable && (
+            <option value="__new">+ Add New City</option>
+          )}
         </select>
 
-        {!!data.city_id && (
+        {!!data.city_id && editable && (
           <Button
             type="button"
             variant="destructive"
