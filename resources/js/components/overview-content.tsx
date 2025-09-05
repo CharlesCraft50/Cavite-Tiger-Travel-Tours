@@ -127,18 +127,20 @@ export default function OverviewContent({
                     )}
                 </div>
 
-                    <div className="flex justify-end">
-                        <LinkLoading
-                            href={!editable ? route('packages.show', {
-                                slug: packageData?.slug
-                            }) : ""}
-                            useUI={false}
-                            loadingVisible={!editable}
-                            className="btn-primary text-sm flex"
-                        >
-                            View Tour
-                        </LinkLoading>
-                    </div>
+                    {!editable && (
+                        <div className="flex justify-end">
+                            <LinkLoading
+                                href={!editable ? route('packages.show', {
+                                    slug: packageData?.slug
+                                }) : ""}
+                                useUI={false}
+                                loadingVisible={!editable}
+                                className="btn-primary text-sm flex"
+                            >
+                                View Tour
+                            </LinkLoading>
+                        </div>
+                    )}
 
                 {editable && (
                     <span className="text-gray-400 text-sm">{data?.overview.length}/{OVERVIEW_COUNT}</span>

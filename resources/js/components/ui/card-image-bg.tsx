@@ -1,10 +1,11 @@
-import { Check, FilePlus, PencilIcon } from "lucide-react";
+import { Check, FilePlus, Image, PencilIcon, Trash2 } from "lucide-react";
 import { Button } from "./button";
 import React, { useState } from "react";
 import clsx from "clsx";
 import { router } from "@inertiajs/react";
 import { useLoading } from "./loading-provider";
 import { Input } from "./input";
+import { City } from "@/types";
 
 type CardImageBackgroundProps = {
     id?: number;
@@ -14,6 +15,12 @@ type CardImageBackgroundProps = {
     title?: string;
     editable?: boolean;
     editableText?: boolean;
+    deletable?: boolean,
+    city?: City;
+    handleDeletionCity?: (city: City | null) => void,
+    onDeletion?: () => void,
+    onEdit?: () => void;
+    hasChangeImageBtn?: boolean;
     size?: "small" | "medium" | "large";
 };
 
@@ -25,6 +32,12 @@ export default function CardImageBackground({
     title,
     editable,
     editableText,
+    deletable,
+    city,
+    handleDeletionCity,
+    onDeletion,
+    onEdit,
+    hasChangeImageBtn,
     size = "medium",
 }: CardImageBackgroundProps) {
 
@@ -37,6 +50,15 @@ export default function CardImageBackground({
 
     const handleEditBtn = (e: React.MouseEvent) => {
         e.stopPropagation();
+        if (onEdit != null) {
+            onEdit();
+            return;
+        }
+        setIsEditing(true);
+        setImagePreview("");
+    }
+
+    const handleImageEditBtn = () => {
         setIsEditing(true);
         setImagePreview("");
     }
@@ -136,10 +158,20 @@ export default function CardImageBackground({
             )}
 
             {editable && (
-                <div className="flex justify-end top-4 right-4 absolute z-[10]">
+                <div className="flex justify-end gap-2 top-4 right-4 absolute z-[10]">
+                    {deletable && (
+                        <Button className="btn-primary cursor-pointer" onClick={() => city ? handleDeletionCity?.(city!) : onDeletion?.()}>
+                            <Trash2 className="w-4 h-4 text-white" />
+                        </Button>
+                    )}
                     <Button className="btn-primary cursor-pointer" onClick={handleEditBtn}>
                         <PencilIcon className="w-4 h-4 text-white" />
                     </Button>
+                    {hasChangeImageBtn && (
+                        <Button className="btn-primary cursor-pointer" onClick={handleImageEditBtn}>
+                            <Image className="w-4 h-4 text-white" />
+                        </Button>
+                    )}
                 </div>
             )}
 

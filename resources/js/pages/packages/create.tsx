@@ -34,7 +34,7 @@ export type PackageForm = {
     image_banner: string;
     available_from: Date | null;
     available_until: Date | null;
-    base_price: number;
+    base_price: number | null;
 };
 
 type PackagesCreateProps = {
@@ -101,7 +101,7 @@ export default function Index({
         image_banner: '',
         available_from: null,
         available_until: null,
-        base_price: 0,
+        base_price: null,
 
     });
     
@@ -404,6 +404,10 @@ export default function Index({
         <FormLayout title="Create a Package" description="Enter the package details below to create a new package" disableNav={disableNav}>
             <Head title="Create a Package" />
             <form onSubmit={submit} className="flex flex-col gap-6">
+                <div className="flex flex-row items-center">
+                    <span className="text-red-500 ml-1">*</span>
+                    <p className="text-sm ml-2">Required Fields</p>
+                </div>
                 <div className="grid grid-cols-2 gap-6">
                     {/* Title */}
                     <div className="grid gap-2">
@@ -509,19 +513,42 @@ export default function Index({
                 <div className="grid gap-2">
                     <Label htmlFor="duration">Duration</Label>
                     
-                    <InputSuggestions
+                    {/* <InputSuggestions
                         type="text"
                         list="durations"
                         name="duration"
-                        placeholder="e.g. 3D2N"
+                        placeholder="e.g. 3 Days 2 Nights"
                         value={data.duration}
                         onChange={(e) => setData('duration', e.target.value)}
                         >
-                        <option value="2D1N" />
-                        <option value="3D2N" />
-                        <option value="4D3N" />
-                        <option value="5D4N" />
-                    </InputSuggestions>
+                        <option value="2 Day 1 Night" />
+                        <option value="3 Days 2 Nights" />
+                        <option value="4 Days 3 Nights" />
+                        <option value="5 Day 4 Nights" />
+                        <option value="6 Day 5 Nights" />
+                        <option value="7 Day 6 Nights" />
+                        <option value="8 Day 7 Nights" />
+                        <option value="9 Day 8 Nights" />
+                        <option value="10 Day 9 Nights" />
+                    </InputSuggestions> */}
+                    <select
+                        id="duration"
+                        name="duration"
+                        value={data.duration}
+                        onChange={(e) => setData('duration', e.target.value)}
+                        className="w-full border rounded px-3 py-2"
+                    >
+                        <option value="">[ Select duration ]</option>
+                        <option value="2 Day 1 Night">2 Day 1 Night</option>
+                        <option value="3 Days 2 Nights">3 Days 2 Nights</option>
+                        <option value="4 Days 3 Nights">4 Days 3 Nights</option>
+                        <option value="5 Day 4 Nights">5 Day 4 Nights</option>
+                        <option value="6 Day 5 Nights">6 Day 5 Nights</option>
+                        <option value="7 Day 6 Nights">7 Day 6 Nights</option>
+                        <option value="8 Day 7 Nights">8 Day 7 Nights</option>
+                        <option value="9 Day 8 Nights">9 Day 8 Nights</option>
+                        <option value="10 Day 9 Nights">10 Day 9 Nights</option>
+                    </select>
                 </div>
 
                 <div className="grid gap-2">
@@ -564,7 +591,7 @@ export default function Index({
                         <Input
                             type="number"
                             id="base_price"
-                            value={data.base_price}
+                            value={data.base_price || ''}
                             onChange={(e) => setData('base_price', Number(e.target.value))}
                             className="w-full border rounded"
                         />
@@ -583,58 +610,54 @@ export default function Index({
                         textLabel="Select vans users can book"
                         onSave={(newVans) => addPreferredVans(newVans)}
                         required={true}
-                        editable
                     />
                 </div>
 
                 <hr />
-                <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-12">
-                    <div className="text-center mb-8">
-                        <h2 className="text-2xl font-bold text-gray-800">
-                        More About This Package
-                        </h2>
-                        <p className="text-sm text-gray-500 mt-1">
-                        You can add detailed sections such as inclusions, itineraries, options, and more for <span className="font-medium">{data.title}</span>.
-                        </p>
+                {/* <div className="hidden">
+                    <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-12">
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl font-bold text-gray-800">
+                            More About This Package
+                            </h2>
+                            <p className="text-sm text-gray-500 mt-1">
+                            You can add detailed sections such as inclusions, itineraries, options, and more for <span className="font-medium">{data.title}</span>.
+                            </p>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <AddCategories 
+                                categories={categories} 
+                                onAddCategory={addCategory} 
+                                onRemoveCategory={removeCategory} 
+                                onUpdateCategory={updateCategory}
+                                packageTitle={data.title}
+                                editable
+                            />
+
+                            <InputError message={categoriesContentError} className="mt-2" />
+                        </div>
                     </div>
+
+                    <hr />
 
                     <div className="grid gap-2">
-                        <AddCategories 
-                            categories={categories} 
-                            onAddCategory={addCategory} 
-                            onRemoveCategory={removeCategory} 
-                            onUpdateCategory={updateCategory}
-                            packageTitle={data.title}
+                        <OtherServiceSelection
+                            otherServices={otherServiceList}
+                            selectedOtherServiceIds={selectedOtherServiceIds}
+                            onSelect={toggleOtherServiceSelection}
+                            textLabel="Select services users can add"
+                            onChange={handleSelectAllServices}
+                            onSave={(newServices) => addOtherServices(newServices)}
                             editable
                         />
-
-                        <InputError message={categoriesContentError} className="mt-2" />
                     </div>
-                </div>
-
-                <hr />
-
-                <div className="grid gap-2">
-                    <OtherServiceSelection
-                        otherServices={otherServiceList}
-                        selectedOtherServiceIds={selectedOtherServiceIds}
-                        onSelect={toggleOtherServiceSelection}
-                        textLabel="Select services users can add"
-                        onChange={handleSelectAllServices}
-                        onSave={(newServices) => addOtherServices(newServices)}
-                        editable
-                    />
-                </div>
+                </div> */}
 
                 <Button type="submit" className="mt-2 w-full btn-primary cursor-pointer text-md" tabIndex={5} disabled={processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     {editMode ? 'Update' : 'Create'}
                 </Button>
-
-                <div className="flex flex-row text-center justify-center">
-                    <span className="text-red-500 ml-1">*</span>
-                    <p className="text-sm ml-2">Required Fields</p>
-                </div>
         </form>
         
         </FormLayout>

@@ -5,6 +5,15 @@ import CityList from '@/components/city-list';
 import { City } from '@/types';
 import { PackageForm } from '@/pages/packages/create';
 import CardImageBackground from '@/components/ui/card-image-bg';
+import {
+  Dialog,
+  DialogTitle,
+  DialogClose,
+  DialogContent,
+  DialogDescription
+} from '@/components/ui/dialog';
+import { DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 type ConfigurationsProps = {
     cities: City[];
@@ -48,7 +57,7 @@ export default function Cities({
             },
         });
     }
-
+    
     const handleDeletionCity = (cityId: number) => {
         if (!cityId) return;
 
@@ -70,9 +79,18 @@ export default function Cities({
       setActiveCity(e);
     }
 
-    const displayedCities = activeCity.trim() === '' || activeCity === '__new'
-      ? cities
-      : cities.filter(c => c.id === Number(activeCity));
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const displayedCities = cities.filter(city => {
+      if (!searchQuery.trim()) return true;
+      return city.name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+
+    const [toggleEdit, setToggleEdit] = useState(false);
+
+    const [cityToDelete, setCityToDelete] = useState<City | null>(null);
+
+    
 
   return (
     <DashboardLayout title="Manage Cities" href="/configurations/cities">
@@ -93,6 +111,10 @@ export default function Cities({
                 processing={processing}
                 handleDeletionCity={handleDeletionCity}
                 selectedCityId={selectedCityId}
+                onToggleEdit={setToggleEdit}
+                editable={true}
+                hasSearchBar={true}
+                onSearch={setSearchQuery}
             />
 
             <div className="flex flex-wrap gap-4 p-4">
@@ -103,14 +125,51 @@ export default function Cities({
                     key={city.id}
                     title={city.name}
                     src={city.image_url}
-                    editable={true}
+                    editable={toggleEdit}
+                    deletable={true}
                     editableText={true}
+                    city={city}
+                    handleDeletionCity={setCityToDelete}
                 />
               )))}
             </div>
             
         </div>
       </div>
+
+      {cityToDelete && (
+        <Dialog open={true} onOpenChange={(open) => !open && setCityToDelete(null)}>
+          <DialogContent className="p-4 max-w-md bg-white rounded shadow-xl">
+            <DialogTitle className="text-lg font-semibold text-center mb-2">
+              Delete City "{cityToDelete.name}"?
+            </DialogTitle>
+
+            <DialogDescription className="text-sm text-gray-500 text-center mb-4">
+              This will permanently remove the city from the list.
+            </DialogDescription>
+
+            <DialogFooter className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button variant="outline" className="cursor-pointer">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                className="cursor-pointer"
+                onClick={() => {
+                  handleDeletionCity(cityToDelete.id);
+                  setCityToDelete(null);
+                  setData('city_id', 0);
+                  setData('location', '');
+                }}
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </DashboardLayout>
   );
 }

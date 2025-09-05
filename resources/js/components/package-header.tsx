@@ -23,6 +23,7 @@ type PackageBannerProps = {
     auth?: Auth;
     isWishlisted?: boolean;
     editable?: boolean;
+    hasBookNow?: boolean;
 }
 
 export default function PackageHeader({
@@ -40,6 +41,7 @@ export default function PackageHeader({
     auth,
     isWishlisted,
     children,
+    hasBookNow = true,
 }: PropsWithChildren<PackageBannerProps>) {
 
   return (
@@ -104,19 +106,21 @@ export default function PackageHeader({
                 {base_price && (
                     <p className="text-xl text-green-700 font-semibold mt-1">
                         <PriceSign />
-                        {Number(base_price).toLocaleString()} <span className="text-sm text-gray-500">/ package</span>
+                        {Number(base_price).toLocaleString()} <span className="text-sm text-gray-500">/ person</span>
                     </p>
                 )}
             </div>
 
             <div className="flex flex-row gap-2">
-                <LinkLoading
-                    href={slug ? route("booking.create", { slug: slug }) : undefined}
-                    useUI={false}
-                    className="btn-primary"
-                >
-                    Book Now
-                </LinkLoading>
+                {hasBookNow && (
+                    <LinkLoading
+                        href={slug ? route("booking.create", { slug: slug }) : undefined}
+                        useUI={false}
+                        className="btn-primary"
+                    >
+                        Book Now
+                    </LinkLoading>
+                )}
 
                 {auth?.user && (
                     <div className="flex flex-row items-center gap-2">

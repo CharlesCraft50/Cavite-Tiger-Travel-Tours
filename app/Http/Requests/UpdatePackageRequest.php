@@ -40,7 +40,7 @@ class UpdatePackageRequest extends FormRequest
             'location' => ['nullable', 'string', 'max:255'],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'content' => ['required', 'string'],
-            'duration' => ['nullable', 'string', 'max:10'],
+            'duration' => ['nullable', 'string', 'max:255'],
             'available_from' => ['nullable', 'date', 'required_if:activeExpiry,true'],
             'available_until' => ['nullable', 'date', 'required_if:activeExpiry,true', 'after_or_equal:available_from'],
             'image_overview' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],

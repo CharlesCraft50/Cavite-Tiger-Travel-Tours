@@ -289,7 +289,7 @@ export default function Create({
                     </p>
                 </div>
 
-                <div className="grid gap-4">
+                {/* <div className="grid gap-4">
                     <Label htmlFor="package_category_id">Select Package Option</Label>
                     <Select
                         id="package_category_id"
@@ -306,7 +306,7 @@ export default function Create({
                             ))
                         }
                     </Select>
-                </div>
+                </div> */}
 
                 {/* Form Inputs */}
                 <div className="grid grid-cols-1 gap-6">
@@ -500,14 +500,14 @@ export default function Create({
                 </div>
 
                 {/* Other Services */}
-                <div className="grid gap-2">
+                {/* <div className="grid gap-2">
                     <OtherServiceSelection
                         otherServices={sortedOtherServices}
                         selectedOtherServiceIds={selectedOtherServiceIds}
                         onSelect={toggleServiceSelection}
                         textLabel="You can choose other services:"
                     />
-                </div>
+                </div> */}
 
                 <div className="flex justify-end">
                     <div className="text-right">

@@ -34,6 +34,7 @@ export default function Vehicles({
               onSave={(newVans) => addPreferredVans(newVans)}
               required={true}
               editable
+              small={true}
           />
         </div>
       </div>

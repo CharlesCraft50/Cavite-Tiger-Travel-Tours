@@ -68,24 +68,24 @@ export default function ShowPage({
         <div className="border-gray-900 w-full h-4" />
 
         {/* Additional Package Information */}
-        <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-12">
-          <div className="text-center mb-8">
+        <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-8">
+          {/* <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-800">
               More About This Package
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Explore detailed sections such as inclusions, itineraries, options, and more for <span className="font-medium">{packages.title}</span>.
             </p>
-          </div>
+          </div> */}
 
-          {categories.length > 0 && (
+          {/* {categories.length > 0 && (
             <AddCategories
               categories={categories} 
               slug={packages.slug}
               selectedCategory={category}
               packageTitle={packages.title}
             />
-          )}
+          )} */}
 
           {/* Vans Section */}
           {preferredVans.length > 0 && (
@@ -99,7 +99,7 @@ export default function ShowPage({
           )}
 
           {/* Other Services Section */}
-          {otherServices.length > 0 && (
+          {/* {otherServices.length > 0 && (
             <section className="mt-16">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Optional Add-On Services</h2>
               <OtherServiceSelection 
@@ -107,7 +107,7 @@ export default function ShowPage({
                 selectable={false}
               />
             </section>
-          )}
+          )} */}
 
         </div>
         

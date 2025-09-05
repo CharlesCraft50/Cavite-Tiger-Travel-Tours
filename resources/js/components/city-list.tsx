@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { City } from '@/types';
 import {
   Dialog,
@@ -12,6 +11,8 @@ import {
   DialogDescription
 } from '@/components/ui/dialog';
 import { DialogFooter } from "./ui/dialog";
+import clsx from "clsx";
+import { Button } from "./ui/button";
 
 type CityListProps = {
   cities: City[];
@@ -28,7 +29,11 @@ type CityListProps = {
   handleAddCity: () => void;
   handleDeletionCity: (cityId: number) => void;
   selectedCityId?: (e: string) => void;
+  onToggleEdit?: (e: boolean) => void;
   editable?: boolean;
+  hasSearchBar?: boolean;
+  searchQuery?: string;
+  onSearch?: (e: string) => void;
 };
 
 export default function CityList({
@@ -43,14 +48,60 @@ export default function CityList({
   handleAddCity,
   handleDeletionCity,
   selectedCityId,
+  onToggleEdit,
   editable,
+  hasSearchBar,
+  onSearch
 }: CityListProps) {
   const [cityToDelete, setCityToDelete] = useState<City | null>(null);
+  const [toggleEdit, setToggleEdit] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleToggleEdit = () => {
+    setToggleEdit(prev => {
+      onToggleEdit?.(!prev);
+      return !prev;
+    });
+  }
+
+  const handleSearchBar = (e: string) => {
+    setSearchQuery(e);
+    setSearchQuery(prev => {
+      onSearch?.(prev);
+      return prev;
+    });
+  }
 
   return (
     <div>
       <div className="flex flex-row w-full items-center gap-2">
-        <select
+        {hasSearchBar ? (
+          <div className="relative w-full">
+            {/* Search icon */}
+            <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <Search size={20} />
+            </span>
+
+            {/* Input field */}
+            <input
+              value={searchQuery}
+              onChange={(e) => handleSearchBar(e.target.value)}
+              type="text"
+              placeholder="Search cities..."
+              className="border rounded-lg p-2 pl-10 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            {/* Clear button */}
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+        ) : (<select
           id="cities"
           name="cities"
           value={data.city_id}
@@ -75,7 +126,7 @@ export default function CityList({
           className="border w-full rounded p-2 dark:bg-gray-950 text-black dark:text-white"
           required
         >
-          <option value="">Choose a City</option>
+          <option value="">[ Choose a City ]</option>
           {cities.map((city: City) => (
             <option value={city.id} key={city.id} data-name={city.name}>
               {city.name}
@@ -84,7 +135,7 @@ export default function CityList({
           {editable && (
             <option value="__new">+ Add New City</option>
           )}
-        </select>
+        </select>)}
 
         {!!data.city_id && editable && (
           <Button
@@ -99,6 +150,26 @@ export default function CityList({
           >
             <X className="w-4 h-4" />
           </Button>
+        )}
+
+        {editable && (
+          <div className="flex flex-row gap-2">
+            <Button
+              onClick={() => {
+                handleToggleEdit();
+              }}
+              className={clsx("btn-primary font-semibold cursor-pointer", toggleEdit && "bg-gray-500")}
+            >Edit Cities</Button>
+
+            <Button
+              onClick={() => {
+                setShowNewCityInput(!showNewCityInput);
+                setData('city_id', 0);
+                setData('location', '');
+              }}
+              className={clsx("btn-primary cursor-pointer font-semibold", showNewCityInput && "bg-gray-500")}
+            >Add New City</Button>
+          </div>
         )}
       </div>
 

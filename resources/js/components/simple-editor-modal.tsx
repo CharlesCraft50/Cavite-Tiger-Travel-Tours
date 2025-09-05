@@ -27,7 +27,7 @@ export default function SimpleEditorModal({ value, onChange, modalRef, activeMod
                 fullScreen
             >
                 {hasBanner && (
-                    <PackageHeader handleImageUpload={handleImageUpload} imageBanner={imageBanner} title={title} editable/>
+                    <PackageHeader handleImageUpload={handleImageUpload} imageBanner={imageBanner} title={title} editable hasBookNow={false}/>
                 )}
                 
                 <div className="p-5">

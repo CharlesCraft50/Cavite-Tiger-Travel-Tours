@@ -120,6 +120,7 @@ export default function PackageContentEditor({ value, onChange, title, imageBann
                         imageBanner={imageBanner || existingImageBanner}
                         title={title} 
                         editable
+                        hasBookNow={false}
                     />
                     <div
                         className="tiptap ProseMirror cursor-text"

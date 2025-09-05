@@ -17,9 +17,11 @@ createInertiaApp({
   setup({ el, App, props }) {
     const root = createRoot(el);
 
+    const currentPage = props.initialPage?.component || '';
+
     root.render(
       <LoadingProvider>
-        <TravelChatbot />
+        {!['packages/create', 'packages/edit'].includes(currentPage) && <TravelChatbot />}
         <InertiaLoadingListener />
         <App {...props} />
       </LoadingProvider>

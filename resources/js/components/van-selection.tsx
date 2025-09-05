@@ -2,7 +2,7 @@ import { PreferredVan, User } from "@/types";
 
 import clsx from "clsx";
 import { Label } from "./ui/label";
-import { Check, PencilIcon, PlusSquareIcon, TrashIcon, Undo, X } from "lucide-react";
+import { Check, PencilIcon, Plus, PlusSquareIcon, Search, TrashIcon, Undo, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription } from '@/components/ui/dialog';
 import { DialogFooter } from "./ui/dialog";
@@ -11,7 +11,6 @@ import { router } from "@inertiajs/react";
 import { useLoading } from "./ui/loading-provider";
 import { Input } from "./ui/input";
 import ImageSimpleBox from "./ui/image-simple-box";
-import DatePicker from "react-datepicker";
 import PriceSign from "./price-sign";
 import { format } from "date-fns";
 
@@ -26,6 +25,7 @@ type VanSelectionProps = {
     editable?: boolean;
     selectable?: boolean;
     onSave?: (newVans: PreferredVan[]) => void;
+    small?: boolean;
 };
 
 export default function VanSelection({
@@ -39,6 +39,7 @@ export default function VanSelection({
     editable,
     selectable = true,
     onSave,
+    small,
 }: VanSelectionProps) {
 
     const { start, stop } = useLoading();
@@ -56,7 +57,7 @@ export default function VanSelection({
     const [visibleCount, setVisibleCount] = useState(6);
     const [search, setSearch] = useState("");
 
-    const filteredVans = useMemo(() => {
+    const sortedVans = useMemo(() => {
         return tempVans
             .filter(van =>
                 van.name.toLowerCase().includes(search.toLowerCase())
@@ -73,14 +74,13 @@ export default function VanSelection({
             });
     }, [search, tempVans, selectedVanIds]);
 
-    
-    const visibleVans = filteredVans.slice(0, visibleCount);
+    const visibleVans = sortedVans.slice(0, visibleCount);
 
     useEffect(() => {
         if (!isEditing && preferredVans.length > 0) {
             setTempVans(preferredVans);
         }
-    }, [preferredVans, isEditing]); 
+    }, [preferredVans, isEditing]);
 
     const toggleIsEditing = () => {
         if(isEditing) {
@@ -202,360 +202,677 @@ export default function VanSelection({
         );
     }
 
-  return (
-    <>
-        <Label className="font-medium text-sm" required={required}>
-            {textLabel}
-        </Label>
+    const categorizeByPrice = (price: number) => {
+        if (price <= 1000) return "Economy";
+        if (price <= 1400) return "Standard";
+        if (price <= 2000) return "Premium";
+        return "Luxury";
+    };
 
-        {/* Search Bar */}
-        <input
-            type="text"
-            placeholder="Search vans..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="mb-4 mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-non focus:ring-2 focus:ring-primary"
-        />
+    const categorizedVans = useMemo(() => {
+        const groups: Record<string, EditablePreferredVan[]> = {};
+        preferredVans.forEach(van => {
+            const category = categorizeByPrice(van.additional_fee);
+            if (!groups[category]) groups[category] = [];
+            groups[category].push(van);
+        });
+        return groups;
+    }, [preferredVans]);
 
-        {onChange && (
-            <div className="mb-2">
-                <div className="flex items-center gap-2">
+    // Separate new vans from the existing categorized ones
+    const newVans = tempVans.filter(van => van.isNew);
+
+    const sortedVansWithoutNew = useMemo(() => {
+        return tempVans
+            .filter(van => !van.isNew && van.name.toLowerCase().includes(search.toLowerCase()))
+            .sort((a, b) => {
+                const aSelected = selectedVanIds?.includes(a.id) ? 1 : 0;
+                const bSelected = selectedVanIds?.includes(b.id) ? 1 : 0;
+    
+                if (aSelected !== bSelected) {
+                    return bSelected - aSelected;
+                }
+    
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            });
+    }, [tempVans, selectedVanIds, search]);
+
+    return (
+        <>
+            <Label className="font-medium text-sm" required={required}>
+                {textLabel}
+            </Label>
+
+            {/* Search Bar */}
+            <div className="flex flex-row gap-2">
+                <div className="relative w-full mb-8">
+                    <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
+                        <Search size={20} />
+                    </span>
                     <input
-                        id="select-all-vans"
-                        type="checkbox"
-                        className="w-4 h-4 cursor-pointer"
-                        checked={preferredVans.length > 0 && selectedVanIds?.length === preferredVans.length}
-                        onChange={onChange}
+                        type="text"
+                        placeholder="Search vans..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="border rounded-lg p-2 pl-10 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <label htmlFor="select-all-vans" className="text-sm font-medium text-gray-700">
-                        Select All Preferred Vans
-                    </label>
-                </div>
-            </div>
-        )}
-
-        <div className="flex flex-row mb-2 gap-2 justify-end">
-            {editable && (
-                <>
-                    {isEditing && (
-                        <div>
-                            <Button className="items-center justify-center cursor-pointer" onClick={handleSave}>
-                                <Check className="w-24 h-24 text-white" />
-                                <p className="text-sm text-white">Save</p>
-                            </Button>
-                        </div>
-                    )}
-
-                    <Button className="items-center justify-center cursor-pointer" onClick={toggleIsEditing}>
-                        {isEditing ? (
-                            <X className="w-24 h-24 text-white" />
-                        ) : (
-                            <PencilIcon className="w-12 h-12 text-white" />
-                        )}
-                        <p className="text-sm text-white">{isEditing ? "Cancel Editing" : "Edit Vans"}</p>
-                    </Button>
-                    
-                </>
-            )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            
-
-            {editable && (
-                isEditing && (
-                    <div className="card flex flex-col items-center justify-center gap-4 p-4" onClick={handleAddVan}>
-                        <PlusSquareIcon className="w-24 h-24 text-gray-400" />
-                        <p className="text-sm text-gray-500">Add Van</p>
-                    </div>
-                )
-            )}
-            {visibleVans?.map((van) => {
-                const isSelected = selectedVanIds?.includes(van.id);
-
-                return (
-                    <div
-                        key={van.id}
-                        onClick={() => {
-                            if(!isEditing && selectable) {
-                                onSelect?.(van.id);
-                            }
-                        }}
-                        className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default")}
-                    >
-                    {isEditing ? (
-                        <div className="flex items-center justify-center">
-                            <ImageSimpleBox
-                                key={van.id}
-                                id={`van-image-${van.id}`}
-                                imagePreview={van.image_url}
-                                setImagePreview={(e) => handleChange(van.id, 'image_url', e)}
-                                setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
-                                editable={isEditing}
-                                className="w-full h-32"
-                            />
-                        </div>
-                    ) : (
-                        <img
-                            src={van.image_url}
-                            alt={van.name}
-                            className="img-card"
-                        />
-                    )}
-                    
-                    {isSelected && !isEditing && (
-                        <span className="selected-text">
-                            Selected
-                        </span>
-                    )}
-
-                    {editable && isEditing && (
-                        <div 
-                            className="absolute top-2 right-2"
-                            onClick={(e) => {
-                                e.stopPropagation;
-
-                                if (van.isNew) {
-                                    handleDeletion(van);
-                                    return;
-                                }
-
-                                if(van.action == 'delete') {
-                                    undoDeletion(van);
-                                } else {
-                                    setVanToDelete(van);
-                                }
-                                
-                            }}
+                    {search && (
+                        <button
+                            onClick={() => setSearch('')}
+                            className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
                         >
-                            {van.action === 'delete' ? (
-                                <Undo className="w-8 h-8 p-2 border rounded bg-blue-400 cursor-pointer" />
-                            ) : (
-                                <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
-                            )}
-                        </div>
+                            <X size={18} />
+                        </button>
                     )}
-                    
-                    <div className="mt-2">
-                        <p className="text-lg font-semibold">
-                            {isEditing ? (
-                                <Input
-                                    type="text"
-                                    value={van.name}
-                                    ref={van.isNew ? lastAddedVanRef : null}
-                                    onChange={(e) => handleChange(van.id, 'name', e.target.value)}
-                                    className="p-0 text-lg outline-none px-2 w-full font-semibold"
-                                />
-                            ) : (
-                                `${van.name}`
-                            )}
-                        </p>
+                </div>
 
-                        {isEditing ? (
-                            <div className="flex justify-between">
-                                <p>
-                                    Adult:
-                                    <Input
-                                        type="number"
-                                        min={1}
-                                        value={van.pax_adult}
-                                        onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
-                                        className="p-0 text-lg outline-none px-2 w-full font-semibold"
-                                    />
-                                </p>
-                                <p>
-                                    Kids:
-                                    <Input
-                                        type="number"
-                                        value={van.pax_kids}
-                                        onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
-                                        className="p-0 text-lg outline-none px-2 font-semibold"
-                                    />
-                                </p>
+                {editable && (
+                    <>
+                        {isEditing && (
+                            <div>
+                                <Button type="button" className="items-center justify-center cursor-pointer" onClick={handleSave}>
+                                    <Check className="w-24 h-24 text-white" />
+                                    <p className="text-sm text-white">Save</p>
+                                </Button>
                             </div>
-                            ) : (
-                                <p className="text-sm text-gray-600">Adults: {van.pax_adult} | Kids: {van.pax_kids}</p>
                         )}
 
-                        <p className="text-sm font-medium text-green-700">
+                        <Button type="button" className="items-center justify-center font-semibold cursor-pointer" onClick={toggleIsEditing}>
                             {isEditing ? (
-                                <span className="flex items-center">
-                                    <PriceSign />
-                                    <Input
-                                        type="text"
-                                        value={van.additional_fee}
-                                        onChange={(e) => handleChange(van.id, 'additional_fee', e.target.value)}
-                                        className="p-0 outline-none px-2 w-full"
-                                    />
-                                </span>
+                                <X className="w-24 h-24 text-white" />
                             ) : (
-                                <>
-                                    +
-                                    <PriceSign />
-                                    {`${van.additional_fee.toLocaleString()}`}
-                                </>
+                                <PencilIcon className="w-12 h-12 text-white" />
                             )}
-                        </p>
+                            <p className="text-sm text-white">{isEditing ? "Cancel Editing" : "Edit Vans"}</p>
+                        </Button>
 
-                        <p className="text-sm font-medium mt-2">
-                            {isEditing ? (
-                                <div className="flex flex-col space-y-2">
-                                    <p>Assigned Driver:</p>
-                                    <select
-                                        value={van.user_id ?? ''}
-                                        onChange={(e) => handleChange(van.id, 'user_id', Number(e.target.value))}
-                                        className="w-full text-md cursor-pointer p-1 border border-r-4"
+                        <Button type="button" className="items-center justify-center font-semibold cursor-pointer" onClick={() => {
+                            if (!isEditing) {
+                                toggleIsEditing();
+                            }
+                            handleAddVan();
+                        }}>
+                            <Plus />
+                            <p className="text-sm text-white">Add van</p>
+                        </Button>
+                    </>
+                )}
+            </div>
+
+            {onChange && (
+                <div className="mb-2">
+                    <div className="flex items-center gap-2">
+                        <input
+                            id="select-all-vans"
+                            type="checkbox"
+                            className="w-4 h-4 cursor-pointer"
+                            checked={preferredVans.length > 0 && selectedVanIds?.length === preferredVans.length}
+                            onChange={onChange}
+                        />
+                        <label htmlFor="select-all-vans" className="text-sm font-medium text-gray-700">
+                            Select All Preferred Vans
+                        </label>
+                    </div>
+                </div>
+            )}
+            
+            {/* Conditional Rendering: Categorized view for normal mode, flat list for editing */}
+            {isEditing ? (
+                <div className={clsx(!small ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4")}>
+                    {tempVans.map((van) => {
+                         const isSelected = selectedVanIds?.includes(van.id);
+                        return (
+                            <div
+                                key={van.id}
+                                onClick={() => {
+                                    if(!isEditing && selectable) {
+                                        onSelect?.(van.id);
+                                    }
+                                }}
+                                className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default")}
+                            >
+                                {isEditing ? (
+                                    <div className="flex items-center justify-center">
+                                        <ImageSimpleBox
+                                            key={van.id}
+                                            id={`van-image-${van.id}`}
+                                            imagePreview={van.image_url}
+                                            setImagePreview={(e) => handleChange(van.id, 'image_url', e)}
+                                            setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
+                                            editable={isEditing}
+                                            className="w-full h-32"
+                                        />
+                                    </div>
+                                ) : (
+                                    <img
+                                        src={van.image_url}
+                                        alt={van.name}
+                                        className="img-card"
+                                    />
+                                )}
+                                
+                                {isSelected && !isEditing && (
+                                    <span className="selected-text">
+                                        Selected
+                                    </span>
+                                )}
+
+                                {editable && isEditing && (
+                                    <div 
+                                        className="absolute top-2 right-2"
+                                        onClick={(e) => {
+                                            e.stopPropagation;
+
+                                            if (van.isNew) {
+                                                handleDeletion(van);
+                                                return;
+                                            }
+
+                                            if(van.action == 'delete') {
+                                                undoDeletion(van);
+                                            } else {
+                                                setVanToDelete(van);
+                                            }
+                                            
+                                        }}
                                     >
-                                        <option value="">-- Select Driver --</option>
-                                        {drivers?.map((driver) => (
-                                            <option key={driver.id} value={driver.id}>
-                                                {driver.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            ) : (
-                               <div>
-                                    {(van.driver?.name || drivers.find((d) => d.id === van.user_id)?.name) && (
-                                        <p className="text-sm font-semibold">Assigned Driver</p>
+                                        {van.action === 'delete' ? (
+                                            <Undo className="w-8 h-8 p-2 border rounded bg-blue-400 cursor-pointer" />
+                                        ) : (
+                                            <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
+                                        )}
+                                    </div>
+                                )}
+                                
+                                <div className="mt-2">
+                                    <p className="text-lg font-semibold">
+                                        {isEditing ? (
+                                            <Input
+                                                type="text"
+                                                value={van.name}
+                                                ref={van.isNew ? lastAddedVanRef : null}
+                                                onChange={(e) => handleChange(van.id, 'name', e.target.value)}
+                                                className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                            />
+                                        ) : (
+                                            `${van.name}`
+                                        )}
+                                    </p>
+
+                                    {isEditing ? (
+                                        <div className="flex justify-between">
+                                            <p>
+                                                Adult:
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    value={van.pax_adult}
+                                                    onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
+                                                    className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                                />
+                                            </p>
+                                            <p>
+                                                Kids:
+                                                <Input
+                                                    type="number"
+                                                    value={van.pax_kids}
+                                                    onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
+                                                    className="p-0 text-lg outline-none px-2 font-semibold"
+                                                />
+                                            </p>
+                                        </div>
+                                        ) : (
+                                        <p className="text-sm text-gray-600">Adults: {van.pax_adult} | Kids: {van.pax_kids}</p>
                                     )}
-                                    <p>
-                                        {van.driver?.name ?? drivers.find((d) => d.id === van.user_id)?.name ?? ''}
+
+                                    <p className="text-sm font-medium text-green-700">
+                                        {isEditing ? (
+                                            <span className="flex items-center">
+                                                <PriceSign />
+                                                <Input
+                                                    type="text"
+                                                    value={van.additional_fee}
+                                                    onChange={(e) => handleChange(van.id, 'additional_fee', e.target.value)}
+                                                    className="p-0 outline-none px-2 w-full"
+                                                />
+                                            </span>
+                                        ) : (
+                                            <>
+                                                +
+                                                <PriceSign />
+                                                {`${van.additional_fee.toLocaleString()}`}
+                                            </>
+                                        )}
+                                    </p>
+
+                                    <p className="text-sm font-medium mt-2">
+                                        {isEditing ? (
+                                            <div className="flex flex-col space-y-2">
+                                                <p>Assigned Driver:</p>
+                                                <select
+                                                    value={van.user_id ?? ''}
+                                                    onChange={(e) => handleChange(van.id, 'user_id', Number(e.target.value))}
+                                                    className="w-full text-md cursor-pointer p-1 border border-r-4"
+                                                >
+                                                    <option value="">-- Select Driver --</option>
+                                                    {drivers?.map((driver) => (
+                                                        <option key={driver.id} value={driver.id}>
+                                                            {driver.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                {(van.driver?.name || drivers.find((d) => d.id === van.user_id)?.name) && (
+                                                    <p className="text-sm font-semibold">Assigned Driver</p>
+                                                )}
+                                                <p>
+                                                    {van.driver?.name ?? drivers.find((d) => d.id === van.user_id)?.name ?? ''}
+                                                </p>
+                                            </div>
+                                        )}
                                     </p>
                                 </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <>
+                    {Object.entries(categorizedVans).map(([category, vans]) => {
+                        const vansForCategory = vans.map(van => tempVans.find(v => v.id === van.id) || van).filter(Boolean);
+
+                        if (vansForCategory.length === 0) {
+                            return null;
+                        }
+
+                        return (
+                            <div key={category}>
+                                {!isEditing && (
+                                    <h2 className="text-xl font-bold mt-4 mb-2">{category}</h2>
+                                )}
+                                <div className={clsx(!small ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4")}>
+                                    {vansForCategory.map((van) => {
+                                        const isSelected = selectedVanIds?.includes(van.id);
+                                        return (
+                                            <div
+                                                key={van.id}
+                                                onClick={() => {
+                                                    if(!isEditing && selectable) {
+                                                        onSelect?.(van.id);
+                                                    }
+                                                }}
+                                                className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default")}
+                                            >
+                                                {isEditing ? (
+                                                    <div className="flex items-center justify-center">
+                                                        <ImageSimpleBox
+                                                            key={van.id}
+                                                            id={`van-image-${van.id}`}
+                                                            imagePreview={van.image_url}
+                                                            setImagePreview={(e) => handleChange(van.id, 'image_url', e)}
+                                                            setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
+                                                            editable={isEditing}
+                                                            className="w-full h-32"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <img
+                                                        src={van.image_url}
+                                                        alt={van.name}
+                                                        className="img-card"
+                                                    />
+                                                )}
+                                                
+                                                {isSelected && !isEditing && (
+                                                    <span className="selected-text">
+                                                        Selected
+                                                    </span>
+                                                )}
+
+                                                {editable && isEditing && (
+                                                    <div 
+                                                        className="absolute top-2 right-2"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation;
+
+                                                            if (van.isNew) {
+                                                                handleDeletion(van);
+                                                                return;
+                                                            }
+
+                                                            if(van.action == 'delete') {
+                                                                undoDeletion(van);
+                                                            } else {
+                                                                setVanToDelete(van);
+                                                            }
+                                                            
+                                                        }}
+                                                    >
+                                                        {van.action === 'delete' ? (
+                                                            <Undo className="w-8 h-8 p-2 border rounded bg-blue-400 cursor-pointer" />
+                                                        ) : (
+                                                            <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
+                                                        )}
+                                                    </div>
+                                                )}
+                                                
+                                                <div className="mt-2">
+                                                    <p className="text-lg font-semibold">
+                                                        {isEditing ? (
+                                                            <Input
+                                                                type="text"
+                                                                value={van.name}
+                                                                ref={van.isNew ? lastAddedVanRef : null}
+                                                                onChange={(e) => handleChange(van.id, 'name', e.target.value)}
+                                                                className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                                            />
+                                                        ) : (
+                                                            `${van.name}`
+                                                        )}
+                                                    </p>
+
+                                                    {isEditing ? (
+                                                        <div className="flex justify-between">
+                                                            <p>
+                                                                Adult:
+                                                                <Input
+                                                                    type="number"
+                                                                    min={1}
+                                                                    value={van.pax_adult}
+                                                                    onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
+                                                                    className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                                                />
+                                                            </p>
+                                                            <p>
+                                                                Kids:
+                                                                <Input
+                                                                    type="number"
+                                                                    value={van.pax_kids}
+                                                                    onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
+                                                                    className="p-0 text-lg outline-none px-2 font-semibold"
+                                                                />
+                                                            </p>
+                                                        </div>
+                                                        ) : (
+                                                        <p className="text-sm text-gray-600">Adults: {van.pax_adult} | Kids: {van.pax_kids}</p>
+                                                    )}
+
+                                                    <p className="text-sm font-medium text-green-700">
+                                                        {isEditing ? (
+                                                            <span className="flex items-center">
+                                                                <PriceSign />
+                                                                <Input
+                                                                    type="text"
+                                                                    value={van.additional_fee}
+                                                                    onChange={(e) => handleChange(van.id, 'additional_fee', e.target.value)}
+                                                                    className="p-0 outline-none px-2 w-full"
+                                                                />
+                                                            </span>
+                                                        ) : (
+                                                            <>
+                                                                +
+                                                                <PriceSign />
+                                                                {`${van.additional_fee.toLocaleString()}`}
+                                                            </>
+                                                        )}
+                                                    </p>
+
+                                                    <p className="text-sm font-medium mt-2">
+                                                        {isEditing ? (
+                                                            <div className="flex flex-col space-y-2">
+                                                                <p>Assigned Driver:</p>
+                                                                <select
+                                                                    value={van.user_id ?? ''}
+                                                                    onChange={(e) => handleChange(van.id, 'user_id', Number(e.target.value))}
+                                                                    className="w-full text-md cursor-pointer p-1 border border-r-4"
+                                                                >
+                                                                    <option value="">-- Select Driver --</option>
+                                                                    {drivers?.map((driver) => (
+                                                                        <option key={driver.id} value={driver.id}>
+                                                                            {driver.name}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                        ) : (
+                                                            <div>
+                                                                {(van.driver?.name || drivers.find((d) => d.id === van.user_id)?.name) && (
+                                                                    <p className="text-sm font-semibold">Assigned Driver</p>
+                                                                )}
+                                                                <p>
+                                                                    {van.driver?.name ?? drivers.find((d) => d.id === van.user_id)?.name ?? ''}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })}
+                    {/* Render new vans at the end */}
+                    {newVans.length > 0 && (
+                        <div className="mt-4">
+                            {isEditing && (
+                                <h2 className="text-xl font-bold mt-4 mb-2">New Vans</h2>
                             )}
-                        </p>
-
-                        <div>
-                            {van.availabilities && (
-                                <div className="mt-2 text-xs text-gray-600">
-                                    <strong>Availability:</strong>
-                                    {isEditing ? (
-                                        <div className="border rounded-md p-2 bg-red-100">
-                                            {van.availabilities.map((availability, i) => (
-                                                <div key={van.id}>
-                                                    <p className="text-md font-semibold mt-2">Available From</p>
-                                                    <DatePicker
-                                                        selected={availability.available_from ? new Date(availability.available_from) : null}
-                                                        onChange={(date: Date | null) => {
-                                                            if(date) {
-                                                                const newAvailabilities = [...van.availabilities];
-                                                                newAvailabilities[i] = {
-                                                                    ...newAvailabilities[i],
-                                                                    available_from: format(date, "yyyy-MM-dd"),
-                                                                };
-                                                                handleChange(van.id, 'availabilities', newAvailabilities);
-                                                            }
-                                                        }}
-                                                        placeholderText="Available From"
-                                                        dateFormat="yyyy-MM-dd"
-                                                        className="w-full border px-3 py-2 rounded-md"
-                                                    />
-
-                                                    <p className="text-md font-semibold mt-2">Available Until</p>
-                                                    <DatePicker 
-                                                        selected={availability.available_until ? new Date(availability.available_until) : null}
-                                                        onChange={(date: Date | null) => {
-                                                            if(date) {
-                                                                const newAvailabilities = [...van.availabilities];
-                                                                newAvailabilities[i] = {
-                                                                    ...newAvailabilities[i],
-                                                                    available_until: format(date, "yyyy-MM-dd"),
-                                                                }
-                                                                handleChange(van.id, 'availabilities', newAvailabilities);
-                                                            }
-                                                        }}
-                                                        placeholderText="Available Until"
-                                                        dateFormat="yyyy-MM-dd"
-                                                        className="w-full border px-3 py-2 rounded-md"
-                                                    />
-
-                                                    <p className="text-md font-semibold mt-2">No. of Vans Available</p>
-                                                    <Input
-                                                        type="number"
-                                                        min={1}
-                                                        value={availability.count ?? 0}
-                                                        onChange={(e) => {
-                                                            const newAvailabilities = [...van.availabilities];
-                                                            newAvailabilities[i] = {
-                                                                ...newAvailabilities[i],
-                                                                count: parseInt(e.target.value)
-                                                            }
-                                                            handleChange(van.id, 'availabilities', newAvailabilities);
-                                                        }}
-                                                        className="w-full"
-                                                        placeholder="Count"
+                            <div className={clsx(!small ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4")}>
+                                {newVans.map((van) => {
+                                    const isSelected = selectedVanIds?.includes(van.id);
+                                    return (
+                                        <div
+                                            key={van.id}
+                                            onClick={() => {
+                                                if(!isEditing && selectable) {
+                                                    onSelect?.(van.id);
+                                                }
+                                            }}
+                                            className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default")}
+                                        >
+                                            {isEditing ? (
+                                                <div className="flex items-center justify-center">
+                                                    <ImageSimpleBox
+                                                        key={van.id}
+                                                        id={`van-image-${van.id}`}
+                                                        imagePreview={van.image_url}
+                                                        setImagePreview={(e) => handleChange(van.id, 'image_url', e)}
+                                                        setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
+                                                        editable={isEditing}
+                                                        className="w-full h-32"
                                                     />
                                                 </div>
-                                            ))}
+                                            ) : (
+                                                <img
+                                                    src={van.image_url}
+                                                    alt={van.name}
+                                                    className="img-card"
+                                                />
+                                            )}
+                                            
+                                            {isSelected && !isEditing && (
+                                                <span className="selected-text">
+                                                    Selected
+                                                </span>
+                                            )}
+
+                                            {editable && isEditing && (
+                                                <div 
+                                                    className="absolute top-2 right-2"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation;
+
+                                                        if (van.isNew) {
+                                                            handleDeletion(van);
+                                                            return;
+                                                        }
+
+                                                        if(van.action == 'delete') {
+                                                            undoDeletion(van);
+                                                        } else {
+                                                            setVanToDelete(van);
+                                                        }
+                                                        
+                                                    }}
+                                                >
+                                                    {van.action === 'delete' ? (
+                                                        <Undo className="w-8 h-8 p-2 border rounded bg-blue-400 cursor-pointer" />
+                                                    ) : (
+                                                        <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
+                                                    )}
+                                                </div>
+                                            )}
+                                            
+                                            <div className="mt-2">
+                                                <p className="text-lg font-semibold">
+                                                    {isEditing ? (
+                                                        <Input
+                                                            type="text"
+                                                            value={van.name}
+                                                            ref={van.isNew ? lastAddedVanRef : null}
+                                                            onChange={(e) => handleChange(van.id, 'name', e.target.value)}
+                                                            className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                                        />
+                                                    ) : (
+                                                        `${van.name}`
+                                                    )}
+                                                </p>
+
+                                                {isEditing ? (
+                                                    <div className="flex justify-between">
+                                                        <p>
+                                                            Adult:
+                                                            <Input
+                                                                type="number"
+                                                                min={1}
+                                                                value={van.pax_adult}
+                                                                onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
+                                                                className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                                            />
+                                                        </p>
+                                                        <p>
+                                                            Kids:
+                                                            <Input
+                                                                type="number"
+                                                                value={van.pax_kids}
+                                                                onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
+                                                                className="p-0 text-lg outline-none px-2 font-semibold"
+                                                            />
+                                                        </p>
+                                                    </div>
+                                                    ) : (
+                                                    <p className="text-sm text-gray-600">Adults: {van.pax_adult} | Kids: {van.pax_kids}</p>
+                                                )}
+
+                                                <p className="text-sm font-medium text-green-700">
+                                                    {isEditing ? (
+                                                        <span className="flex items-center">
+                                                            <PriceSign />
+                                                            <Input
+                                                                type="text"
+                                                                value={van.additional_fee}
+                                                                onChange={(e) => handleChange(van.id, 'additional_fee', e.target.value)}
+                                                                className="p-0 outline-none px-2 w-full"
+                                                            />
+                                                        </span>
+                                                    ) : (
+                                                        <>
+                                                            +
+                                                            <PriceSign />
+                                                            {`${van.additional_fee.toLocaleString()}`}
+                                                        </>
+                                                    )}
+                                                </p>
+
+                                                <p className="text-sm font-medium mt-2">
+                                                    {isEditing ? (
+                                                        <div className="flex flex-col space-y-2">
+                                                            <p>Assigned Driver:</p>
+                                                            <select
+                                                                value={van.user_id ?? ''}
+                                                                onChange={(e) => handleChange(van.id, 'user_id', Number(e.target.value))}
+                                                                className="w-full text-md cursor-pointer p-1 border border-r-4"
+                                                            >
+                                                                <option value="">-- Select Driver --</option>
+                                                                {drivers?.map((driver) => (
+                                                                    <option key={driver.id} value={driver.id}>
+                                                                        {driver.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            {(van.driver?.name || drivers.find((d) => d.id === van.user_id)?.name) && (
+                                                                <p className="text-sm font-semibold">Assigned Driver</p>
+                                                            )}
+                                                            <p>
+                                                                {van.driver?.name ?? drivers.find((d) => d.id === van.user_id)?.name ?? ''}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </p>
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <ul className="list-disc ml-4">
-                                            {van.availabilities.map((availability) => (
-                                                <li key={availability.id}>
-                                                    {availability.available_from} to {availability.available_until} — {availability.count} vans
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            )}
+                                    );
+                                })}
+                            </div>
                         </div>
+                    )}
+                </>
+            )}
+
+            {/* Show More */}
+            {!isEditing && visibleCount < sortedVansWithoutNew.length + newVans.length && (
+                <Button
+                    onClick={() => setVisibleCount((prev) => prev + 6)}
+                    className="btn-primary w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded cursor-pointer"
+                >Show More</Button>
+            )}
+
+            {vanToDelete && (
+                <div className="confirm-modal">
+                    <div className="confirm-card">
+                        <Dialog open={true} onOpenChange={(open) => !open && setVanToDelete(null)}>
+                            <DialogContent className="p-8 shadow-none bg-white">
+                                <DialogTitle className="text-base font-semibold text-center mb-2">
+                                    Are you sure you want to delete "{vanToDelete.name}"?
+                                </DialogTitle>
+
+                                <DialogDescription className="text-sm text-gray-500 text-center mb-4">
+                                    This van will be marked for removal. You can still cancel editing to keep it.
+                                </DialogDescription>
+
+                                <DialogFooter className="flex justify-end gap-2">
+                                    <DialogClose asChild>
+                                        <Button 
+                                            variant="outline"
+                                            className="cursor-pointer"
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </DialogClose>
+
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => {
+                                            handleDeletion(vanToDelete);
+                                            setVanToDelete(null);
+                                        }}
+                                        className="cursor-pointer"
+                                    >
+                                        Delete
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
-                    </div>
-                );
-                })
-            } 
-        </div>
-
-        {/* Show More */}
-        {visibleCount < filteredVans.length && (
-            <Button
-                onClick={() => setVisibleCount((prev) => prev + 6)}
-                className="btn-primary w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded cursor-pointer"
-            >Show More</Button>
-        )}
-
-        {vanToDelete && (
-            <div className="confirm-modal">
-                <div className="confirm-card">
-                <Dialog open={true} onOpenChange={(open) => !open && setVanToDelete(null)}>
-                    <DialogContent className="p-0 shadow-none bg-transparent">
-                    <DialogTitle className="text-base font-semibold text-center mb-2">
-                        Are you sure you want to delete "{vanToDelete.name}"?
-                    </DialogTitle>
-
-                    <DialogDescription className="text-sm text-gray-500 text-center mb-4">
-                        This van will be marked for removal. You can still cancel editing to keep it.
-                    </DialogDescription>
-
-                    <DialogFooter className="flex justify-end gap-2">
-                        <DialogClose asChild>
-                        <Button 
-                            variant="outline"
-                            className="cursor-pointer"
-                        >
-                            Cancel
-                        </Button>
-                        </DialogClose>
-
-                        <Button
-                            variant="destructive"
-                            onClick={() => {
-                                handleDeletion(vanToDelete);
-                                setVanToDelete(null);
-                            }}
-                            className="cursor-pointer"
-                        >
-                            Delete
-                        </Button>
-                    </DialogFooter>
-                    </DialogContent>
-                </Dialog>
                 </div>
-            </div>
-        )}
-    </>
-    
-  )
+            )}
+        </>
+    );
 }

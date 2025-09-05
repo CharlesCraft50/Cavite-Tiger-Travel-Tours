@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { useLoading } from '@/components/ui/loading-provider';
-import { Button, Listbox, Transition } from '@headlessui/react';
+import { Listbox, Transition } from '@headlessui/react';
 import { Search, PencilIcon, ChevronDownIcon, Loader2Icon, X, Trash2 } from 'lucide-react';
 import CardImageBackground from '@/components/ui/card-image-bg';
 import clsx from 'clsx';
@@ -11,6 +11,7 @@ import { isAdmin } from '@/lib/utils';
 import { Fragment } from 'react';
 import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import PackageModal from '@/components/ui/package-modal';
+import { Button } from '@/components/ui/button';
 
 type PackagesIndexProps = {
   packages: TourPackage[];
@@ -24,7 +25,6 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
 
   const [toggleEdit, setToggleEdit] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<TourPackage[]>([]);
   const [sortOption, setSortOption] = useState<'newest' | 'oldest'>('newest');
   const searchRef = useRef<HTMLDivElement>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -61,7 +61,6 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-
   useEffect(() => {
     document.body.style.overflow = showAddModal ? 'hidden' : 'auto';
   }, [showAddModal]);
@@ -88,7 +87,14 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
     }
   };
 
-  const sortedPackages = [...initialPackages].sort((a, b) => {
+  // Filter packages based on search query
+  const filteredPackages = initialPackages.filter((pkg) =>
+    pkg.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (pkg.overview && pkg.overview.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  // Sort the filtered packages
+  const sortedPackages = [...filteredPackages].sort((a, b) => {
     const diff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     return sortOption === 'newest' ? diff : -diff;
   });
@@ -129,32 +135,24 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
     return () => window.removeEventListener('scroll', handleScroll);
   }, [currentIndex, hasMore]);
 
+  // Update visible packages when search query or sort option changes
   useEffect(() => {
-    setVisiblePackages(sortedPackages.slice(0, currentIndex));
-    setHasMore(sortedPackages.length > currentIndex);
-  }, [sortOption]);
+    const newVisiblePackages = sortedPackages.slice(0, ITEMS_PER_LOAD);
+    setVisiblePackages(newVisiblePackages);
+    setCurrentIndex(ITEMS_PER_LOAD);
+    setHasMore(sortedPackages.length > ITEMS_PER_LOAD);
+  }, [searchQuery, sortOption, filteredPackages.length]);
 
-  const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-
-    if (!value) return setSearchResults([]);
-    try {
-      start();
-      const response = await fetch(`/api/packages?search=${encodeURIComponent(value)}`);
-      const data = await response.json();
-      setSearchResults(data.packages);
-    } catch (err) {
-      console.error('Search error', err);
-    } finally {
-      stop();
-    }
   };
 
+  // Clear search when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setSearchResults([]);
+        // Don't clear the search query, just remove focus if needed
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -178,18 +176,13 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
             placeholder="Search packages..."
             className="border rounded-lg p-2 pl-9 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {searchResults.length > 0 && (
-            <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow-lg max-h-64 overflow-auto">
-              {searchResults.map((pkg) => (
-                <Link
-                  key={pkg.id}
-                  href={`/packages/${pkg.slug}`}
-                  className="block px-4 py-2 hover:bg-gray-100"
-                >
-                  {pkg.title}
-                </Link>
-              ))}
-            </div>
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+            >
+              <X size={18} />
+            </button>
           )}
         </div>
 
@@ -261,6 +254,26 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
         )}
       </div>
 
+      {/* Search results info */}
+      {searchQuery && (
+        <div className="mb-4 text-sm text-gray-600">
+          Showing {sortedPackages.length} result{sortedPackages.length !== 1 ? 's' : ''} for "{searchQuery}"
+        </div>
+      )}
+
+      {/* No results message */}
+      {searchQuery && sortedPackages.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">No packages found matching "{searchQuery}"</p>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="mt-2 text-blue-500 hover:text-blue-600 underline"
+          >
+            Clear search
+          </button>
+        </div>
+      )}
+
       {/* Package grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12 mt-8">
         {visiblePackages.map((pkg) => (
@@ -276,31 +289,17 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
               title={pkg.title}
               src={pkg.image_overview ?? ''}
               size="small"
+              editable={toggleEdit}
+              onEdit={() => {
+                setEditModalPackage(pkg);
+                setIframeLoading(true);
+              }}
+              deletable={true}
+              onDeletion={() => {
+                setDeleteTarget(pkg);
+              }}
+              hasChangeImageBtn={true}
             />
-
-            {toggleEdit && isAdmins && (
-              <div className="flex flex-row absolute top-2 right-8 gap-2">
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDeleteTarget(pkg); // set the package to delete
-                  }}
-                  className="btn-primary cursor-pointer p-0 w-10 h-10 flex items-center justify-center"
-                >
-                  <Trash2 className="w-4 h-4 text-white" />
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEditModalPackage(pkg);
-                    setIframeLoading(true);
-                  }}
-                  className="btn-primary cursor-pointer p-0 w-10 h-10 flex items-center justify-center"
-                >
-                  <PencilIcon className="w-4 h-4 text-white" />
-                </Button>
-              </div>
-            )}
           </div>
         ))}
       </div>
@@ -317,54 +316,51 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
             : editModalPackage
             ? route(
                 'packages.edit',
-                { package: editModalPackage.id, from: 'packages', disableNav: true } // 👈 id goes inside the params object
+                { package: editModalPackage.id, from: 'packages', disableNav: true }
               ) as string
             : ''
         }
       />
 
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
-            {/* Close button */}
-            <button
-              onClick={() => setDeleteTarget(null)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-            >
-              <X size={18} />
-            </button>
+        <div className="confirm-modal">
+            <div className="confirm-card">
+            <Dialog open={true} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+                <DialogContent className="p-8 shadow-none bg-white">
+                <DialogTitle className="text-base font-semibold text-center mb-2">
+                    Are you sure you want to delete "{deleteTarget.title}"?
+                </DialogTitle>
 
-            {/* Title */}
-            <h2 className="text-lg font-semibold text-center mb-2">
-              Are you sure you want to delete "{deleteTarget.title}"?
-            </h2>
+                <DialogDescription className="text-sm text-gray-500 text-center mb-4">
+                    This action cannot be undone. Please confirm if you want to proceed.
+                </DialogDescription>
 
-            {/* Description */}
-            <p className="text-sm text-gray-500 text-center mb-6">
-              This action cannot be undone. Please confirm if you want to proceed.
-            </p>
+                <DialogFooter className="flex justify-end gap-2">
+                    <DialogClose asChild>
+                    <Button 
+                        variant="outline"
+                        className="cursor-pointer"
+                        onClick={() => setDeleteTarget(null)}
+                    >
+                        Cancel
+                    </Button>
+                    </DialogClose>
 
-            {/* Buttons */}
-            <div className="flex justify-center gap-4">
-              <Button
-                onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 cursor-pointer rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  handleDelete(deleteTarget);
-                }}
-                className="px-4 py-2 rounded cursor-pointer bg-red-600 text-white hover:bg-red-700"
-              >
-                Delete
-              </Button>
+                    <Button
+                        variant="destructive"
+                        onClick={() => {
+                            handleDelete(deleteTarget);
+                        }}
+                        className="cursor-pointer"
+                    >
+                        Delete
+                    </Button>
+                </DialogFooter>
+                </DialogContent>
+            </Dialog>
             </div>
-          </div>
         </div>
       )}
-
 
       {loadingMore && <p className="text-center mt-2">Loading more packages...</p>}
     </DashboardLayout>
