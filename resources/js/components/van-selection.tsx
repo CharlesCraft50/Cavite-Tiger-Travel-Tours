@@ -209,15 +209,31 @@ export default function VanSelection({
         return "Luxury";
     };
 
+    const categoryOrder = ["Economy", "Standard", "Premium", "Luxury"];
+
     const categorizedVans = useMemo(() => {
         const groups: Record<string, EditablePreferredVan[]> = {};
-        preferredVans.forEach(van => {
+        tempVans.forEach(van => {
             const category = categorizeByPrice(van.additional_fee);
             if (!groups[category]) groups[category] = [];
             groups[category].push(van);
         });
-        return groups;
-    }, [preferredVans]);
+
+        // Sort vans within each category by additional_fee ascending
+        for (const category in groups) {
+            groups[category].sort((a, b) => a.additional_fee - b.additional_fee);
+        }
+
+        // Return categories in the desired order, filter out empty
+        const sortedGroups: Record<string, EditablePreferredVan[]> = {};
+        categoryOrder.forEach(cat => {
+            if (groups[cat] && groups[cat].length > 0) {
+                sortedGroups[cat] = groups[cat];
+            }
+        });
+
+        return sortedGroups;
+    }, [tempVans]);
 
     // Separate new vans from the existing categorized ones
     const newVans = tempVans.filter(van => van.isNew);
