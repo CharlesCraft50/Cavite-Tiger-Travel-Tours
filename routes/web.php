@@ -15,6 +15,7 @@ use App\Http\Controllers\OtherServiceController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ConfigurationController;
+use App\Http\Controllers\VanCategoryController;
 use \App\Models\TourPackage;
 use Inertia\Inertia;
 
@@ -79,6 +80,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/configurations/vehicles', [ConfigurationController::class, 'vehicles'])->name('configurations.vehicles');
     Route::get('/configurations/cities', [ConfigurationController::class, 'cities'])->name('configurations.cities');
     Route::get('/configurations/other-services', [ConfigurationController::class, 'otherServices'])->name('configurations.otherServices');
+
+    Route::resource('/vancategories', VanCategoryController::class);
 });
 
 Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');

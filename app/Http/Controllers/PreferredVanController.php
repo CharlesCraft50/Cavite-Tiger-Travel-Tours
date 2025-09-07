@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PreferredVan;
 use App\Models\TourPackage;
+use App\Models\VanCategory;
 use App\Models\PreferredVanAvailability;
 use App\Http\Requests\UpdatePreferredVanRequest;
 use Illuminate\Support\Facades\DB;
@@ -70,6 +71,14 @@ class PreferredVanController extends Controller
             }
         }
 
+        // Update category sort order
+        if (!empty($validated['categories'])) {
+            foreach ($validated['categories'] as $categoryData) {
+                VanCategory::where('id', $categoryData['id'])
+                    ->update(['sort_order' => $categoryData['sort_order']]);
+            }
+        }
+
         DB::transaction(function () use ($validated) {
             foreach ($validated['vans'] as $vanData) {
 
@@ -83,6 +92,7 @@ class PreferredVanController extends Controller
                         'additional_fee' => $vanData['additional_fee'],
                         'pax_adult' => $vanData['pax_adult'],
                         'pax_kids' => $vanData['pax_kids'],
+                        'van_category_id' => $vanData['van_category_id'] ?? null,
                     ]);
 
                     if (!empty($vanData['availabilities'])) {
@@ -109,6 +119,7 @@ class PreferredVanController extends Controller
                             'additional_fee' => $vanData['additional_fee'],
                             'pax_adult' => $vanData['pax_adult'],
                             'pax_kids' => $vanData['pax_kids'],
+                            'van_category_id' => $vanData['van_category_id'] ?? null,
                         ]);
 
                         if (isset($vanData['availabilities'])) {

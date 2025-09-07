@@ -1,10 +1,10 @@
-import { User } from ".";
+import { User, VanCategory } from ".";
 import { PreferredVanAvailability } from "./preferred-van-availability";
 
 export interface PreferredVan {
     id: number;
     name: string;
-    image_url: string;
+    image_url: string | null;
     additional_fee: number;
     pax_adult: number;
     pax_kids: number;
@@ -16,4 +16,6 @@ export interface PreferredVan {
     driver?: User | null;
 
     availabilities: PreferredVanAvailability[];
+    van_category_id?: number | null;
+    category?: VanCategory;
 }

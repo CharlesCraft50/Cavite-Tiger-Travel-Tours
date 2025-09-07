@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Models\User;
 use App\Models\TourPackage;
 use App\Models\PackageCategory;
+use App\Models\VanCategory;
 use App\Models\Wishlist;
 use App\Models\City;
 use App\Models\PreferredVan;
@@ -59,7 +60,8 @@ class PackageController extends Controller
     public function create(Request $request) {
 
         $cities = City::all();
-        $preferredVans = PreferredVan::with(['availabilities', 'driver'])->get();
+        $preferredVans = PreferredVan::with(['availabilities', 'driver', 'category'])->get();
+        $vanCategories = VanCategory::all();
         $otherServices = OtherService::all();
 
         $drivers = User::where('role', 'driver')->get();
@@ -70,6 +72,7 @@ class PackageController extends Controller
             'drivers' => $drivers,
             'otherServices' => $otherServices,
             'editMode' => false,
+            'vanCategories' => $vanCategories,
         ]));
     }
 
@@ -208,15 +211,17 @@ class PackageController extends Controller
     public function edit(string $id)
     {
         $cities = City::all();
-        $preferredVans = PreferredVan::with('availabilities')->get();
+        $preferredVans = PreferredVan::with(['availabilities', 'category'])->get();
 
         $package = TourPackage::findOrFail($id);
 
         $allServices = OtherService::all();
         $selectedServices = $package->otherServices()->withPivot(['package_specific_price', 'is_recommended', 'sort_order'])->get();
+        $vanCategories = VanCategory::all();
 
         $otherServices = $allServices->map(function ($service) use ($selectedServices) {
             $pivot = $selectedServices->firstWhere('id', $service->id)?->pivot;
+            $vanCategories = VanCategory::all();
 
             return [
                 'id' => $service->id,
@@ -226,6 +231,7 @@ class PackageController extends Controller
                 'package_specific_price' => $pivot->package_specific_price ?? null,
                 'is_recommended' => $pivot->is_recommended ?? false,
                 'sort_order' => $pivot->sort_order ?? 0,
+                'vanCategories' => $vanCategories,
             ];
         });
 
@@ -238,6 +244,7 @@ class PackageController extends Controller
             'vanIds' => $package->preferredVans->pluck('id'),
             'otherServices' => $otherServices,
             'serviceIds' => $package->otherServices->pluck('id'),
+            'vanCategories' => $vanCategories,
         ]);
     }
 

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('additional_fee', 10, 2)->default(0);
             $table->integer('pax_adult');
             $table->integer('pax_kids');
+            $table->foreignId('van_category_id')->nullable()->constrained('van_categories')->onDelete('set null');
 
             $table->timestamps();
         });

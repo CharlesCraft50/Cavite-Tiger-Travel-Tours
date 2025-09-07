@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\PreferredVan;
 use App\Models\OtherService;
 use App\Models\TourPackage;
+use App\Models\VanCategory;
 
 class ConfigurationController extends Controller
 {
@@ -104,12 +105,14 @@ class ConfigurationController extends Controller
     }
     
     public function vehicles() {
-        $preferredVans = PreferredVan::with('availabilities')->get();
+        $preferredVans = PreferredVan::with(['availabilities', 'category'])->get();
+        $vanCategories = VanCategory::all();
         $drivers = User::where('role', 'driver')->get();
 
         return Inertia::render('dashboard/configurations/vehicles', [
             'preferredVans' => $preferredVans,
             'drivers' => $drivers,
+            'vanCategories' => $vanCategories,
         ]);
     }
 

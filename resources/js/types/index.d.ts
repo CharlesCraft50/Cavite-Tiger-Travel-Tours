@@ -13,6 +13,7 @@ export * from './other-service-tour-package';
 export * from './paginated';
 export * from './booking-payment';
 export * from './wishlist';
+export * from './van-category';
 
 export interface Auth {
     user: User;

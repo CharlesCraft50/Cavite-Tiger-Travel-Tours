@@ -35,6 +35,12 @@ class UpdatePreferredVanRequest extends FormRequest
             'vans.*.availabilities.*.available_from' => ['nullable', 'date'],
             'vans.*.availabilities.*.available_until' => ['nullable', 'date'],
             'vans.*.availabilities.*.count' => ['nullable', 'integer'],
+            'vans.*.van_category_id' => ['nullable', 'integer', 'exists:van_categories,id'],
+
+            // New: category sort order
+            'categories' => ['nullable', 'array'],
+            'categories.*.id' => ['required', 'integer', 'exists:van_categories,id'],
+            'categories.*.sort_order' => ['required', 'integer'],
         ];
 
     }

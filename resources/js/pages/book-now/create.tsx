@@ -13,7 +13,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from "react-datepicker";
 import OtherServiceSelection from "@/components/other-service-selection";
 import PriceSign from "@/components/price-sign";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
@@ -44,8 +44,8 @@ export default function Create({
         return_date: string;
         contact_number: string;
         email: string;
-        pax_kids: number;
-        pax_adult: number;
+        pax_kids: string | number;
+        pax_adult: string | number;
         notes: string;
         preferred_van_id: number | null;
         other_services: number[],
@@ -60,8 +60,8 @@ export default function Create({
         return_date: '',
         contact_number: '',
         email: '',
-        pax_kids: 0,
-        pax_adult: 1,
+        pax_kids: '',
+        pax_adult: '1',
         notes: '',
         preferred_van_id: null,
         other_services: [],
@@ -132,8 +132,8 @@ export default function Create({
             setData('preferred_van_id', vanId);
         }
         
-        setData('pax_adult', 0);
-        setData('pax_kids', 0);
+        setData('pax_adult', '1'); // always start at 1
+        setData('pax_kids', '0');  // kids default 0
     }
 
     const toggleServiceSelection = (serviceId: number) => {
@@ -161,17 +161,21 @@ export default function Create({
         //     return;
         // }
 
-        if (!phoneNumber) {
+        const digitOnly = phoneNumber.replace(/\D/g, ""); 
+
+        if (!digitOnly) {
             setContactNumberError('Contact Number is required.');
             setFormError('Please check the required fields.');
             return;
         }
 
-        if (phoneNumber.length < 9) {
-            setContactNumberError('Contact Number is too short.');
+        if (digitOnly.length !== 11) {
+            setContactNumberError('Contact Number must be exactly 11 digits.');
             setFormError('Please check the required fields.');
             return;
         }
+
+        setData('contact_number', digitOnly);
 
         post('/book-now/booked', {
             preserveScroll: true,
@@ -215,20 +219,28 @@ export default function Create({
     });
 
     useEffect(() => {
-        let total = packages.base_price;
+        const adults = Number(data.pax_adult) || 1; // default to 1
+        const kids = Number(data.pax_kids) || 0;
 
+        let total = 0;
+
+        // Package price (per person)
+        const people = adults + kids;
+        total += people * packages.base_price;
+
+        // Custom category price
         const selectedCategory = categories.find(cat => cat.id === data.package_category_id);
-
         if(selectedCategory?.use_custom_price && selectedCategory.custom_price) {
             total += Number(selectedCategory.custom_price);
         }
 
+        // Van additional fee
         const selectedVan = preferredVans.find(v => v.id === data.preferred_van_id);
-
         if(selectedVan) {
             total += Number(selectedVan.additional_fee) ?? 0;
         }
 
+        // Other services
         for (const serviceId of selectedOtherServiceIds) {
             const service = otherServices.find(s => s.id === serviceId);
             if (service) {
@@ -245,7 +257,9 @@ export default function Create({
         packages.base_price,
         categories,
         preferredVans,
-        otherServices
+        otherServices,
+        data.pax_adult,
+        data.pax_kids,
     ]);
 
     useEffect(() => {
@@ -256,6 +270,17 @@ export default function Create({
 
     const [rawPhone, setRawPhone] = useState(''); // full +63...
     const [phoneNumber, setPhoneNumber] = useState(''); // stripped number
+    
+    const handleReturnDate = (): string => {
+        const durationDays = parseInt(packages.duration?.split(' ')[0] || "0", 10);
+
+        if (!data.departure_date) return "";
+
+        const departure = new Date(data.departure_date);
+        const returnDate = addDays(departure, durationDays);
+
+        return format(returnDate, "yyyy-MM-dd");
+    }
     
     return (
         <FormLayout>
@@ -416,13 +441,17 @@ export default function Create({
                             id="pax_adult"
                             type="number"
                             required
-                            value={selectedVanIds.length == 0 ? 0 : data.pax_adult}
-                            disabled={processing || selectedVanIds.length == 0}
-                            placeholder="0"
+                            value={selectedVanIds.length === 0 ? '' : data.pax_adult}
+                            disabled={processing || selectedVanIds.length === 0}
+                            placeholder="1"
                             max={selectedVan?.pax_adult}
-                            min={0}
-                            onChange={(e) => setData('pax_adult', Number(e.target.value))}
-                        />
+                            min={1}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // If cleared, always reset to 1
+                                setData('pax_adult', value === '' ? '1' : value);
+                            }}
+                            />
                         <InputError message={errors.pax_adult} className="mt-2" />
                     </div>
                     
@@ -431,15 +460,21 @@ export default function Create({
                         <Input
                             id="pax_kids"
                             type="number"
-                            required
                             value={selectedVanIds.length == 0 ? 0 : data.pax_kids}
                             disabled={processing || selectedVanIds.length == 0}
                             placeholder="0"
                             max={selectedVan?.pax_kids}
                             min={0}
-                            onChange={(e) => setData('pax_kids', Number(e.target.value))}
+                            onChange={(e) => setData('pax_kids', e.target.value)}
                         />
                         <InputError message={errors.pax_kids} className="mt-2" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="grid gap-2">
+                        <Label>Duration</Label>
+                        <p className="font-semibold">( {packages.duration} )</p>
                     </div>
                 </div>
 
@@ -477,7 +512,7 @@ export default function Create({
                     {/* Return Date */}
                     <div className="grid gap-2">
                         <Label htmlFor="return_date">Return Date</Label>
-                        <DatePicker
+                        {/* <DatePicker
                             disabled={selectedVanIds.length === 0}
                             selected={data.return_date ? new Date(data.return_date) : null}
                             onChange={(date: Date | null) => {
@@ -494,7 +529,10 @@ export default function Create({
                             }
                             placeholderText="Select a return date"
                             className="w-full border px-3 py-2 rounded-md"
-                        />
+                        /> */}
+                        <div className="w-full border-b border-b-red-500">
+                            <p>{handleReturnDate()}</p>
+                        </div>
                         <InputError message={errors.return_date} className="mt-2" />
                     </div>
                 </div>

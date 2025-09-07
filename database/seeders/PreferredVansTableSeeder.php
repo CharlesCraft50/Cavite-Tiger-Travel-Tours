@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\TourPackage;
 use App\Models\PreferredVan;
 use App\Models\PreferredVanAvailability;
+use App\Models\VanCategory;
 
 class PreferredVansTableSeeder extends Seeder
 {
@@ -21,6 +21,14 @@ class PreferredVansTableSeeder extends Seeder
         // Retrieve the "Tagaytay" tour package
         $tagaytayTour = TourPackage::where('title', 'Chill and Dine Tagaytay')->first();
 
+        // Retrieve categories
+        $glGrandia   = VanCategory::where('name', 'GL Grandia')->first();
+        $highRoof    = VanCategory::where('name', 'High Roof Van')->first();
+        $commuter    = VanCategory::where('name', 'Commuter Van')->first();
+        $deluxe      = VanCategory::where('name', 'Deluxe Van')->first();
+        $travellerXL = VanCategory::where('name', 'Traveller XL')->first();
+        $vipDeluxe   = VanCategory::where('name', 'VIP Deluxe')->first();
+
         $hiAce = PreferredVan::create([
             'name' => 'Toyota HiAce',
             'image_url' => 'https://1cars.org/wp-content/uploads/2019/03/Toyota-Hiace-1.jpg',
@@ -28,6 +36,7 @@ class PreferredVansTableSeeder extends Seeder
             'pax_adult' => 10,
             'pax_kids' => 2,
             'user_id' => 3,
+            'van_category_id' => $glGrandia?->id,
         ]);
 
         $urvan = PreferredVan::create([
@@ -36,6 +45,7 @@ class PreferredVansTableSeeder extends Seeder
             'additional_fee' => 1300,
             'pax_adult' => 8,
             'pax_kids' => 3,
+            'van_category_id' => $commuter?->id,
         ]);
 
         $starex = PreferredVan::create([
@@ -44,6 +54,7 @@ class PreferredVansTableSeeder extends Seeder
             'additional_fee' => 1200,
             'pax_adult' => 7,
             'pax_kids' => 2,
+            'van_category_id' => $deluxe?->id,
         ]);
 
         $transit = PreferredVan::create([
@@ -52,6 +63,7 @@ class PreferredVansTableSeeder extends Seeder
             'additional_fee' => 1600,
             'pax_adult' => 12,
             'pax_kids' => 4,
+            'van_category_id' => $travellerXL?->id,
         ]);
 
         $carnival = PreferredVan::create([
@@ -60,11 +72,14 @@ class PreferredVansTableSeeder extends Seeder
             'additional_fee' => 1400,
             'pax_adult' => 6,
             'pax_kids' => 2,
+            'van_category_id' => $vipDeluxe?->id,
         ]);
 
-        $calaguas->preferredVans()->attach([$hiAce->id, $urvan->id]);
-        $tagaytayTour->preferredVans()->attach([$urvan->id]);
+        // Attach vans to packages
+        $calaguas?->preferredVans()->attach([$hiAce->id, $urvan->id]);
+        $tagaytayTour?->preferredVans()->attach([$urvan->id]);
 
+        // Availabilities
         PreferredVanAvailability::create([
             'preferred_van_id' => $hiAce->id,
             'available_from' => now(),

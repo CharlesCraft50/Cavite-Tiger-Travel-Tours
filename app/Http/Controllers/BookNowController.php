@@ -76,12 +76,17 @@ class BookNowController extends Controller
 
         $availability = $this->availabilityService->getAvailableDateRanges($validated['preferred_van_id']);
 
+        // Get package, category, van, other services
+        $package = TourPackage::with(['categories', 'otherServices'])->findOrFail($validated['tour_package_id']);
+
         if(empty($availability)) {
             return back()->withErrors(['preferred_van_id' => 'Van availability not found.']);
         }
 
         $from = Carbon::parse($validated['departure_date']);
-        $until = Carbon::parse($validated['return_date']);
+        $durationDays = (int) filter_var($package->duration, FILTER_SANITIZE_NUMBER_INT);
+        $until = $from->copy()->addDays($durationDays);
+        // $until = Carbon::parse($validated['return_date']);
 
         if($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
             return back()->withErrors(['departure_date' => 'Selected dates are outside van\'s availability range.']);
@@ -92,12 +97,14 @@ class BookNowController extends Controller
                 return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
         }
 
-        // Get package, category, van, other services
-        $package = TourPackage::with(['categories', 'otherServices'])->findOrFail($validated['tour_package_id']);
         $van = PreferredVan::findOrFail($validated['preferred_van_id']);
 
-        // Start with base price
-        $totalAmount = $package->base_price;
+        // ✅ Per person pricing
+        $adults = (int) ($validated['pax_adult'] ?? 1);
+        $kids   = (int) ($validated['pax_kids'] ?? 0);
+        $people = $adults + $kids;
+
+        $totalAmount = $people * $package->base_price;
 
         // Add custom category price if applicable
         if (!empty($validated['package_category_id'])) {
@@ -118,15 +125,11 @@ class BookNowController extends Controller
             }
         }
 
-        $user = Auth::user();
-        $userId = null;
-
-        if($user) {
-            $userId = $user->id;
-        }
+        $userId = Auth::id();
 
         $booking = Booking::create([
             ...$validated,
+            'return_date'    => $until->toDateString(),
             'total_amount' => $totalAmount,
             'driver_id' => $validated['driver_id'],
             'user_id' => $userId,

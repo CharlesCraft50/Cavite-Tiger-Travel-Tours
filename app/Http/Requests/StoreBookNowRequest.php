@@ -36,7 +36,6 @@ class StoreBookNowRequest extends FormRequest
             'contact_number' => ['required', 'string'],
             'email' => ['required', 'email'],
             'departure_date' => ['required', 'date'],
-            'return_date' => ['required', 'date'],
             'pax_adult' => [
                 'required',
                 'integer',
@@ -44,7 +43,7 @@ class StoreBookNowRequest extends FormRequest
                 'max:' . ($this->van_pax_adult_max ?? 1000), // fallback just in case
             ],
             'pax_kids' => [
-                'required',
+                'sometimes',
                 'integer',
                 'min:0',
                 'max:' . ($this->van_pax_kids_max ?? 1000),

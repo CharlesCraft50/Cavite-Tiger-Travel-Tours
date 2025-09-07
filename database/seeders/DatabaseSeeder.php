@@ -7,6 +7,7 @@ use Database\Seeders\TourPackagesTableSeeder;
 use Database\Seeders\UsersTableSeeder;
 use Database\Seeders\PreferredVansTableSeeder;
 use Database\Seeders\OtherServicesTableSeeder;
+use Database\Seeders\VanCategoryTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,6 +19,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UsersTableSeeder::class,
+        ]);
+
+        $this->call([
+            VanCategoryTableSeeder::class,
         ]);
         
         $this->call([

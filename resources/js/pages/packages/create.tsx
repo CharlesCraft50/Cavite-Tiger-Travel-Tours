@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { City, PackageCategory, TourPackage, PreferredVan, OtherService, User } from "@/types";
+import { City, PackageCategory, TourPackage, PreferredVan, OtherService, User, VanCategory } from "@/types";
 import { Head } from '@inertiajs/react';
 import PackageContentEditor from "@/components/package-content-editor";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -47,6 +47,7 @@ type PackagesCreateProps = {
     otherServices: OtherService[];
     vanIds: number[];
     serviceIds: number[];
+    vanCategories: VanCategory[];
 };
 
 export default function Index({
@@ -59,6 +60,7 @@ export default function Index({
      otherServices,
      vanIds,
      serviceIds,
+     vanCategories,
     }: PackagesCreateProps ) {
 
     const { url } = usePage();
@@ -585,11 +587,11 @@ export default function Index({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="base_price" required>Base Price</Label>
+                    <Label htmlFor="base_price" required>Base Price / person</Label>
                     <div className="flex flex-row items-center">
                         <PriceSign />
                         <Input
-                            type="number"
+                            type="text"
                             id="base_price"
                             value={data.base_price || ''}
                             onChange={(e) => setData('base_price', Number(e.target.value))}
@@ -610,6 +612,7 @@ export default function Index({
                         textLabel="Select vans users can book"
                         onSave={(newVans) => addPreferredVans(newVans)}
                         required={true}
+                        vanCategories={vanCategories}
                     />
                 </div>
 
