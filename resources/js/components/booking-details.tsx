@@ -1,4 +1,4 @@
-import { Booking, OtherService, OtherServiceTourPackage, PreferredVan, SharedData, TourPackage } from '@/types'
+import { Booking, OtherService, OtherServiceTourPackage, PreferredVan, SharedData, TourPackage, VanCategory } from '@/types'
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
 import {  Mail, Pencil, Phone } from 'lucide-react';
@@ -19,10 +19,11 @@ type BookingDetailsProp = {
     otherServices?: OtherService[];
     packages?: TourPackage;
     vans?: PreferredVan[];
+    vanCategories?: VanCategory[];
     editable?: boolean;
 }
 
-export default function BookingDetails({ booking, otherServices, packages, vans, editable }: BookingDetailsProp) {
+export default function BookingDetails({ booking, otherServices, packages, vans, vanCategories, editable }: BookingDetailsProp) {
     const [hasChanges, setHasChanges] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>(
@@ -380,6 +381,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                         preferredVans={vans || []}
                                         selectedVanIds={selectedVanIds}
                                         onSelect={toggleVanSelection}
+                                        vanCategories={vanCategories}
                                     />
                                 </>
                             ) : (
@@ -463,7 +465,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
                         <hr />
 
-                        <div>
+                        {/* <div>
                             <p className="text-sm text-gray-600">Add-On Services</p>
                             {editable && isEditing ? (
                                 <OtherServiceSelection
@@ -493,7 +495,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                     )}
                                 </ul>
                             )}
-                        </div>
+                        </div> */}
                         
                         <hr />
 

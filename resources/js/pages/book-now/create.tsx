@@ -1,5 +1,5 @@
 import FormLayout from "@/layouts/form-layout";
-import { OtherService, PackageCategory, PreferredVan, SharedData, TourPackage, User } from "@/types";
+import { OtherService, PackageCategory, PreferredVan, SharedData, TourPackage, User, VanCategory } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import OtherServiceSelection from "@/components/other-service-selection";
 import PriceSign from "@/components/price-sign";
 import { format, addDays } from "date-fns";
 import PhoneInput from 'react-phone-input-2';
+import { normalizePhoneNumber, normalizePHNumber } from "@/lib/utils";
 import 'react-phone-input-2/lib/style.css';
 
 type BookNowCreateProps = {
@@ -24,6 +25,7 @@ type BookNowCreateProps = {
     selectedCategoryId: number;
     preferredVans: PreferredVan[];
     otherServices: OtherService[];
+    vanCategories: VanCategory[];
 }
 
 export default function Create({ 
@@ -33,6 +35,7 @@ export default function Create({
     selectedCategoryId, 
     preferredVans,
     otherServices,
+    vanCategories,
 }: BookNowCreateProps) {
     const { data, setData, post, processing, errors } = useForm<{
         package_title: string;
@@ -149,6 +152,8 @@ export default function Create({
     };
 
     const [formError, setFormError] = useState('');
+    
+    const [currentCountryCode, setCurrentCountryCode] = useState('');
 
 
     const submit: FormEventHandler = (e) => {
@@ -161,21 +166,33 @@ export default function Create({
         //     return;
         // }
 
-        const digitOnly = phoneNumber.replace(/\D/g, ""); 
+        if (currentCountryCode == null) {
+            setContactNumberError('Please choose your country code.');
+            setFormError('Please check the required fields.');
+            return;
+        }
 
-        if (!digitOnly) {
+        const normalized = normalizePhoneNumber(rawPhone, currentCountryCode);
+
+        let normalizedFormattedPhone = null;
+
+        if (currentCountryCode == 'PH') {
+            normalizedFormattedPhone = normalizePHNumber(rawPhone);
+        }
+
+        if (!normalized) {
             setContactNumberError('Contact Number is required.');
             setFormError('Please check the required fields.');
             return;
         }
 
-        if (digitOnly.length !== 11) {
+        if (normalized.national.replace(/\D/g, '').length !== 11) {
             setContactNumberError('Contact Number must be exactly 11 digits.');
             setFormError('Please check the required fields.');
             return;
         }
 
-        setData('contact_number', digitOnly);
+        setData('contact_number', normalized?.e164 ?? normalizedFormattedPhone ?? rawPhone);
 
         post('/book-now/booked', {
             preserveScroll: true,
@@ -378,11 +395,10 @@ export default function Create({
                             value={rawPhone}
                             disabled={processing}
                             placeholder="Ex. +639123456789"
-                            onChange={(fullValue: string, data: any, event: any, formattedValue: string) => {
+                            onChange={(fullValue: string, data: any) => {
                                 setRawPhone(fullValue);
-                                // strip the country dial code
-                                const stripped = fullValue.replace(`+${data.dialCode}`, '').trim();
-                                setPhoneNumber(stripped);
+                                setCurrentCountryCode(data.countryCode?.toUpperCase() || 'PH');
+                                setPhoneNumber(fullValue.replace(`+${data.dialCode}`, '').trim());
                                 setData('contact_number', fullValue);
                                 setContactNumberError('');
                             }}
@@ -429,6 +445,7 @@ export default function Create({
                         onSelect={toggleVanSelection}
                         textLabel="Select your preferred van"
                         required={true}
+                        vanCategories={vanCategories}
                     />
                     <InputError message={errors.preferred_van_id} className="mt-2" />
                 </div>

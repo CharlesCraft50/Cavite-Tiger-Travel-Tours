@@ -61,10 +61,6 @@ export default function VanSelection({
         isNew?: boolean;
     }
 
-    useEffect(() => {
-        console.log(preferredVans);
-    }, [preferredVans]);
-
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [tempVans, setTempVans] = useState<EditablePreferredVan[]>(preferredVans);
     const [vanToDelete, setVanToDelete] = useState<EditablePreferredVan | null>(null);

@@ -68,6 +68,7 @@
         "dompurify": "^3.2.6",
         "globals": "^15.14.0",
         "laravel-vite-plugin": "^1.0",
+        "libphonenumber-js": "^1.12.15",
         "lucide-react": "^0.475.0",
         "react": "^18.2.0",
         "react-beautiful-dnd": "^13.1.1",

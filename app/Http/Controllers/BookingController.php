@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Booking;
 use App\Models\OtherService;
+use App\Models\VanCategory;
 use App\Services\VanAvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -85,7 +86,8 @@ class BookingController extends Controller
                         ->findOrFail($id);
 
         $packages = TourPackage::findOrFail($booking->tour_package_id);
-        $vans = PreferredVan::all();
+        $vans = PreferredVan::with(['availabilities', 'driver', 'category'])->get();
+        
         $packages->load([
             'categories', 
             'preferredVans.availabilities', 
@@ -94,12 +96,15 @@ class BookingController extends Controller
             }
         ]);
 
+        $vanCategories = VanCategory::all();
+
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
             'isAdmin' => $user->isAdmin(),
             'otherServices' => $otherServices,
             'packages' => $packages,
             'vans' => $vans,
+            'vanCategories' => $vanCategories,
         ]);
     }
 

@@ -1,8 +1,9 @@
 import BookingDetails from '@/components/booking-details';
 import DashboardLayout from '@/layouts/dashboard-layout';
-import { Booking, OtherService, PreferredVan, TourPackage } from '@/types';
+import { Booking, OtherService, PreferredVan, TourPackage, VanCategory } from '@/types';
 import { Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 type BookingDetailProps = {
     booking: Booking;
@@ -10,10 +11,13 @@ type BookingDetailProps = {
     packages: TourPackage;
     vans: PreferredVan[];
     isAdmin?: boolean;
+    vanCategories: VanCategory[];
 };
 
-export default function Show({ booking, otherServices, packages, vans, isAdmin }: BookingDetailProps) {
-
+export default function Show({ booking, otherServices, packages, vans, isAdmin, vanCategories }: BookingDetailProps) {
+    useEffect(()=>{
+        console.log(vanCategories);
+    }, [vanCategories]);
     return (
         <DashboardLayout title="Bookings" href="/bookings">
             <div className="mb-6 flex items-center justify-between">
@@ -35,6 +39,7 @@ export default function Show({ booking, otherServices, packages, vans, isAdmin }
                 packages={packages}
                 vans={vans}
                 editable={!!isAdmin}
+                vanCategories={vanCategories}
             />            
         </DashboardLayout>
     );

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Requests\StoreBookNowRequest;
 use App\Models\Booking;
+use App\Models\VanCategory;
 use App\Services\VanAvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +38,9 @@ class BookNowController extends Controller
             'categories' => function ($query) {
                 $query->where('has_button', true);
             },
-            'preferredVans', // ✅ Load only the selected preferred vans
+            'preferredVans' => function ($query) {
+                $query->with(['availabilities', 'driver', 'category']);
+            },
             'otherServices',
         ]);
 
@@ -49,6 +52,7 @@ class BookNowController extends Controller
         }
 
         $drivers = User::where('role', 'driver')->get();
+        $vanCategories = VanCategory::all();
 
         return Inertia::render('book-now/create', [
             'packages' => $packages,
@@ -57,6 +61,7 @@ class BookNowController extends Controller
             'selectedCategoryId' => $selectedCategoryId,
             'preferredVans' => $packages->preferredVans,
             'otherServices' => $packages->otherServices,
+            'vanCategories' => $vanCategories,
         ]);
     }
 
