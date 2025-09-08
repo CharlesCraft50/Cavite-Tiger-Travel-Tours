@@ -18,7 +18,7 @@ export default function PackagesIndexHeaderLayout({
 } : PropsWithChildren<PackagesIndexHeaderLayoutProps>) {
   return (
     <>
-      <Navbar />
+      <Navbar removeNavItems />
       <PackagesIndexHeader id={id} src={src} title={title} editable={editable} />
       <div className="flex-1 m-8">
           {children}

@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, Search, User, UserCircle, X } from 'lucide-react';
+import { Menu, Search, User, X } from 'lucide-react';
 import AppLogoIcon from '../app-logo-icon';
 import { useEffect, useRef, useState } from 'react';
 import LinkLoading from '../link-loading';
@@ -56,11 +56,7 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
 
                     <div className="flex items-center gap-2 whitespace-nowrap">
                         <AppLogoIcon className="h-14 w-auto shrink-0 text-red-800" />
-                        {isDashboard ? (
-                            <Link href="/dashboard" className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
-                        ) : (
-                            <Link href="/" className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
-                        )}
+                            <Link href={isDashboard ? "/packages" : "/dashboard"} className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
                     </div>
 
                     {/* Desktop Nav */}
@@ -138,7 +134,6 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
                     ) : (
                         <div className="hidden rounded md:flex flex-row gap-3">
                             <div className="md:flex">
-                                {inDashboard ? (
                                     <div className="flex items-center gap-2 whitespace-nowrap bg-white p-2 border rounded-full">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -151,17 +146,6 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
-                                ) : (
-                                    <div className="flex flex-row items-center gap-2 whitespace-nowrap bg-white p-2 border rounded-full">
-                                        <button
-                                            className="flex flex-row cursor-pointer gap-2 items-center text-gray-600 hover:text-primary"
-                                            onClick={() => window.location.href = '/dashboard'}
-                                        >
-                                            <User size={20} />
-                                            Dashboard
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     )}

@@ -17,7 +17,7 @@ export default function PackageShowLayout({ id, children, packages, editable, au
 
     return (
         <>
-            <Navbar />
+            <Navbar removeNavItems />
             <BackButton 
                 href="/packages"
                 className="ms-12 mb-0 mt-2" 

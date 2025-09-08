@@ -10,6 +10,7 @@ import { BookingPayment, SharedData } from "@/types";
 import InputError from "@/components/input-error";
 import clsx from "clsx";
 import StyledFileUpload from "@/components/styled-file-upload";
+import QRCodeModal from "@/components/qr-code-modal";
 
 type PaymentProps = {
     booking_id: number;
@@ -65,6 +66,8 @@ export default function Payment({
             }
         });
     }
+
+    const [selectedQR, setSelectedQR] = useState<string | null>(null);
 
   return (
     <FormLayout
@@ -188,6 +191,22 @@ export default function Payment({
                 <InputError message={paymentProofError} className="mt-2" />
 
             </div>
+
+            <div className="flex flex-col items-center gap-4 p-4">
+                <p className="text-center text-sm font-medium mb-2">
+                    You can pay using one of these QR codes. Please choose only one. <br />
+                    Tap/click the QR code to view it in fullscreen.
+                </p>
+
+
+                <div className="flex flex-col sm:flex-row sm:gap-6 items-center">
+                    <QRCodeModal qrImages={[
+                        "https://i.ibb.co/1Yyrzxfv/IMG-3230.jpg",
+                        "https://i.ibb.co/p6vd0PRt/IMG-3229.jpg"
+                    ]} />
+                </div>
+            </div>
+
 
             <Button type="submit" className="mt-2 w-full btn-primary -md cursor-pointer" tabIndex={5} disabled={processing}>
                 {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
