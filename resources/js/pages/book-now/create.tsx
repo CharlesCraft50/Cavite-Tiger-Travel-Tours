@@ -300,7 +300,7 @@ export default function Create({
     }
     
     return (
-        <FormLayout>
+        <FormLayout removeNavItems hasBackButton backButtonHref={`/packages/${packages.slug}`}>
             <Head title="Book Now" />
             <form onSubmit={submit} className="flex flex-col gap-6">
                 {/* Hero Image Header */}

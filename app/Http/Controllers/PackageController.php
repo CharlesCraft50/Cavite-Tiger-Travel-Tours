@@ -137,7 +137,7 @@ class PackageController extends Controller
 
             $redirectUrl = '/packages/' . $package->slug;
 
-            if ($validated['from']) {
+            if ($validated['from'] ?? false) {
                 return redirect()->back()->with('success', 'Package created successfully!');
             }
 
@@ -316,7 +316,7 @@ class PackageController extends Controller
 
             $redirectUrl = '/packages/' . $package->slug;
 
-            if ($validated['from']) {
+            if ($validated['from'] ?? false) {
                 return redirect()->back()->with('success', 'Package updated successfully!');
             }
 
