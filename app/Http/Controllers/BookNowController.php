@@ -89,8 +89,19 @@ class BookNowController extends Controller
         }
 
         $from = Carbon::parse($validated['departure_date']);
-        $durationDays = (int) filter_var($package->duration, FILTER_SANITIZE_NUMBER_INT);
-        $until = $from->copy()->addDays($durationDays);
+        // Match "3 Days 2 Nights" or "3D2N"
+        if (preg_match('/(\d+)\s*D(?:ays?)?\s*(\d+)\s*N(?:ights?)?/i', $package->duration, $matches)) {
+            $days = (int) $matches[1];
+            $nights = (int) $matches[2];
+        } else {
+            // fallback if only number given
+            $days = (int) filter_var($package->duration, FILTER_SANITIZE_NUMBER_INT);
+            $nights = $days > 0 ? $days - 1 : 0;
+        }
+
+        // return date = departure + nights
+        $until = $from->copy()->addDays($nights);
+
         // $until = Carbon::parse($validated['return_date']);
 
         if($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
