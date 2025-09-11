@@ -348,11 +348,15 @@ export default function VanSelection({
     const categorizedVans = useMemo(() => {
         const groups: Record<string, EditablePreferredVan[]> = {};
 
-        tempVans.forEach(van => {
-            const categoryName = van.category?.name || 'Uncategorized';
-            if (!groups[categoryName]) groups[categoryName] = [];
-            groups[categoryName].push(van);
-        });
+        tempVans
+            .filter(van =>
+                van.name.toLowerCase().includes(search.toLowerCase())
+            )
+            .forEach(van => {
+                const categoryName = van.category?.name || 'Uncategorized';
+                if (!groups[categoryName]) groups[categoryName] = [];
+                groups[categoryName].push(van);
+            });
 
         // Sort only when not dragging
         if (!draggingVanId) {
@@ -369,7 +373,7 @@ export default function VanSelection({
         if (groups['Uncategorized']?.length) sortedGroups['Uncategorized'] = groups['Uncategorized'];
 
         return sortedGroups;
-    }, [tempVans, categoryOrder, draggingVanId]);
+    }, [tempVans, categoryOrder, draggingVanId, search]);
 
     // Separate new vans from the existing categorized ones
     const newVans = tempVans.filter(van => van.isNew);
