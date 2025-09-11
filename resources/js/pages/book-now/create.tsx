@@ -294,7 +294,7 @@ export default function Create({
         if (!data.departure_date) return "";
 
         const departure = new Date(data.departure_date);
-        const returnDate = addDays(departure, durationDays);
+        const returnDate = addDays(departure, durationDays - 1);
 
         return format(returnDate, "yyyy-MM-dd");
     }
