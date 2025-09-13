@@ -318,9 +318,11 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                     </h3>
                 </div>
 
-                <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
-                    <Pencil className="w-4 h-4" />
-                </Button>
+                {(isAdmins || isDrivers) && (
+                    <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
+                        <Pencil className="w-4 h-4" />
+                    </Button>
+                )}
             </div>
 
             

@@ -6,6 +6,9 @@ import LinkLoading from '../link-loading';
 import { SharedData } from '@/types';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { UserMenuContent } from "../user-menu-content";
+import { NotificationProvider } from '../../context/notification-context';
+import NotificationBell from '../../../js/components/notification-bell';
+import React from 'react';
 
 
 export default function navbar({ hasSearchBar, removeNavItems = false, inDashboard } : { hasSearchBar?: boolean, removeNavItems?: boolean, inDashboard?: boolean }) {
@@ -133,6 +136,13 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
                         </div>
                     ) : (
                         <div className="hidden rounded md:flex flex-row gap-3">
+                            {user && (
+                                <div className='md:flex'>
+                                    <NotificationProvider userId={auth.user.id}>
+                                        <NotificationBell />
+                                    </NotificationProvider>
+                                </div>)
+                            }
                             <div className="md:flex">
                                     <div className="flex items-center gap-2 whitespace-nowrap bg-white p-2 border rounded-full">
                                         <DropdownMenu>
@@ -190,5 +200,6 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
                 )}
             </div>
         </nav>
+        
     );
 }

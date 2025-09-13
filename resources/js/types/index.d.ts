@@ -14,6 +14,7 @@ export * from './paginated';
 export * from './booking-payment';
 export * from './wishlist';
 export * from './van-category';
+export * from './notification';
 
 export interface Auth {
     user: User;

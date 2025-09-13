@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Mail\BookingUpdated;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Notification;
 
 class BookingController extends Controller
 {
@@ -139,8 +140,44 @@ class BookingController extends Controller
             ->filter(fn($field) => $request->has($field))
             ->mapWithKeys(fn($field) => [$field => $request->input($field)])
             ->toArray();
+        
+        
+
+        $oldStatus = $booking->status;
 
         $booking->update($fieldsToUpdate);
+
+        if ($request->status != $oldStatus) {
+            if ($booking->user) {
+                $statusMessages = [
+                    'pending'  => "is now pending confirmation.",
+                    'accepted' => "has been accepted! 🎉",
+                    'declined' => "was unfortunately declined.",
+                ];
+                
+                $message = "Your booking #{$booking->booking_number} " 
+                    . ($statusMessages[$request->status] ?? "status was updated.");
+                Notification::create([
+                    'user_id' => $booking->user->id,
+                    'type' => "Booking"  . ucwords($request->status),
+                    'data' => json_encode([
+                        'message' => $message,
+                        'booking_number' => $booking->booking_number,
+                        'booking_id' => $booking->id,
+                        'tour_package_id' => $booking->tour_package_id,
+                        'image_overview' => $booking->tourPackage?->image_overview,
+                        'slug' => $booking->tourPackage?->slug,
+                        'title' => $booking->tourPackage?->title,
+                        'departure_date' => $booking->departure_date,
+                        'return_date' => $booking->return_date,
+                        'total_amount' => $booking->total_amount,
+                    ]),
+                    'read_at' => null,
+                ]);
+            }
+        }
+
+        
 
         Mail::to($booking->email)->send(new BookingUpdated($booking));
 
