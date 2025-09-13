@@ -64,7 +64,7 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
 
                     {/* Desktop Nav */}
                     {hasSearchBar ? (
-                        <div className="hidden md:flex md:flex w-full items-center justify-center">
+                        <div className="hidden md:flex w-full items-center justify-center">
                             <div className="relative w-[50%]" ref={searchRef}>
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <Search size={20} />
