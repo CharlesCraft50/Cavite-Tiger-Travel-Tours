@@ -33,7 +33,7 @@ class StorePackageRequest extends FormRequest
             'available_until' => ['nullable', 'date', 'required_if:activeExpiry,true', 'after_or_equal:available_from'],
             'image_overview' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'image_banner' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
-            'base_price' => ['required', 'integer'],
+            'base_price' => ['required', 'numeric'],
 
             // ✅ Validate categories as array
             'categories' => ['nullable', 'array'],

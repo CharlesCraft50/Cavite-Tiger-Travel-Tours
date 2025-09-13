@@ -22,6 +22,7 @@ export interface Booking {
     pax_adult: number;
     pax_kids: number;
     notes?: string | null;
+    pickup_address: string;
 
     is_confirmed: boolean;
 

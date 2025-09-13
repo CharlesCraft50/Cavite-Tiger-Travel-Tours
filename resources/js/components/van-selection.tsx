@@ -640,7 +640,7 @@ export default function VanSelection({
 
             {/* Search Bar */}
             <div className="flex flex-row gap-2">
-                <div className="relative w-full mb-8">
+                <div className="relative w-full mb-2">
                     <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
                         <Search size={20} />
                     </span>

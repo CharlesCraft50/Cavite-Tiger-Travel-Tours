@@ -52,6 +52,7 @@ class StoreBookNowRequest extends FormRequest
             'other_services' => 'array',
             'other_services.*' => 'exists:other_services,id',
             'driver_id' => ['nullable', 'integer', 'exists:users,id'],
+            'pickup_address' => ['required', 'string', 'max:255'],
         ];
     }
 }

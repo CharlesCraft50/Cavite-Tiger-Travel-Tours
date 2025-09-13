@@ -33,6 +33,7 @@ return new class extends Migration
             $table->boolean('is_confirmed')->default(false);
             $table->string('booking_number')->unique();
             $table->decimal('total_amount')->nullable();
+            $table->string('pickup_address');
             
 
             // Admin Status

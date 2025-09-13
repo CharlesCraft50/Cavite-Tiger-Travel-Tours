@@ -30,6 +30,7 @@ class Booking extends Model
         'pax_adult',
         'pax_kids',
         'notes',
+        'pickup_address',
         'payment_method',
         'is_confirmed',
         'status',

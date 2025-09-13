@@ -20,8 +20,9 @@ class UpdateBookingRequest extends FormRequest
             'return_date' => ['nullable', 'date', 'after_or_equal:departure_date'],
             'status' => ['sometimes', 'required', 'in:pending,accepted,declined,past_due,cancelled'],
             'notes' => ['nullable', 'string'],
-            'total_amount' => ['nullable', 'integer'],
+            'total_amount' => ['nullable', 'numeric'],
             'payment_status' => ['nullable', 'in:pending,accepted,declined'],
+            'pickup_address' => ['sometimes', 'string', 'max:255'],
         ];
     }
 }

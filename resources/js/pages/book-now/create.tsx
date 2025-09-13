@@ -50,6 +50,7 @@ export default function Create({
         pax_kids: string | number;
         pax_adult: string | number;
         notes: string;
+        pickup_address: string;
         preferred_van_id: number | null;
         other_services: number[],
         driver_id: number | null,
@@ -66,6 +67,7 @@ export default function Create({
         pax_kids: '',
         pax_adult: '1',
         notes: '',
+        pickup_address: '',
         preferred_van_id: null,
         other_services: [],
         driver_id: null,
@@ -325,6 +327,10 @@ export default function Create({
                 )}
 
                 <div className="grid gap-4">
+                    <p className="font-semibold">Required Fields <span className="text-red-500">*</span></p>
+                </div>
+
+                <div className="grid gap-4">
                     <Label htmlFor="package_title">Selected Package</Label>
                     <p id="package_title" className="p-2 border rounded bg-gray-100">
                         {packages.title}
@@ -354,7 +360,7 @@ export default function Create({
                 <div className="grid grid-cols-1 gap-6">
                     {/* First Name */}
                     <div className="grid gap-2">
-                        <Label htmlFor="first_name">First Name</Label>
+                        <Label htmlFor="first_name" required>First Name</Label>
                         <Input
                             id="first_name"
                             type="text"
@@ -370,7 +376,7 @@ export default function Create({
 
                     {/* Last Name */}
                     <div className="grid gap-2">
-                        <Label htmlFor="last_name">Last Name</Label>
+                        <Label htmlFor="last_name" required>Last Name</Label>
                         <Input
                             id="last_name"
                             type="text"
@@ -389,7 +395,7 @@ export default function Create({
                 {/* Other Fields */}
                 <div className="grid grid-cols-2 gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="contact_number">Contact No.</Label>
+                        <Label htmlFor="contact_number" required>Contact No.</Label>
                         <PhoneInput
                             country={'ph'}
                             value={rawPhone}
@@ -407,7 +413,7 @@ export default function Create({
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="email_address">Email Address</Label>
+                        <Label htmlFor="email_address" required>Email Address</Label>
                         <Input
                             id="email_address"
                             type="email"
@@ -420,6 +426,20 @@ export default function Create({
                         <InputError message={errors.email} className="mt-2" />
                     </div>
                 </div>
+                
+                {/* Pickup Address */}
+                <div className="grid gap-2">
+                    <Label htmlFor="pickup_address" required>Pickup Address</Label>
+                    <Input
+                        type="text"
+                        required
+                        value={data.pickup_address}
+                        disabled={processing}
+                        placeholder="Pickup Address"
+                        onChange={(e) => setData('pickup_address', e.target.value)}
+                    />
+                    <InputError message={errors.pickup_address} className="mt-2" />
+                </div>
 
                 {/* Additional Notes */}
                 <div className="grid gap-2">
@@ -427,7 +447,7 @@ export default function Create({
                     <textarea
                         id="notes"
                         rows={4}
-                        placeholder="Any special requests or notes..."
+                        placeholder=" Any special request, notes, or landmarks..."
                         value={data.notes}
                         disabled={processing}
                         onChange={(e) => setData("notes", e.target.value)}

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('booking_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
-            $table->enum('payment_method', ['gcash', 'paypal', 'bank_deposit']);
+            $table->string('payment_method')->nullable();
             $table->string('reference_number');
             $table->string('payment_proof_path');
             $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');

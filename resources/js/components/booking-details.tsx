@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import InputError from './input-error';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@headlessui/react';
+import { Input, Textarea } from '@headlessui/react';
 import OtherServiceSelection from './other-service-selection';
 import PriceSign from './price-sign';
 import VanSelection from './van-selection';
@@ -49,6 +49,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 formData.append('return_date', booking.return_date);
                 formData.append('status', 'past_due');
                 formData.append('notes', booking.notes ?? '');
+                formData.append('pickup_address', booking.pickup_address ?? '');
                 formData.append('total_amount', Math.floor(booking.total_amount).toString());
 
                 selectedOtherServiceIds.forEach((id) => {
@@ -126,6 +127,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         return_date: string;
         status: string;
         notes: string;
+        pickup_address: string;
         other_services: number[] | undefined;
         total_amount: number;
         pax_adult: number;
@@ -139,6 +141,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         return_date: booking.return_date,
         status: booking.status ?? '',
         notes: booking.notes ?? '',
+        pickup_address: booking.pickup_address ?? '',
         other_services: booking.other_services?.map((s) => s.id),
         total_amount: booking.total_amount,
         pax_adult: booking.pax_adult,
@@ -186,6 +189,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             data.return_date !== booking.return_date ||
             data.status !== booking.status ||
             data.notes !== booking.notes ||
+            data.pickup_address !== booking.pickup_address ||
             !arraysEqual(data.other_services, booking.other_services?.map(s => s.id)) ||
             data.preferred_van_id !== booking.preferred_van?.id ||
             data.payment_status !== booking.payment?.status;
@@ -203,6 +207,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('return_date', data.return_date);
         formData.append('status', data.status);
         formData.append('notes', data.notes);
+        formData.append('pickup_address', data.pickup_address);
         formData.append('total_amount', data.total_amount.toString());
         formData.append('payment_status', data.payment_status || 'pending');
 
@@ -228,6 +233,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         setData('return_date', booking.return_date);
         setData('status', booking.status);
         setData('notes', booking.notes || '');
+        setData('pickup_address', booking.pickup_address || '');
         setData('payment_status', booking.payment?.status || 'pending');
 
         const otherServiceIds = booking.other_services?.map((s) => s.id) ?? [];
@@ -502,10 +508,24 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         <hr />
 
                         <div>
+                            <p className="text-sm text-gray-600">Pickup Address</p>
+                            {editable && isEditing ? (
+                                <Input
+                                    className="w-full p-2 border-1 border-gray-200 rounded-lg"
+                                    value={data.pickup_address}
+                                    placeholder="Add additional note"
+                                    onChange={(e) => setData('pickup_address', e.target.value)}
+                                />
+                            ) : (
+                                <p className="px-2">{booking.pickup_address}</p>
+                            )}
+                        </div>
+
+                        <div>
                             <p className="text-sm text-gray-600">Notes</p>
                             {editable && isEditing ? (
                                 <Textarea
-                                    className="w-full p-2"
+                                    className="w-full p-2 border-1 border-gray-200 rounded-lg"
                                     rows={4}
                                     placeholder="Add additional note"
                                     onChange={(e) => setData('notes', e.target.value)}
