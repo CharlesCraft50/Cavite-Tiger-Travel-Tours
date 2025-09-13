@@ -11,40 +11,46 @@ export default function NotificationBell() {
 
   const toggleIsOpen = () => {
     setIsOpen((prev) => !prev);
-  }
+  };
 
-  const unreadLength = notifications.filter(n => n.read_at == null).length;
+  const unreadLength = notifications.filter((n) => n.read_at == null).length;
 
   return (
-    <div className="relative">
-      <button onClick={() => {
+    <div className="relative w-full md:w-auto">
+      <button
+        onClick={() => {
           markAllAsRead();
           toggleIsOpen();
           fetchNotifications();
         }}
-        className="cursor-pointer absolute right-1 top-2"
+        className="cursor-pointer md:absolute md:right-1 md:top-2 relative"
       >
         <Bell className="text-primary" />
         {unreadLength > 0 && (
-          <span style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            background: "red",
-            color: "white",
-            borderRadius: "50%",
-            padding: "2px 6px",
-            fontSize: "12px",
-          }}>
+          <span
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              background: "red",
+              color: "white",
+              borderRadius: "50%",
+              padding: "2px 6px",
+              fontSize: "12px",
+            }}
+          >
             {unreadLength}
           </span>
         )}
       </button>
 
       <div
-        style={{ width: "250px", zIndex: 10 }}
         className={clsx(
-          "absolute border border-gray-300 bg-gray-50 top-10 right-0 rounded-lg overflow-hidden",
+          "border border-gray-300 bg-gray-50 rounded-lg overflow-hidden z-10",
+          // Desktop: absolute dropdown
+          "md:absolute md:top-10 md:right-0 md:w-[250px]",
+          // Mobile: full width, below button
+          "w-full mt-2",
           isOpen ? "" : "hidden"
         )}
       >
@@ -58,7 +64,7 @@ export default function NotificationBell() {
             <Link href={`/bookings/${data.booking_id}`} key={idx}>
               <div
                 className={clsx(
-                  "flex items-start gap-2 w-full px-4 py-2 transition duration-300 hover:bg-gray-400",
+                  "flex items-start gap-2 w-full px-4 py-2 transition duration-300 hover:bg-gray-200",
                   !isLast && "border-b border-gray-200"
                 )}
               >
@@ -75,12 +81,9 @@ export default function NotificationBell() {
                 </div>
               </div>
             </Link>
-
           );
         })}
       </div>
-
-
     </div>
   );
 }

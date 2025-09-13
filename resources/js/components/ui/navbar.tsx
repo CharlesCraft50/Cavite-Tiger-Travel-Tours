@@ -64,7 +64,7 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
 
                     {/* Desktop Nav */}
                     {hasSearchBar ? (
-                        <div className="md:flex w-full items-center justify-center">
+                        <div className="hidden md:flex md:flex w-full items-center justify-center">
                             <div className="relative w-[50%]" ref={searchRef}>
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <Search size={20} />
@@ -171,31 +171,67 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
                 {/* Mobile Menu */}
                 {menuOpen && (
                     <div className="md:hidden mt-2 space-y-2 text-center mb-4">
+                        {hasSearchBar && (
+                            <div className="px-4" ref={searchRef}>
+                                <div className="relative w-full">
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <Search size={20} />
+                                </span>
+                                <input
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    type="text"
+                                    className="border rounded-lg p-2 pl-9 bg-white text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Search for destination, packages, and tours"
+                                />
+                                {searchResults.length > 0 && (
+                                    <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow-lg max-h-64 overflow-auto">
+                                    {searchResults.map((pkg: any) => (
+                                        <Link
+                                        key={pkg.id}
+                                        href={`/packages/${pkg.slug}`}
+                                        className="block px-4 py-2 hover:bg-gray-100"
+                                        >
+                                        {pkg.title} — {pkg.city?.name}
+                                        </Link>
+                                    ))}
+                                    </div>
+                                )}
+                                </div>
+                            </div>
+                            )}
                         <Link href="/" className="block text-white hover:text-indigo-600">Home</Link>
                         <Link href="/packages" className="block text-white hover:text-indigo-600">Packages</Link>
                         <Link href="/about" className="block text-white hover:text-indigo-600">About</Link>
                         <Link href="/contact" className="block text-white hover:text-indigo-600">Contact</Link>
+                        {user && (
+                            <div className='md:flex'>
+                                <NotificationProvider userId={auth.user.id}>
+                                    <NotificationBell />
+                                </NotificationProvider>
+                            </div>)
+                        }
                         {!user && (
-                                <div className="flex gap-8 mb-4 justify-center items-center">
-                                    <div className="md:flex">
-                                        <LinkLoading
-                                            href="/register"
-                                            className="btn-primary"
-                                        >
-                                            Sign Up
-                                        </LinkLoading>
-                                    </div>
-
-                                    <div className="md:flex">
-                                        <LinkLoading
-                                            href="/login"
-                                            className="btn-primary"
-                                        >
-                                            Login
-                                        </LinkLoading>
-                                    </div>
+                            <div className="flex gap-8 mb-4 justify-center items-center">
+                                <div className="md:flex">
+                                    <LinkLoading
+                                        href="/register"
+                                        className="btn-primary"
+                                    >
+                                        Sign Up
+                                    </LinkLoading>
                                 </div>
-                            )}
+
+                                <div className="md:flex">
+                                    <LinkLoading
+                                        href="/login"
+                                        className="btn-primary"
+                                    >
+                                        Login
+                                    </LinkLoading>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
