@@ -149,15 +149,15 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
                                             <DropdownMenuTrigger asChild>
                                                 <button className="w-full h-full flex items-center justify-center rounded-full">
                                                     {user.profile_photo ? (
-                                                    <img
-                                                        src={user.profile_photo}
-                                                        alt="Profile photo"
-                                                        className="w-full h-full object-cover rounded-full"
-                                                    />
+                                                        <img
+                                                            src={user.profile_photo}
+                                                            alt="Profile photo"
+                                                            className="w-full h-full object-cover rounded-full"
+                                                        />
                                                     ) : (
-                                                    <div className="flex items-center justify-center w-full h-full bg-white text-gray-600 rounded-full">
-                                                        <User size={20} />
-                                                    </div>
+                                                        <div className="flex items-center justify-center w-full h-full bg-white text-gray-600 rounded-full">
+                                                            <User size={20} />
+                                                        </div>
                                                     )}
                                                 </button>
                                             </DropdownMenuTrigger>

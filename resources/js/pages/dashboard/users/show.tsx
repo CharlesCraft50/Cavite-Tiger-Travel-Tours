@@ -81,7 +81,17 @@ export default function Show({ user, bookings, totalSpent }: Props) {
       <div className="rounded-lg border bg-white p-6 shadow-sm mb-6">
         <div className="mb-4 flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-            <User2 className="h-6 w-6 text-gray-500" />
+            {user.profile_photo ? (
+                <img
+                    src={user.profile_photo}
+                    alt="Profile photo"
+                    className="w-full h-full object-cover rounded-full"
+                />
+            ) : (
+                <div className="flex items-center justify-center w-full h-full bg-white text-gray-600 rounded-full">
+                    <User2 className="h-6 w-6 text-gray-500" />
+                </div>
+            )}
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-800">{user.name}</h2>
