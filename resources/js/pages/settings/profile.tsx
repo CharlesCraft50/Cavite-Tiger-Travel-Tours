@@ -1,7 +1,7 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { FormEventHandler, useState } from 'react';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import StyledFileUpload from '@/components/styled-file-upload';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,6 +28,10 @@ type ProfileForm = {
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
 
+    const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState(auth.user.profile_photo);
+    const [profilePhotoError, setProfilePhotoError] = useState('');
+
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
         name: auth.user.name,
         email: auth.user.email,
@@ -35,8 +40,25 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
+        const formData = new FormData();
+        formData.append('name', data.name);
+        formData.append('email', data.email);
+        formData.append('_method', 'patch');
+
+        if (profilePhoto != null) {
+            formData.append('profile_photo', profilePhoto);
+        }
+
         patch(route('profile.update'), {
             preserveScroll: true,
+        });
+
+        router.post(route('profile.update'), formData, {
+            preserveScroll: true,
+            forceFormData: true,
+            onSuccess: () => {
+                console.log('Profile Updated!');
+            }
         });
     };
 
@@ -49,6 +71,38 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
                     <form onSubmit={submit} className="space-y-6">
+                        <div className='grid gap-2'>
+                            <Label htmlFor="profile_image">Profile image</Label>
+                            <StyledFileUpload
+                                id="profile_image"
+                                label="Upload your profile image"
+                                required
+                                accept="image/*"
+                                value={profilePhoto}
+                                error={profilePhotoError}
+                                description="Upload a clear photo for your profile picture."
+                                supportedFormats="JPG, PNG, GIF"
+                                maxSize="10MB"
+                                onChange={(file) => {
+                                    setProfilePhoto(file);
+                                    if (file) {
+                                        const url = URL.createObjectURL(file);
+                                        setImagePreview(url);
+                                        setProfilePhotoError("");
+                                    } else {
+                                        setImagePreview("");
+                                    }
+                                }}
+                            />
+                            {imagePreview && (
+                                <img
+                                    src={imagePreview}
+                                    className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
+                                />
+                            )}
+                            <InputError message={profilePhotoError} className="mt-2" />
+                                    
+                        </div>
                         <div className="grid gap-2">
                             <Label htmlFor="name">Name</Label>
 

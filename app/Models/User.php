@@ -6,7 +6,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Booking;
 
 class User extends Authenticatable
 {
@@ -20,6 +19,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'profile_photo',
         'email',
         'password',
         'role',
@@ -63,7 +63,8 @@ class User extends Authenticatable
         return $this->role === 'driver';
     }
 
-    public function bookingsAsDriver() {
+    public function bookingsAsDriver()
+    {
         return $this->belongsToMany(Booking::class, 'driver_id');
     }
 }

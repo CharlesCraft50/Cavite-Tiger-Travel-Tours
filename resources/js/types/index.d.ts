@@ -56,6 +56,7 @@ export enum UserRole {
 export interface User {
     id: number;
     name: string;
+    profile_photo?: string | null;
     email: string;
     avatar?: string;
     email_verified_at: string | null;

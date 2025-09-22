@@ -22,6 +22,8 @@ type CardImageBackgroundProps = {
     onEdit?: () => void;
     hasChangeImageBtn?: boolean;
     size?: "small" | "medium" | "large";
+    packageId?: number,
+    forImageOverview?: boolean,
 };
 
 export default function CardImageBackground({
@@ -39,6 +41,8 @@ export default function CardImageBackground({
     onEdit,
     hasChangeImageBtn,
     size = "medium",
+    packageId,
+    forImageOverview,
 }: CardImageBackgroundProps) {
 
     const { start, stop } = useLoading();
@@ -84,6 +88,22 @@ export default function CardImageBackground({
             return;
         }
         setIsEditing(false);
+    }
+
+    const handleImageOverviewSaveBtn = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const formData = new FormData();
+        if (imageFile) formData.append('image_overview', imageFile);
+        formData.append("_method", "PUT");
+
+        router.post(`/packages/${packageId}/image_overview`, formData, {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsEditing(false);
+                router.get(route('configurations.packages'), {}, { preserveScroll: true });
+            }
+        });
     }
 
     const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,7 +171,14 @@ export default function CardImageBackground({
 
             {isEditing && (
                 <div className="flex justify-end top-4 right-4 absolute z-[40] gap-2">
-                    <Button type="button" className="btn-primary cursor-pointer" onClick={handleSaveBtn}>
+                    <Button 
+                        type="button" 
+                        className="btn-primary cursor-pointer" 
+                        onClick={
+                            forImageOverview == true 
+                            ? handleImageOverviewSaveBtn 
+                            : handleSaveBtn
+                        }>
                         <Check className="w-4 h-4 text-white" />
                     </Button>
                 </div>

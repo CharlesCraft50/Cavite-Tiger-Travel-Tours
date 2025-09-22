@@ -2,36 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Models\User;
-use App\Models\TourPackage;
-use App\Models\PackageCategory;
-use App\Models\VanCategory;
-use App\Models\Wishlist;
-use App\Models\City;
-use App\Models\PreferredVan;
-use Illuminate\Support\Facades\Auth;
-use App\Models\OtherService;
-use App\Models\Country;
 use App\Http\Requests\StorePackageRequest;
 use App\Http\Requests\UpdatePackageRequest;
-use Illuminate\Support\Facades\DB;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\OtherService;
+use App\Models\PackageCategory;
+use App\Models\PreferredVan;
+use App\Models\TourPackage;
+use App\Models\User;
+use App\Models\VanCategory;
+use App\Models\Wishlist;
 use App\Traits\StoresImages;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class PackageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    
     use StoresImages;
-    
+
     public function index(Request $request)
     {
-        $selectedCountryName = "Philippines";
+        $selectedCountryName = 'Philippines';
         $selectedCountry = Country::where('name', $selectedCountryName)->first();
         $cities = $selectedCountry ? $selectedCountry->cities : collect();
 
@@ -57,7 +54,8 @@ class PackageController extends Controller
         ]);
     }
 
-    public function create(Request $request) {
+    public function create(Request $request)
+    {
 
         $cities = City::all();
         $preferredVans = PreferredVan::with(['availabilities', 'driver', 'category'])->get();
@@ -65,15 +63,15 @@ class PackageController extends Controller
         $otherServices = OtherService::all();
 
         $drivers = User::where('role', 'driver')->get();
-        
-        return (Inertia::render('packages/create', [
+
+        return Inertia::render('packages/create', [
             'cities' => $cities,
             'preferredVans' => $preferredVans,
             'drivers' => $drivers,
             'otherServices' => $otherServices,
             'editMode' => false,
             'vanCategories' => $vanCategories,
-        ]));
+        ]);
     }
 
     /**
@@ -86,11 +84,11 @@ class PackageController extends Controller
         $redirectUrl = null;
 
         if ($request->hasFile('image_overview')) {
-            $validated['image_overview'] = asset('storage/' . $this->storeGetImage($request, 'image_overview', 'packages'));
+            $validated['image_overview'] = asset('storage/'.$this->storeGetImage($request, 'image_overview', 'packages'));
         }
 
         if ($request->hasFile('image_banner')) {
-            $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner', 'packages'));
+            $validated['image_banner'] = asset('storage/'.$this->storeGetImage($request, 'image_banner', 'packages'));
         }
 
         DB::beginTransaction();
@@ -135,7 +133,7 @@ class PackageController extends Controller
 
             DB::commit();
 
-            $redirectUrl = '/packages/' . $package->slug;
+            $redirectUrl = '/packages/'.$package->slug;
 
             if ($validated['from'] ?? false) {
                 return redirect()->back()->with('success', 'Package created successfully!');
@@ -143,16 +141,16 @@ class PackageController extends Controller
 
             return Inertia::render('success-page', [
                 'title' => 'Package Created!',
-                'description' => 'The package "' . $request->title . '" has been successfully created.',
+                'description' => 'The package "'.$request->title.'" has been successfully created.',
                 'redirectUrl' => $redirectUrl,
             ]);
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->withErrors(['error' => 'Failed to save package. ' . $e->getMessage()]);
+
+            return back()->withErrors(['error' => 'Failed to save package. '.$e->getMessage()]);
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -171,22 +169,22 @@ class PackageController extends Controller
                 ->where('user_id', $user->id)
                 ->exists();
         }
-       
+
         $package->load([
-            'categories', 
-            'preferredVans.availabilities', 
+            'categories',
+            'preferredVans.availabilities',
             'otherServices' => function ($query) {
                 $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
             },
         ]);
-        
-        return (inertia::render('packages/show', [
+
+        return inertia::render('packages/show', [
             'packages' => $package,
             'categories' => $package->categories,
             'preferredVans' => $package->preferredVans,
             'otherServices' => $package->otherServices,
             'isWishlisted' => $exists,
-        ]));
+        ]);
     }
 
     public function showCategory($packageSlug, $categorySlug)
@@ -203,7 +201,6 @@ class PackageController extends Controller
             'category' => $category,
         ]);
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -260,13 +257,13 @@ class PackageController extends Controller
         $redirectUrl = null;
 
         if ($request->hasFile('image_banner')) {
-            $validated['image_banner'] = asset('storage/' . $this->storeGetImage($request, 'image_banner', 'packages'));
+            $validated['image_banner'] = asset('storage/'.$this->storeGetImage($request, 'image_banner', 'packages'));
         } else {
             unset($validated['image_banner']);
         }
 
         if ($request->hasFile('image_overview')) {
-            $validated['image_overview'] = asset('storage/' . $this->storeGetImage($request, 'image_overview', 'packages'));
+            $validated['image_overview'] = asset('storage/'.$this->storeGetImage($request, 'image_overview', 'packages'));
         } else {
             unset($validated['image_overview']);
         }
@@ -314,7 +311,7 @@ class PackageController extends Controller
 
             DB::commit();
 
-            $redirectUrl = '/packages/' . $package->slug;
+            $redirectUrl = '/packages/'.$package->slug;
 
             if ($validated['from'] ?? false) {
                 return redirect()->back()->with('success', 'Package updated successfully!');
@@ -322,11 +319,28 @@ class PackageController extends Controller
 
             return redirect($redirectUrl)->with('success', 'Package updated successfully!');
 
-
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->withErrors(['error' => 'Failed to update package. ' . $e->getMessage()]);
+
+            return back()->withErrors(['error' => 'Failed to update package. '.$e->getMessage()]);
         }
+    }
+
+    public function updateImageOverview(Request $request, string $id)
+    {
+        $request->validate([
+            'image_overview' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
+        ]);
+
+        $package = TourPackage::findOrFail($id);
+
+        if ($request->hasFile('image_overview')) {
+            $imagePath = $this->storeGetImage($request, 'image_overview', 'packages');
+            $package->image_overview = asset('storage/'.$imagePath);
+            $package->save();
+        }
+
+        return back()->with(['success' => 'Image updated!']);
     }
 
     /**
@@ -355,8 +369,7 @@ class PackageController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
 
-            return redirect()->back()->with('error', 'Failed to delete package: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete package: '.$e->getMessage());
         }
     }
-
 }

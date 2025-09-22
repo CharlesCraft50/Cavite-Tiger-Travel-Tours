@@ -144,11 +144,21 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
                                 </div>)
                             }
                             <div className="md:flex">
-                                    <div className="flex items-center gap-2 whitespace-nowrap bg-white p-2 border rounded-full">
+                                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-300 cursor-pointer">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <button className="flex flex-col cursor-pointer items-center text-gray-600 hover:text-primary">
-                                                    <User size={20} />
+                                                <button className="w-full h-full flex items-center justify-center rounded-full">
+                                                    {user.profile_photo ? (
+                                                    <img
+                                                        src={user.profile_photo}
+                                                        alt="Profile photo"
+                                                        className="w-full h-full object-cover rounded-full"
+                                                    />
+                                                    ) : (
+                                                    <div className="flex items-center justify-center w-full h-full bg-white text-gray-600 rounded-full">
+                                                        <User size={20} />
+                                                    </div>
+                                                    )}
                                                 </button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="w-56 mt-4 z-[999] ml-2">

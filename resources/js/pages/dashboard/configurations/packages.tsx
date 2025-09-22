@@ -299,6 +299,8 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
                 setDeleteTarget(pkg);
               }}
               hasChangeImageBtn={true}
+              packageId={pkg.id}
+              forImageOverview={true}
             />
           </div>
         ))}
