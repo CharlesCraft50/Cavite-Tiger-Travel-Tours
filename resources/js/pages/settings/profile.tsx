@@ -73,33 +73,36 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     <form onSubmit={submit} className="space-y-6">
                         <div className='grid gap-2'>
                             <Label htmlFor="profile_image">Profile image</Label>
-                            <StyledFileUpload
-                                id="profile_image"
-                                label="Upload your profile image"
-                                required
-                                accept="image/*"
-                                value={profilePhoto}
-                                error={profilePhotoError}
-                                description="Upload a clear photo for your profile picture."
-                                supportedFormats="JPG, PNG, GIF"
-                                maxSize="10MB"
-                                onChange={(file) => {
-                                    setProfilePhoto(file);
-                                    if (file) {
-                                        const url = URL.createObjectURL(file);
-                                        setImagePreview(url);
-                                        setProfilePhotoError("");
-                                    } else {
-                                        setImagePreview("");
-                                    }
-                                }}
-                            />
-                            {imagePreview && (
-                                <img
-                                    src={imagePreview}
-                                    className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
+                            <div className="flex flex-row gap-4">
+                                <StyledFileUpload
+                                    id="profile_image"
+                                    label="Upload your profile image"
+                                    required
+                                    accept="image/*"
+                                    value={profilePhoto}
+                                    error={profilePhotoError}
+                                    description="Upload a clear photo for your profile picture."
+                                    supportedFormats="JPG, PNG, GIF"
+                                    maxSize="10MB"
+                                    onChange={(file) => {
+                                        setProfilePhoto(file);
+                                        if (file) {
+                                            const url = URL.createObjectURL(file);
+                                            setImagePreview(url);
+                                            setProfilePhotoError("");
+                                        } else {
+                                            setImagePreview("");
+                                        }
+                                    }}
                                 />
-                            )}
+                                {imagePreview && (
+                                    <img
+                                        src={imagePreview}
+                                        className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
+                                    />
+                                )}
+                            </div>
+
                             <InputError message={profilePhotoError} className="mt-2" />
                                     
                         </div>
