@@ -30,6 +30,7 @@ class UpdatePreferredVanRequest extends FormRequest
             'vans.*.additional_fee' => ['required', 'numeric'],
             'vans.*.pax_adult' => ['required', 'integer'],
             'vans.*.pax_kids' => ['required', 'integer'],
+            'vans.*.plate_number' => ['nullable', 'string'],
             'vans.*.action' => ['sometimes', 'string'],
             'vans.*.availabilities' => ['nullable', 'array'],
             'vans.*.availabilities.*.available_from' => ['nullable', 'date'],

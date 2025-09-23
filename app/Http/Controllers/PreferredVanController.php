@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\PreferredVan;
-use App\Models\TourPackage;
-use App\Models\VanCategory;
-use App\Models\PreferredVanAvailability;
 use App\Http\Requests\UpdatePreferredVanRequest;
-use Illuminate\Support\Facades\DB;
+use App\Models\PreferredVan;
+use App\Models\PreferredVanAvailability;
+use App\Models\VanCategory;
 use App\Traits\StoresImages;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PreferredVanController extends Controller
 {
     use StoresImages;
+
     /**
      * Display a listing of the resource.
      */
@@ -58,7 +57,6 @@ class PreferredVanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    
     public function update(UpdatePreferredVanRequest $request)
     {
         $validated = $request->validated();
@@ -67,12 +65,12 @@ class PreferredVanController extends Controller
             $fileKey = "vans.$index.image_url";
 
             if ($request->hasFile($fileKey)) {
-                $validated['vans'][$index]['image_url'] = asset('storage/' . $this->storeGetImage($request, $fileKey, 'vans'));
+                $validated['vans'][$index]['image_url'] = asset('storage/'.$this->storeGetImage($request, $fileKey, 'vans'));
             }
         }
 
         // Update category sort order
-        if (!empty($validated['categories'])) {
+        if (! empty($validated['categories'])) {
             foreach ($validated['categories'] as $categoryData) {
                 VanCategory::where('id', $categoryData['id'])
                     ->update(['sort_order' => $categoryData['sort_order']]);
@@ -92,10 +90,11 @@ class PreferredVanController extends Controller
                         'additional_fee' => $vanData['additional_fee'],
                         'pax_adult' => $vanData['pax_adult'],
                         'pax_kids' => $vanData['pax_kids'],
+                        'plate_number' => $vanData['plate_number'] ?? null,
                         'van_category_id' => $vanData['van_category_id'] ?? null,
                     ]);
 
-                    if (!empty($vanData['availabilities'])) {
+                    if (! empty($vanData['availabilities'])) {
                         foreach ($vanData['availabilities'] as $availability) {
                             $van->availabilities()->create([
                                 'available_from' => $availability['available_from'],
@@ -104,12 +103,10 @@ class PreferredVanController extends Controller
                             ]);
                         }
                     }
-                } 
-                elseif ($action === 'delete') {
+                } elseif ($action === 'delete') {
                     PreferredVan::where('id', $vanData['id'])->delete();
                     PreferredVanAvailability::where('preferred_van_id', $vanData['id'])->delete();
-                } 
-                else { // update
+                } else { // update
                     $van = PreferredVan::find($vanData['id']);
                     if ($van) {
                         $van->update([
@@ -119,6 +116,7 @@ class PreferredVanController extends Controller
                             'additional_fee' => $vanData['additional_fee'],
                             'pax_adult' => $vanData['pax_adult'],
                             'pax_kids' => $vanData['pax_kids'],
+                            'plate_number' => $vanData['plate_number'] ?? null,
                             'van_category_id' => $vanData['van_category_id'] ?? null,
                         ]);
 
@@ -140,7 +138,6 @@ class PreferredVanController extends Controller
 
         return back(303);
     }
-
 
     /**
      * Remove the specified resource from storage.

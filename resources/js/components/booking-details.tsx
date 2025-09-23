@@ -402,6 +402,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                         </span>
                                     </div>
                                     <p className="text-sm text-gray-800">({booking.pax_adult} Adults, {booking.pax_kids} Kids)</p>
+                                    <p className="text-sm text-gray-800">Plate Number: {booking.preferred_van?.plate_number}</p>
                                 </>
                             )}
                         </div>

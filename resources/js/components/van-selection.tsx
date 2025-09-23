@@ -137,6 +137,7 @@ export default function VanSelection({
     additional_fee: 0,
     pax_adult: 0,
     pax_kids: 0,
+    plate_number: null,
     user_id: auth.user.id,
     availabilities: [],
     action: "create",
@@ -220,7 +221,10 @@ export default function VanSelection({
                 formData.append(`vans[${index}][additional_fee]`, van.additional_fee.toString());
                 formData.append(`vans[${index}][pax_adult]`, van.pax_adult.toString());
                 formData.append(`vans[${index}][pax_kids]`, van.pax_kids.toString());
-                if(van.action !== undefined) {
+                if (van.plate_number != null) {
+                    formData.append(`vans[${index}][plate_number]`, van.plate_number.toString());
+                }
+                if (van.action !== undefined) {
                     formData.append(`vans[${index}][action]`, van.action);
                 }
                 if (van.availabilities) {
@@ -614,6 +618,30 @@ export default function VanSelection({
                                     </option>
                                 ))}
                             </select>
+                        </div>
+                    </div>
+                )}
+
+                {isEditing && (
+                    <div className="mt-2">
+                        <div className="flex flex-col space-y-2">
+                            <p className="text-sm font-medium">Plate Number</p>
+                            <Input 
+                                type="text" 
+                                value={van.plate_number || ''} 
+                                onChange={(e) => 
+                                    handleChange(van.id, 'plate_number', e.target.value)
+                                }
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {!isEditing && editable && van.plate_number != null &&  (
+                    <div className="mt-2">
+                        <div className="text-sm font-medium mt-2">
+                            <p className="text-sm font-semibold">Plate Number</p>
+                            <p>{van.plate_number}</p>
                         </div>
                     </div>
                 )}

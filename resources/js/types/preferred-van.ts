@@ -8,6 +8,7 @@ export interface PreferredVan {
     additional_fee: number;
     pax_adult: number;
     pax_kids: number;
+    plate_number?: string | null;
 
     created_at: string;
     updated_at: string;
