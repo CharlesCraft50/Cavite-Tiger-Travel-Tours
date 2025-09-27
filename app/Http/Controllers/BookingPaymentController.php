@@ -2,32 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreBookingPaymentRequest;
-use Inertia\Inertia;
-use App\Traits\StoresImages;
 use App\Models\Booking;
 use App\Models\BookingPayment;
+use App\Traits\StoresImages;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class BookingPaymentController extends Controller
 {
     use StoresImages;
+
     /**
      * Display a listing of the resource.
      */
     public function index(string $booking_id)
     {
         $user = Auth::user();
-        $booking = Booking::with('payment')
-                            ->findOrFail($booking_id);
+        $booking = Booking::with(['payment', 'tourPackage'])
+            ->findOrFail($booking_id);
 
         // Prevent duplicate payment
         $existingPayment = BookingPayment::where('booking_id', $booking_id)->first();
         $isDeclined = null;
-        if ($existingPayment && !($existingPayment->status === 'declined')) {
+        if ($existingPayment && ! ($existingPayment->status === 'declined')) {
             $isDeclined = $existingPayment->status === 'declined';
+
             return Inertia::render('error-page', [
                 'title' => 'Payment Already Submitted',
                 'description' => 'This booking already has a payment on file. If you believe this is an error, please contact support.',
@@ -35,14 +36,14 @@ class BookingPaymentController extends Controller
             ]);
         }
 
-        if($booking->user_id) {
-            if($user) {
+        if ($booking->user_id) {
+            if ($user) {
                 // Allow admin and driver to access all bookings
-                if($user->isAdmin() || $user->isDriver()) {
+                if ($user->isAdmin() || $user->isDriver()) {
                     // Admin and driver have full access - no restrictions
-                } 
+                }
                 // For regular users, only allow access to their own bookings
-                elseif($user->id !== $booking->user_id) {
+                elseif ($user->id !== $booking->user_id) {
                     abort(404);
                 }
             } else {
@@ -51,12 +52,12 @@ class BookingPaymentController extends Controller
             }
         }
 
-        if($booking->status == 'past_due') {
+        if ($booking->status == 'past_due') {
             abort(404);
         }
-        
-        if($booking->payment) {
-            if($booking->payment->status == "pending") {
+
+        if ($booking->payment) {
+            if ($booking->payment->status == 'pending') {
                 return Inertia::render('success-page', [
                     'title' => '✅ Payment Submitted',
                     'description' => 'We’ve received your payment and it’s now being reviewed. You’ll get a confirmation soon. Thank you!',
@@ -67,6 +68,7 @@ class BookingPaymentController extends Controller
 
         return Inertia::render('book-now/payment', [
             'booking_id' => $booking->id,
+            'booking' => $booking,
             'booking_payment' => $isDeclined ? $booking->payment : null,
         ]);
     }
@@ -90,7 +92,7 @@ class BookingPaymentController extends Controller
 
         // Store image if present
         if ($request->hasFile('payment_proof')) {
-            $validated['payment_proof_path'] = asset('storage/' . $this->storeGetImage($request, 'payment_proof', 'payment_proofs'));
+            $validated['payment_proof_path'] = asset('storage/'.$this->storeGetImage($request, 'payment_proof', 'payment_proofs'));
         }
 
         // Handle declined resubmission
@@ -128,8 +130,6 @@ class BookingPaymentController extends Controller
             'redirectUrl' => route('bookings.show', $bookingPayment->booking_id),
         ]);
     }
-
-
 
     /**
      * Display the specified resource.

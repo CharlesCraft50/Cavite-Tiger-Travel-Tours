@@ -5,19 +5,22 @@ import FormLayout from "@/layouts/form-layout";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle } from "lucide-react";
 import { FormEventHandler, useEffect, useState } from "react";
-import { BookingPayment, SharedData } from "@/types";
+import { Booking, BookingPayment, SharedData } from "@/types";
 import InputError from "@/components/input-error";
 import clsx from "clsx";
 import StyledFileUpload from "@/components/styled-file-upload";
 import QRCodeModal from "@/components/qr-code-modal";
+import PriceSign from "@/components/price-sign";
 
 type PaymentProps = {
     booking_id: number;
+    booking: Booking;
     booking_payment?: BookingPayment;
 }
 
 export default function Payment({ 
     booking_id,
+    booking,
     booking_payment,
 } : PaymentProps) {
     const { data, setData, post, processing, errors } = useForm<{
@@ -105,7 +108,12 @@ export default function Payment({
                     <select
                         id="payment_method"
                         value={data.payment_method}
-                        onChange={(e) => setData('payment_method', e.target.value)}
+                        onChange={(e) => {
+                            setData('payment_method', e.target.value);
+                            setData("payment_proof", null);
+                            setImagePreview("");
+                            setPaymentProofError("");
+                        }}
                         className="border px-3 py-2 rounded-md"
                     >
                         <option value="gcash">GCash</option>
@@ -168,6 +176,19 @@ export default function Payment({
                         Tap/click the QR code to view it in fullscreen.
                     </p>
                     <QRCodeModal qrImages={[selectedQR]} />
+                </div>
+                
+                <div className="flex justify-end">
+                    <div className="text-right">
+                        <p className="text-lg font-semibold">Total Amount</p>
+                        <div className="flex flex-row items-center font-semibold text-primary text-2xl">
+                            <PriceSign />
+                            <p>{(Number(booking.total_amount ?? 0)).toLocaleString("en-US", {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                            })}</p>
+                        </div>
+                    </div>
                 </div>
 
                 <Button type="submit" className="mt-2 w-full btn-primary -md cursor-pointer" tabIndex={5} disabled={processing}>

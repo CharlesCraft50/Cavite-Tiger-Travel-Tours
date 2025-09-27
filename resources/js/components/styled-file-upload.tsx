@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, X, Check } from 'lucide-react';
 
 interface StyledFileUploadProps {
@@ -30,6 +30,10 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(value || null);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
+
+  useEffect(() => {
+    setSelectedFile(value || null);
+  }, [value]);
 
   const handleFileChange = (file: File | null): void => {
     setSelectedFile(file);

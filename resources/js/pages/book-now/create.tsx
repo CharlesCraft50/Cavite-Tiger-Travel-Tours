@@ -535,7 +535,16 @@ export default function Create({
                                 }
                             }}
                             dateFormat="yyyy-MM-dd"
-                            minDate={availableDates?.from ? new Date(availableDates.from) : undefined}
+                            minDate={
+                                availableDates?.from
+                                ? new Date(
+                                    Math.max(
+                                        new Date(availableDates.from).getTime(),
+                                        new Date().setHours(0, 0, 0, 0) // today
+                                    )
+                                    )
+                                : new Date()
+                            }
                             maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
                             excludeDates={
                                 availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
