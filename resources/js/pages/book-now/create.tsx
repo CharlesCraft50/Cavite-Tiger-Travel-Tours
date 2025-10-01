@@ -521,12 +521,14 @@ export default function Create({
                     </div> */}
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="grid gap-2">
-                        <Label>Duration</Label>
-                        <p className="font-semibold">( {packages.duration} )</p>
+                {packages.duration != null && (
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="grid gap-2">
+                            <Label>Duration</Label>
+                            <p className="font-semibold">( {packages.duration} )</p>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Departure and Return Dates */}
                 <div className="grid grid-cols-2 gap-6">
