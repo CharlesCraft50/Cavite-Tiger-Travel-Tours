@@ -55,7 +55,10 @@ export enum UserRole {
 
 export interface User {
     id: number;
-    name: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+    address: string;
     profile_photo?: string | null;
     email: string;
     avatar?: string;

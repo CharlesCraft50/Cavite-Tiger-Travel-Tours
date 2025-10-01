@@ -4,12 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\TourPackage;
-use App\Models\PackageCategory;
-use App\Models\OtherService;
-use App\Models\PreferredVan;
-use App\Models\User;
-use App\Models\BookingPayment;
 use Illuminate\Support\Str;
 
 class Booking extends Model
@@ -38,7 +32,6 @@ class Booking extends Model
         'driver_id',
     ];
 
-    
     protected static function booted()
     {
         static::creating(function ($booking) {
@@ -70,15 +63,18 @@ class Booking extends Model
         return $this->belongsToMany(OtherService::class, 'booking_service');
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function payment() {
+    public function payment()
+    {
         return $this->hasOne(BookingPayment::class);
     }
 
-    public function driver() {
+    public function driver()
+    {
         return $this->belongsTo(User::class, 'driver_id');
     }
 }

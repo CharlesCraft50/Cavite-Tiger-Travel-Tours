@@ -54,35 +54,37 @@ export default function NotificationBell() {
           isOpen ? "" : "hidden"
         )}
       >
-        {notifications.length === 0 && (
-          <p className="px-4 py-2">No notifications</p>
-        )}
-        {notifications.map((n, idx) => {
-          const data = n.data;
-          const isLast = idx === notifications.length - 1;
-          return (
-            <Link href={`/bookings/${data.booking_id}`} key={idx}>
-              <div
-                className={clsx(
-                  "flex items-start gap-2 w-full px-4 py-2 transition duration-300 hover:bg-gray-200",
-                  !isLast && "border-b border-gray-200"
-                )}
-              >
-                <img
-                  src={data.image_overview}
-                  alt="preview"
-                  className="w-12 h-12 object-cover rounded"
-                />
-                <div className="flex-1">
-                  <p className="text-sm">{data.message}</p>
-                  <small className="text-gray-600">
-                    {new Date(n.created_at).toLocaleString()}
-                  </small>
+        <div className="max-h-80 overflow-y-auto">
+          {notifications.length === 0 && (
+            <p className="px-4 py-2">No notifications</p>
+          )}
+          {notifications.map((n, idx) => {
+            const data = n.data;
+            const isLast = idx === notifications.length - 1;
+            return (
+              <Link href={`/bookings/${data.booking_id}`} key={idx}>
+                <div
+                  className={clsx(
+                    "flex items-start gap-2 w-full px-4 py-2 transition duration-300 hover:bg-gray-200",
+                    !isLast && "border-b border-gray-200"
+                  )}
+                >
+                  <img
+                    src={data.image_overview}
+                    alt="preview"
+                    className="w-12 h-12 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm">{data.message}</p>
+                    <small className="text-gray-600">
+                      {new Date(n.created_at).toLocaleString()}
+                    </small>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

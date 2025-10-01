@@ -12,6 +12,9 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import StyledFileUpload from '@/components/styled-file-upload';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { normalizePhoneNumber, normalizePHNumber } from "@/lib/utils";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,7 +24,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 type ProfileForm = {
-    name: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+    address: string;
     email: string;
 }
 
@@ -32,8 +38,16 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     const [imagePreview, setImagePreview] = useState(auth.user.profile_photo);
     const [profilePhotoError, setProfilePhotoError] = useState('');
 
+    const [rawPhone, setRawPhone] = useState(''); // full +63...
+    const [phoneNumber, setPhoneNumber] = useState(''); // stripped number
+    const [currentCountryCode, setCurrentCountryCode] = useState('');
+    const [contactNumberError, setContactNumberError] = useState('');
+
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
-        name: auth.user.name,
+        first_name: auth.user.first_name,
+        last_name: auth.user.last_name,
+        contact_number: auth.user.contact_number,
+        address: auth.user.address,
         email: auth.user.email,
     });
 
@@ -41,17 +55,49 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         e.preventDefault();
 
         const formData = new FormData();
-        formData.append('name', data.name);
+        if (currentCountryCode == null) {
+            setContactNumberError('Please choose your country code.');
+            return;
+        }
+
+        if (currentCountryCode == null) {
+            setContactNumberError('Please choose your country code.');
+            return;
+        }
+
+        const normalized = normalizePhoneNumber(rawPhone, currentCountryCode);
+
+        let normalizedFormattedPhone = null;
+
+        if (currentCountryCode == 'PH') {
+            normalizedFormattedPhone = normalizePHNumber(rawPhone);
+        }
+        
+        if (!rawPhone) {
+            setContactNumberError("Contact number is required.");
+            return;
+        }
+
+        if (!normalized) {
+            setContactNumberError('Contact Number error.');
+            return;
+        }
+
+        if (normalized.national.replace(/\D/g, '').length !== 11) {
+            setContactNumberError('Contact Number must be exactly 11 digits.');
+            return;
+        }
+
+        formData.append('contact_number', normalized?.e164 ?? normalizedFormattedPhone ?? rawPhone);
+        formData.append('first_name', data.first_name);
+        formData.append('last_name', data.last_name);
+        formData.append('address', data.address);
         formData.append('email', data.email);
         formData.append('_method', 'patch');
 
         if (profilePhoto != null) {
             formData.append('profile_photo', profilePhoto);
         }
-
-        patch(route('profile.update'), {
-            preserveScroll: true,
-        });
 
         router.post(route('profile.update'), formData, {
             preserveScroll: true,
@@ -106,20 +152,80 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             <InputError message={profilePhotoError} className="mt-2" />
                                     
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                        <div className="flex gap-6 items-start">
+
+                            <div className="grid gap-2">
+                            <Label htmlFor="first_name">First Name</Label>
 
                             <Input
-                                id="name"
+                                id="first_name"
                                 className="mt-1 block w-full"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                value={data.first_name}
+                                onChange={(e) => setData('first_name', e.target.value)}
                                 required
                                 autoComplete="name"
-                                placeholder="Full name"
+                                placeholder="First Name"
                             />
 
-                            <InputError className="mt-2" message={errors.name} />
+                            <InputError className="mt-2" message={errors.first_name} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="last_name">Last Name</Label>
+
+                            <Input
+                                id="last_name"
+                                className="mt-1 block w-full"
+                                value={data.last_name}
+                                onChange={(e) => setData('last_name', e.target.value)}
+                                required
+                                autoComplete="name"
+                                placeholder="Last Name"
+                            />
+
+                            <InputError className="mt-2" message={errors.last_name} />
+                        </div>
+                        </div>
+
+                        <div className="grid gap-4">
+                            <Label htmlFor="contact_number">Contact Number</Label>
+                            <PhoneInput
+                                country={'ph'}
+                                value={auth.user.contact_number}
+                                disabled={processing}
+                                placeholder="Ex. +639123456789"
+                                onChange={(fullValue: string, data: any) => {
+                                    setRawPhone(fullValue);
+                                    setCurrentCountryCode(data.countryCode?.toUpperCase() || 'PH');
+                                    setPhoneNumber(fullValue.replace(`+${data.dialCode}`, '').trim());
+                                    setData('contact_number', fullValue);
+                                    setContactNumberError('');
+                                }}
+                                isValid={(value, country) => {
+                                    const digits = value.replace(/\D/g, '');
+                                    return digits.length >= 10;
+                                }}
+                                countryCodeEditable={false}
+                                enableSearch={true}
+                            />
+                            <InputError message={contactNumberError} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="address">Address</Label>
+
+                            <Input
+                                id="address"
+                                type="text"
+                                className="mt-1 block w-full"
+                                value={data.address}
+                                onChange={(e) => setData('address', e.target.value)}
+                                required
+                                autoComplete="address"
+                                placeholder="Full address"
+                            />
+
+                            <InputError className="mt-2" message={errors.address} />
                         </div>
 
                         <div className="grid gap-2">

@@ -523,7 +523,7 @@ export default function VanSelection({
                     {isEditing ? (
                         <div className="flex justify-between">
                             <p>
-                                Adult:
+                                Pax:
                                 <Input
                                     type="number"
                                     min={1}
@@ -532,7 +532,7 @@ export default function VanSelection({
                                     className="p-0 text-lg outline-none px-2 w-full font-semibold"
                                 />
                             </p>
-                            <p>
+                            {/* <p>
                                 Kids:
                                 <Input
                                     type="number"
@@ -540,10 +540,10 @@ export default function VanSelection({
                                     onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
                                     className="p-0 text-lg outline-none px-2 font-semibold"
                                 />
-                            </p>
+                            </p> */}
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-600">Adults: {van.pax_adult} | Kids: {van.pax_kids}</p>
+                        <p className="text-sm text-gray-600">Pax: {van.pax_adult}</p>
                     )}
 
                     <p className="text-sm font-medium text-green-700">
@@ -578,7 +578,7 @@ export default function VanSelection({
                                 <option value="">-- Select Driver --</option>
                                 {drivers?.map((driver) => (
                                     <option key={driver.id} value={driver.id}>
-                                        {driver.name}
+                                        {driver.first_name}
                                     </option>
                                 ))}
                             </select>
@@ -586,12 +586,12 @@ export default function VanSelection({
                     </div>
                 )}
 
-                {!isEditing && (van.driver?.name || drivers.find((d) => d.id === van.user_id)?.name) && (
+                {!isEditing && (van.driver?.first_name || drivers.find((d) => d.id === van.user_id)?.first_name) && (
                     <div className="text-sm font-medium mt-2">
                         <div>
                             <p className="text-sm font-semibold">Assigned Driver</p>
                             <p>
-                                {van.driver?.name ?? drivers.find((d) => d.id === van.user_id)?.name ?? ''}
+                                {van.driver?.first_name ?? drivers.find((d) => d.id === van.user_id)?.first_name ?? ''}
                             </p>
                         </div>
                     </div>

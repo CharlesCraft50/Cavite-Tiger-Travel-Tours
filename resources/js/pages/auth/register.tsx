@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -8,9 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { normalizePhoneNumber, normalizePHNumber } from "@/lib/utils";
+
 
 type RegisterForm = {
-    name: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+    address: string;
     email: string;
     password: string;
     password_confirmation: string;
@@ -18,14 +25,57 @@ type RegisterForm = {
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
-        name: '',
+        first_name: '',
+        last_name: '',
+        contact_number: '',
+        address: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
 
+    const [rawPhone, setRawPhone] = useState(''); // full +63...
+    const [phoneNumber, setPhoneNumber] = useState(''); // stripped number
+    const [currentCountryCode, setCurrentCountryCode] = useState('');
+    const [contactNumberError, setContactNumberError] = useState('');
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        if (currentCountryCode == null) {
+            setContactNumberError('Please choose your country code.');
+            return;
+        }
+
+        if (currentCountryCode == null) {
+            setContactNumberError('Please choose your country code.');
+            return;
+        }
+
+        const normalized = normalizePhoneNumber(rawPhone, currentCountryCode);
+
+        let normalizedFormattedPhone = null;
+
+        if (currentCountryCode == 'PH') {
+            normalizedFormattedPhone = normalizePHNumber(rawPhone);
+        }
+
+        if (!rawPhone) {
+            setContactNumberError("Contact number is required.");
+            return;
+        }
+
+        if (!normalized) {
+            setContactNumberError('Contact Number error.');
+            return;
+        }
+
+        if (normalized.national.replace(/\D/g, '').length !== 11) {
+            setContactNumberError('Contact Number must be exactly 11 digits.');
+            return;
+        }
+
+        setData('contact_number', normalized?.e164 ?? normalizedFormattedPhone ?? rawPhone);
+
         post(route('register'), {
             onFinish: () => reset('password', 'password_confirmation'),
         });
@@ -36,25 +86,83 @@ export default function Register() {
             <Head title="Register" />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            type="text"
-                            required
-                            autoFocus
-                            tabIndex={1}
-                            autoComplete="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            disabled={processing}
-                            placeholder="Full name"
-                        />
-                        <InputError message={errors.name} className="mt-2" />
+                    <div className="flex gap-6 items-start">
+                        <div className="grid gap-2">
+                            <Label htmlFor="name" required>First Name</Label>
+                            <Input
+                                id="first_name"
+                                type="text"
+                                required
+                                autoFocus
+                                tabIndex={1}
+                                autoComplete="name"
+                                value={data.first_name}
+                                onChange={(e) => setData('first_name', e.target.value)}
+                                disabled={processing}
+                                placeholder="First name"
+                            />
+                            <InputError message={errors.first_name} className="mt-2" />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="name" required>Last Name</Label>
+                            <Input
+                                id="last_name"
+                                type="text"
+                                required
+                                autoFocus
+                                tabIndex={1}
+                                autoComplete="name"
+                                value={data.last_name}
+                                onChange={(e) => setData('last_name', e.target.value)}
+                                disabled={processing}
+                                placeholder="Last name"
+                            />
+                            <InputError message={errors.last_name} className="mt-2" />
+                        </div>
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
+                        <Label htmlFor="contact_number" required>Contact Number</Label>
+                        <PhoneInput
+                            country={'ph'}
+                            value={rawPhone}
+                            disabled={processing}
+                            placeholder="Ex. +639123456789"
+                            onChange={(fullValue: string, data: any) => {
+                                setRawPhone(fullValue);
+                                setCurrentCountryCode(data.countryCode?.toUpperCase() || 'PH');
+                                setPhoneNumber(fullValue.replace(`+${data.dialCode}`, '').trim());
+                                setData('contact_number', fullValue);
+                                setContactNumberError('');
+                            }}
+                            isValid={(value, country) => {
+                                // optional validation
+                                const digits = value.replace(/\D/g, '');
+                                return digits.length >= 10;
+                            }}
+                            countryCodeEditable={false}
+                            enableSearch={true}
+                        />
+                        <InputError message={contactNumberError} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="address" required>Address</Label>
+                        <Input
+                            id="address"
+                            type="text"
+                            required
+                            tabIndex={2}
+                            value={data.address}
+                            onChange={(e) => setData('address', e.target.value)}
+                            disabled={processing}
+                            placeholder="Your Address"
+                        />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="email" required>Email address</Label>
                         <Input
                             id="email"
                             type="email"
@@ -70,7 +178,7 @@ export default function Register() {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password" required>Password</Label>
                         <Input
                             id="password"
                             type="password"
@@ -86,7 +194,7 @@ export default function Register() {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">Confirm password</Label>
+                        <Label htmlFor="password_confirmation" required>Confirm password</Label>
                         <Input
                             id="password_confirmation"
                             type="password"

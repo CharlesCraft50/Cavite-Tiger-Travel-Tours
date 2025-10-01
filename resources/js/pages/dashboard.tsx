@@ -46,7 +46,7 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                     {/* Header Section */}
                     <div className="mb-8">
                         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
-                            Welcome back, {auth.user.name}!
+                            Welcome back, {auth.user.first_name}!
                         </h1>
                         {!(isAdmins || isDrivers) && (
                             <p className="text-gray-600 dark:text-gray-300">

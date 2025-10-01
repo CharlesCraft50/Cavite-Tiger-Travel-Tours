@@ -34,10 +34,9 @@ return new class extends Migration
             $table->string('booking_number')->unique();
             $table->decimal('total_amount')->nullable();
             $table->string('pickup_address');
-            
 
             // Admin Status
-            $table->enum('status', ['pending', 'accepted', 'declined', 'past_due', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])->default('pending');
 
             $table->timestamps();
         });

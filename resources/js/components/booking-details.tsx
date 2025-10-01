@@ -47,7 +47,12 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 formData.append('preferred_van_id', String(booking.preferred_van?.id ?? ''));
                 formData.append('departure_date', booking.departure_date);
                 formData.append('return_date', booking.return_date);
-                formData.append('status', 'past_due');
+                if (booking.payment == null || booking.payment?.status == 'pending' || booking.payment?.status == 'declined') {
+                    formData.append('status', 'past_due');
+                } else {
+                    formData.append('status', 'completed');
+                }
+
                 formData.append('notes', booking.notes ?? '');
                 formData.append('pickup_address', booking.pickup_address ?? '');
                 formData.append('total_amount', Math.floor(booking.total_amount).toString());
@@ -314,7 +319,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     ]);
 
   return (
-    <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200")} onSubmit={submit}>
+    <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200", booking.status == 'completed' && "bg-green-200")} onSubmit={submit}>
         <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
             <div className="flex justify-between top-0 right-0 items-center">
                 <div className="grid gap-2">

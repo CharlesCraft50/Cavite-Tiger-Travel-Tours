@@ -100,13 +100,13 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
                         },
                     ],
                 },
-                {
-                    title: 'Settings',
-                    href: '/settings',
-                    icon: Settings,
-                },
             ]
             : []),
+    {
+        title: 'Settings',
+        href: '/settings',
+        icon: Settings,
+    },
     ];
 
     return (

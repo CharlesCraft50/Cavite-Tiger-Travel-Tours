@@ -7,15 +7,12 @@ import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import { FormEventHandler, useEffect, useState } from "react";
 import InputError from "@/components/input-error";
-import { Select } from "@headlessui/react";
 import VanSelection from "@/components/van-selection";
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from "react-datepicker";
-import OtherServiceSelection from "@/components/other-service-selection";
 import PriceSign from "@/components/price-sign";
 import { format, addDays } from "date-fns";
 import PhoneInput from 'react-phone-input-2';
-import { normalizePhoneNumber, normalizePHNumber } from "@/lib/utils";
 import 'react-phone-input-2/lib/style.css';
 
 type BookNowCreateProps = {
@@ -37,6 +34,9 @@ export default function Create({
     otherServices,
     vanCategories,
 }: BookNowCreateProps) {
+    const { auth } = usePage<SharedData>().props;
+    const user = auth.user;
+
     const { data, setData, post, processing, errors } = useForm<{
         package_title: string;
         tour_package_id: number;
@@ -58,16 +58,20 @@ export default function Create({
         package_title: packages.title,
         tour_package_id: packages.id,
         package_category_id: selectedCategoryId ?? null,
-        first_name: '',
-        last_name: '',
+        first_name: user.first_name,
+        last_name: user.last_name,
         departure_date: '',
         return_date: '',
-        contact_number: '',
-        email: '',
+        contact_number: user.contact_number 
+            ? (user.contact_number.startsWith('+') 
+                ? user.contact_number 
+                : `+${user.contact_number}`)
+            : '',
+        email: user.email,
         pax_kids: '',
         pax_adult: '1',
         notes: '',
-        pickup_address: '',
+        pickup_address: user.address,
         preferred_van_id: null,
         other_services: [],
         driver_id: null,
@@ -108,8 +112,6 @@ export default function Create({
         }
     }, [data.preferred_van_id]);
 
-    const { auth } = usePage<SharedData>().props;
-    const user = auth.user;
     const [selectedVanIds, setSelectedVanIds] = useState<number[]>([]);
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>([]);
     const [totalAmount, setTotalAmount] = useState<number>();
@@ -174,27 +176,20 @@ export default function Create({
             return;
         }
 
-        const normalized = normalizePhoneNumber(rawPhone, currentCountryCode);
+         const normalized = data.contact_number.startsWith('+')
+            ? data.contact_number
+            : `+${data.contact_number}`;
 
-        let normalizedFormattedPhone = null;
-
-        if (currentCountryCode == 'PH') {
-            normalizedFormattedPhone = normalizePHNumber(rawPhone);
-        }
-
-        if (!normalized) {
-            setContactNumberError('Contact Number is required.');
+        if (currentCountryCode === 'PH') {
+            const digits = normalized.replace(/\D/g, '');
+            if (digits.length !== 12 && digits.length !== 13) {
+            setContactNumberError('Contact Number must be exactly 11 digits after +63.');
             setFormError('Please check the required fields.');
             return;
+            }
         }
 
-        if (normalized.national.replace(/\D/g, '').length !== 11) {
-            setContactNumberError('Contact Number must be exactly 11 digits.');
-            setFormError('Please check the required fields.');
-            return;
-        }
-
-        setData('contact_number', normalized?.e164 ?? normalizedFormattedPhone ?? rawPhone);
+        setData('contact_number', normalized);
 
         post('/book-now/booked', {
             preserveScroll: true,
@@ -286,9 +281,6 @@ export default function Create({
             setData('driver_id', selectedVan.user_id ? selectedVan.user_id : null);
         }
     }, [selectedVan]);
-
-    const [rawPhone, setRawPhone] = useState(''); // full +63...
-    const [phoneNumber, setPhoneNumber] = useState(''); // stripped number
     
     const handleReturnDate = (): string => {
         const durationDays = parseInt(packages.duration?.split(' ')[0] || "0", 10);
@@ -299,6 +291,23 @@ export default function Create({
         const returnDate = addDays(departure, durationDays - 1);
 
         return format(returnDate, "yyyy-MM-dd");
+    }
+
+    function formatPHNumber(number: string) {
+        // remove non-digits except +
+        let digits = number.replace(/[^\d+]/g, '');
+
+        if (!digits.startsWith('+63')) return number;
+
+        // remove +63 temporarily
+        let local = digits.slice(3);
+
+        // format as 3-3-4 digits
+        if (local.length === 10) {
+            return `+63 ${local.slice(0,3)} ${local.slice(3,6)} ${local.slice(6)}`;
+        }
+
+        return number; // fallback
     }
     
     return (
@@ -398,16 +407,20 @@ export default function Create({
                         <Label htmlFor="contact_number" required>Contact No.</Label>
                         <PhoneInput
                             country={'ph'}
-                            value={rawPhone}
+                            value={data.contact_number}
                             disabled={processing}
-                            placeholder="Ex. +639123456789"
+                            placeholder="Ex. +63 9954 6821992"
                             onChange={(fullValue: string, data: any) => {
-                                setRawPhone(fullValue);
-                                setCurrentCountryCode(data.countryCode?.toUpperCase() || 'PH');
-                                setPhoneNumber(fullValue.replace(`+${data.dialCode}`, '').trim());
                                 setData('contact_number', fullValue);
+                                setCurrentCountryCode(data.countryCode?.toUpperCase() || 'PH');
                                 setContactNumberError('');
                             }}
+                            isValid={(value, country) => {
+                                const digits = value.replace(/\D/g, '');
+                                return digits.length >= 10;
+                            }}
+                            countryCodeEditable={false}
+                            enableSearch={true}
                         />
                         <InputError message={contactNumberError} className="mt-2" />
                     </div>
@@ -471,9 +484,9 @@ export default function Create({
                 </div>
 
                 {/* Pax (Adults and Kids) */}
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="pax_adult">No. of Pax (Adults)</Label>
+                        <Label htmlFor="pax_adult">No. of Pax</Label>
                         <Input
                             id="pax_adult"
                             type="number"
@@ -492,7 +505,7 @@ export default function Create({
                         <InputError message={errors.pax_adult} className="mt-2" />
                     </div>
                     
-                    <div className="grid gap-2">
+                    {/* <div className="grid gap-2">
                         <Label htmlFor="pax_kids">No. of Pax (Kids)</Label>
                         <Input
                             id="pax_kids"
@@ -505,7 +518,7 @@ export default function Create({
                             onChange={(e) => setData('pax_kids', e.target.value)}
                         />
                         <InputError message={errors.pax_kids} className="mt-2" />
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
@@ -537,13 +550,13 @@ export default function Create({
                             dateFormat="yyyy-MM-dd"
                             minDate={
                                 availableDates?.from
-                                ? new Date(
-                                    Math.max(
-                                        new Date(availableDates.from).getTime(),
-                                        new Date().setHours(0, 0, 0, 0) // today
+                                    ? new Date(
+                                        Math.max(
+                                            new Date(availableDates.from).getTime(),
+                                            new Date().setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 // tomorrow
+                                        )
                                     )
-                                    )
-                                : new Date()
+                                    : new Date(Date.now() + 24 * 60 * 60 * 1000) // fallback: tomorrow
                             }
                             maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
                             excludeDates={

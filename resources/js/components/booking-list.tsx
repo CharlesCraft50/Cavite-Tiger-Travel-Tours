@@ -31,6 +31,22 @@ export default function BookingList({ bookings, limit, searchByUserId, statusFil
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
   const itemsPerPage = 10;
 
+  const getBookingStatus = (booking: Booking): string => {
+    if (
+      booking.return_date &&
+      new Date(booking.return_date).getTime() < Date.now() &&
+      booking.status !== 'completed'
+    ) {
+      if (booking.payment == null || booking.payment?.status == 'pending' || booking.payment?.status == 'declined') {
+        return 'past_due';
+      } if (booking.payment.status.toLowerCase() == 'accepted') {
+        return 'completed';
+      }
+    }
+
+    return booking.status;
+  }
+
   const filteredBookings = bookings
     .filter((booking) => {
       const query = searchQuery.toLowerCase();
@@ -48,7 +64,7 @@ export default function BookingList({ bookings, limit, searchByUserId, statusFil
             return true;
         }
       })();
-      const matchesStatus = !status || booking.status === status;
+      const matchesStatus = !status || getBookingStatus(booking) === status;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -97,6 +113,7 @@ export default function BookingList({ bookings, limit, searchByUserId, statusFil
             <option value="cancelled">Cancelled</option>
             <option value="past_due">Past Due</option>
             <option value="declined">Declined</option>
+            <option value="completed">Completed</option>
           </select>
 
           {/* Search */}
@@ -143,53 +160,54 @@ export default function BookingList({ bookings, limit, searchByUserId, statusFil
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
           {(limit ? displayedBookings : paginatedBookings).length > 0 ? (
-            (limit ? displayedBookings : paginatedBookings).map((booking) => (
-              <tr key={booking.id}>
-                <td className="px-4 py-2">{booking.booking_number}</td>
-                <td className="px-4 py-2">
-                  {booking.tour_package?.title
-                    ? `${booking.tour_package.title}${booking.package_category?.name ? ` (${booking.package_category.name})` : ''}`
-                    : ''}
-                </td>
-                <td className="px-4 py-2">{booking.departure_date}</td>
-                <td className="px-4 py-2">{`${booking.first_name} ${booking.last_name}`}</td>
-                <td className="px-4 py-2">
-                  <span
-                    className={clsx(
-                      "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
-                      {
-                        "bg-blue-100 text-blue-800": booking.status === "pending",
-                        "bg-green-100 text-green-800": booking.status === "accepted",
-                        "bg-red-100 text-red-800": booking.status === "declined" || booking.status === "past_due",
-                        "bg-gray-100 text-gray-800": booking.status === "past_due" && booking.payment?.status === "pending",
-                        "bg-gray-200 text-gray-700": booking.status === "cancelled",
-                      }
-                    )}
-                  >
-                    {booking.payment?.status
-                      ? `Payment: ${formatStatus(booking.payment.status)}`
-                      : formatStatus(booking.status)}
-                  </span>
-                </td>
-                <td className="px-4 py-2">
-                  <div className="flex flex-row gap-2">
-                    <Link
-                      href={route('bookings.show', booking.id)}
-                      className="btn-primary cursor-pointer text-xs"
+            (limit ? displayedBookings : paginatedBookings).map((booking) => {
+              const absoluteStatus = getBookingStatus(booking);
+              return (
+                <tr key={booking.id}>
+                  <td className="px-4 py-2">{booking.booking_number}</td>
+                  <td className="px-4 py-2">
+                    {booking.tour_package?.title
+                      ? `${booking.tour_package.title}${booking.package_category?.name ? ` (${booking.package_category.name})` : ''}`
+                      : ''}
+                  </td>
+                  <td className="px-4 py-2">{booking.departure_date}</td>
+                  <td className="px-4 py-2">{`${booking.first_name} ${booking.last_name}`}</td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={clsx(
+                        "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
+                        {
+                          "bg-blue-100 text-blue-800": absoluteStatus === "pending",
+                          "bg-green-100 text-green-800": absoluteStatus === "accepted",
+                          "bg-red-100 text-red-800": absoluteStatus === "declined" || absoluteStatus === "past_due",
+                          "bg-gray-200 text-gray-700": absoluteStatus === "cancelled",
+                          "bg-gray-200 text-green-600": absoluteStatus === "completed",
+                        }
+                      )}
                     >
-                      View
-                    </Link>
-                    <Button
-                      type="button"
-                      onClick={() => setBookingToCancel(booking)}
-                      className="btn-primary cursor-pointer text-xs py-5"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))
+                      {formatStatus(absoluteStatus)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="flex flex-row gap-2">
+                      <Link
+                        href={route('bookings.show', booking.id)}
+                        className="btn-primary cursor-pointer text-xs"
+                      >
+                        View
+                      </Link>
+                      <Button
+                        type="button"
+                        onClick={() => setBookingToCancel(booking)}
+                        className="btn-primary cursor-pointer text-xs py-5"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           ) : (
             <tr>
               <td colSpan={6} className="px-4 py-4 text-center text-gray-500">

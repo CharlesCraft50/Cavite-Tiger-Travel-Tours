@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\TourPackage;
-use App\Models\PreferredVan;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Models\Booking;
-use App\Models\OtherService;
-use App\Models\VanCategory;
-use App\Services\VanAvailabilityService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Mail\BookingUpdated;
-use Illuminate\Support\Facades\Mail;
+use App\Models\Booking;
 use App\Models\Notification;
+use App\Models\OtherService;
+use App\Models\PreferredVan;
+use App\Models\TourPackage;
+use App\Models\VanCategory;
+use App\Services\VanAvailabilityService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class BookingController extends Controller
 {
@@ -31,19 +29,19 @@ class BookingController extends Controller
         $bookings = null;
 
         if ($user->isAdmin()) {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                        ->orderByDesc('created_at')
-                        ->get();
-        } else if ($user->isDriver()) {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                        ->where('driver_id', $user->id)
-                        ->orderByDesc('created_at')
-                        ->get();
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->orderByDesc('created_at')
+                ->get();
+        } elseif ($user->isDriver()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
         } else {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                        ->where('user_id', $user->id)
-                        ->orderByDesc('created_at')
-                        ->get();
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
         }
 
         return Inertia::render('dashboard/bookings/index', [
@@ -54,9 +52,7 @@ class BookingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request, $slug, $categorySlug = null) {
-        
-    }
+    public function create(Request $request, $slug, $categorySlug = null) {}
 
     protected $availabilityService;
 
@@ -68,10 +64,7 @@ class BookingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBookingRequest $request)
-    {
-        
-    }
+    public function store(StoreBookingRequest $request) {}
 
     /**
      * Display the specified resource.
@@ -84,17 +77,17 @@ class BookingController extends Controller
         $otherServices = OtherService::all();
 
         $booking = Booking::with(['tourPackage', 'preferredVan', 'otherServices', 'payment', 'packageCategory'])
-                        ->findOrFail($id);
+            ->findOrFail($id);
 
         $packages = TourPackage::findOrFail($booking->tour_package_id);
         $vans = PreferredVan::with(['availabilities', 'driver', 'category'])->get();
-        
+
         $packages->load([
-            'categories', 
-            'preferredVans.availabilities', 
+            'categories',
+            'preferredVans.availabilities',
             'otherServices' => function ($query) {
                 $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
-            }
+            },
         ]);
 
         $vanCategories = VanCategory::all();
@@ -118,7 +111,7 @@ class BookingController extends Controller
     }
 
     /**
- * Update the specified resource in storage.
+     * Update the specified resource in storage.
      */
     public function update(UpdateBookingRequest $request, string $id)
     {
@@ -132,16 +125,14 @@ class BookingController extends Controller
             $booking->payment->save();
         }
 
-        if($request->has('other_services')) {
+        if ($request->has('other_services')) {
             $booking->otherServices()->sync($request->input('other_services'));
         }
 
         $fieldsToUpdate = collect(['preferred_van_id', 'departure_date', 'return_date', 'status', 'notes', 'pickup_address', 'total_amount'])
-            ->filter(fn($field) => $request->has($field))
-            ->mapWithKeys(fn($field) => [$field => $request->input($field)])
+            ->filter(fn ($field) => $request->has($field))
+            ->mapWithKeys(fn ($field) => [$field => $request->input($field)])
             ->toArray();
-        
-        
 
         $oldStatus = $booking->status;
 
@@ -150,16 +141,16 @@ class BookingController extends Controller
         if ($request->status != $oldStatus) {
             if ($booking->user) {
                 $statusMessages = [
-                    'pending'  => "is now pending confirmation.",
-                    'accepted' => "has been accepted! 🎉",
-                    'declined' => "was unfortunately declined.",
+                    'pending' => 'is now pending confirmation.',
+                    'accepted' => 'has been accepted! 🎉',
+                    'declined' => 'was unfortunately declined.',
                 ];
-                
-                $message = "Your booking #{$booking->booking_number} " 
-                    . ($statusMessages[$request->status] ?? "status was updated.");
+
+                $message = "Your booking #{$booking->booking_number} "
+                    .($statusMessages[$request->status] ?? 'status was updated.');
                 Notification::create([
                     'user_id' => $booking->user->id,
-                    'type' => "Booking"  . ucwords($request->status),
+                    'type' => 'Booking'.ucwords($request->status),
                     'data' => json_encode([
                         'message' => $message,
                         'booking_number' => $booking->booking_number,
@@ -177,8 +168,6 @@ class BookingController extends Controller
             }
         }
 
-        
-
         Mail::to($booking->email)->send(new BookingUpdated($booking));
 
         return redirect()->back()->with('success', 'Booking updated and email sent.');
@@ -195,7 +184,7 @@ class BookingController extends Controller
     public function analytics()
     {
         return Inertia::render('dashboard/analytics/index', [
-            'bookings' => Booking::with('payment')->get()
+            'bookings' => Booking::with('payment')->get(),
         ]);
     }
 

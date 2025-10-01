@@ -15,7 +15,7 @@ export default function UserList({ users }: UserListProps) {
   const itemsPerPage = 10;
 
   const filteredUsers = users
-    .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((user) => user.first_name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
       const dateB = new Date(b.created_at).getTime();
@@ -65,7 +65,7 @@ export default function UserList({ users }: UserListProps) {
           {paginatedUsers.length > 0 ? (
             paginatedUsers.map((user) => (
               <tr key={user.id}>
-                <td className="px-4 py-2">{user.name}</td>
+                <td className="px-4 py-2">{user.first_name}</td>
                 <td className="px-4 py-2">{user.email}</td>
                 <td className="px-4 py-2">
                   <span className={clsx(
