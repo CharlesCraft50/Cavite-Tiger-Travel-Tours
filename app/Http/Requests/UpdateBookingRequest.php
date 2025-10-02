@@ -20,6 +20,8 @@ class UpdateBookingRequest extends FormRequest
             'status' => ['sometimes', 'required', 'in:pending,accepted,declined,past_due,cancelled,completed'],
             'notes' => ['nullable', 'string'],
             'total_amount' => ['nullable', 'numeric'],
+            'pax_adult' => ['nullable', 'numeric'],
+            'pax_kids' => ['nullable', 'numeric'],
             'payment_status' => ['nullable', 'in:pending,accepted,declined'],
             'pickup_address' => ['sometimes', 'string', 'max:255'],
         ];

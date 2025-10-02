@@ -13,6 +13,7 @@ import OtherServiceSelection from './other-service-selection';
 import PriceSign from './price-sign';
 import VanSelection from './van-selection';
 import { formatStatus, isAdmin, isDriver } from '@/lib/utils';
+import { Label } from './ui/label';
 
 type BookingDetailsProp = {
     booking: Booking;
@@ -46,6 +47,8 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 const formData = new FormData();
                 formData.append('preferred_van_id', String(booking.preferred_van?.id ?? ''));
                 formData.append('departure_date', booking.departure_date);
+                formData.append('pax_kids', data.pax_kids.toString());
+                formData.append('pax_adult', data.pax_adult.toString());
                 formData.append('return_date', booking.return_date);
                 if (booking.payment == null || booking.payment?.status == 'pending' || booking.payment?.status == 'declined') {
                     formData.append('status', 'past_due');
@@ -55,7 +58,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
                 formData.append('notes', booking.notes ?? '');
                 formData.append('pickup_address', booking.pickup_address ?? '');
-                formData.append('total_amount', Math.floor(booking.total_amount).toString());
+                formData.append('total_amount', Math.floor(computedTotal).toString());
 
                 selectedOtherServiceIds.forEach((id) => {
                     formData.append('other_services[]', id.toString());
@@ -155,17 +158,16 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     });
 
     const toggleVanSelection = (vanId: number) => {
-        if(selectedVanIds.includes(vanId)) {
+        if (selectedVanIds.includes(vanId)) {
             setSelectedVanIds([]);
             setData('preferred_van_id', null);
             setAvailableDates(null);
+            setData('pax_adult', 0);  // reset only when deselecting
+            setData('pax_kids', 0);   // reset only when deselecting
         } else {
             setSelectedVanIds([vanId]);
             setData('preferred_van_id', vanId);
         }
-        
-        setData('pax_adult', 0);
-        setData('pax_kids', 0);
     }
 
     const toggleServiceSelection = (serviceId: number) => {
@@ -190,14 +192,16 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
     useEffect(() => {
         const changed =
-            data.departure_date !== booking.departure_date ||
-            data.return_date !== booking.return_date ||
-            data.status !== booking.status ||
-            data.notes !== booking.notes ||
-            data.pickup_address !== booking.pickup_address ||
+             (data.departure_date || '') !== (booking.departure_date || '') ||
+            (data.return_date || '') !== (booking.return_date || '') ||
+            (data.status || '') !== (booking.status || '') ||
+            (data.notes || '') !== (booking.notes || '') ||
+            (data.pickup_address || '') !== (booking.pickup_address || '') ||
             !arraysEqual(data.other_services, booking.other_services?.map(s => s.id)) ||
-            data.preferred_van_id !== booking.preferred_van?.id ||
-            data.payment_status !== booking.payment?.status;
+            (data.preferred_van_id || null) !== (booking.preferred_van?.id || null) ||
+            (data.payment_status) !== (booking.payment?.status) ||
+            (data.pax_adult) !== (booking.pax_adult) ||
+            (data.pax_kids) !== (booking.pax_kids);
 
         setHasChanges(changed);
     }, [data, booking]);
@@ -213,7 +217,9 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('status', data.status);
         formData.append('notes', data.notes);
         formData.append('pickup_address', data.pickup_address);
-        formData.append('total_amount', data.total_amount.toString());
+        formData.append('pax_kids', data.pax_kids.toString());
+        formData.append('pax_adult', data.pax_adult.toString());
+        formData.append('total_amount', Math.floor(computedTotal).toString());
         formData.append('payment_status', data.payment_status || 'pending');
 
         if(data.payment_status != null || data.payment_status != '') {
@@ -277,8 +283,17 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         setIsEditing(enabled);
     }
 
-    useEffect(() => {
-        let total = packages?.base_price ?? 0;
+    const computedTotal = useMemo(() => {
+        const adults = Number(data.pax_adult) || 1; // default to 1
+        const kids = Number(data.pax_kids) || 0;
+
+        // Package price (per person)
+        const people = adults + kids;
+        let total = 0;
+
+        console.log(people);
+
+        total += people * packages!.base_price;
 
         // Add custom price from selected category if applicable
         const selectedCategory = packages?.package_categories?.find(cat => cat.id === booking.package_category_id);
@@ -305,18 +320,21 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             }
         }
 
-        // Prevent setting NaN
-        if (!isNaN(total)) {
-            setData('total_amount', total);
-        }
+        return total;
     }, [
         selectedOtherServiceIds,
         booking.package_category_id,
         data.preferred_van_id,
         packages?.base_price,
         packages?.package_categories,
-        mergedOtherServices
+        mergedOtherServices,
+        data.pax_adult,
+        data.pax_kids,
     ]);
+
+    useEffect(() => {
+        setData('total_amount', computedTotal);
+    }, [computedTotal]);
 
   return (
     <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200", booking.status == 'completed' && "bg-green-200")} onSubmit={submit}>
@@ -342,7 +360,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 <div className="border rounded-lg overflow-hidden">
                     <div className="bg-gray-50 p-4">
                         <p className="text-sm text-gray-600">
-                            Guest Details ({booking.pax_adult} Adults, {booking.pax_kids} Kids)
+                            Guest Details ({booking.pax_adult} Pax)
                         </p>
                     </div>
 
@@ -396,6 +414,27 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                         onSelect={toggleVanSelection}
                                         vanCategories={vanCategories}
                                     />
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="pax_adult">No. of Pax</Label>
+                                        <Input
+                                            id="pax_adult"
+                                            type="number"
+                                            required
+                                            className="w-full p-2 border-1 border-gray-200 rounded-lg"
+                                            value={selectedVanIds.length === 0 ? '' : data.pax_adult}
+                                            disabled={processing || selectedVanIds.length === 0}
+                                            placeholder="1"
+                                            max={vans?.find(v => v.id === selectedVanIds[0])?.pax_adult}
+                                            min={1}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                // If cleared, always reset to 1
+                                                setData('pax_adult', value === '' ? 1 : Number(value));
+                                            }}
+                                            />
+                                        <InputError message={errors.pax_adult} className="mt-2" />
+                                    </div>
                                 </>
                             ) : (
                                 <>
@@ -406,7 +445,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                             <p>{booking.preferred_van?.additional_fee}</p>
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-800">({booking.pax_adult} Adults, {booking.pax_kids} Kids)</p>
+                                    <p className="text-sm text-gray-800">({booking.pax_adult} Pax)</p>
                                     <p className="text-sm text-gray-800">Plate Number</p>
                                     <span className="text-black font-semibold">{booking.preferred_van?.plate_number}</span>
                                 </>
@@ -574,17 +613,12 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             </div>
                             <div className="text-right">
                                 <p className="text-sm text-gray-600">Total Amount</p>
-                                {editable && isEditing ? (
-                                    <div className="flex flex-row items-center text-primary">
-                                        <PriceSign />
-                                        <p className="text-base font-medium">{Number(data.total_amount).toLocaleString()}</p>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-row items-center text-primary">
-                                        <PriceSign />
-                                        <p className="text-base font-medium">{Number(booking.total_amount).toLocaleString()}</p>
-                                    </div>
-                                )}
+                                
+                                <div className="flex flex-row items-center text-primary">
+                                    <PriceSign />
+                                    <p className="text-base font-medium">{Number(computedTotal ?? booking.total_amount).toLocaleString()}</p>
+                                </div>
+                                
                             </div>
                         </div>
                                 
