@@ -12,7 +12,7 @@ export default function QRCodeModal({ qrImages }: { qrImages: string[] }) {
             key={i}
             src={src}
             alt={`QR Code ${i + 1}`}
-            className="w-48 h-48 object-contain cursor-pointer"
+            className="w-120 h-120 object-contain cursor-pointer"
             onClick={() => setOpenImage(src)}
           />
         ))}

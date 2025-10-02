@@ -121,6 +121,15 @@ export default function Payment({
                     </select>
                 </div>
 
+                {/* QR Code */}
+                <div className="flex flex-col items-center gap-4 p-4">
+                    <p className="text-center text-sm font-medium mb-2">
+                        You can pay using the QR code below. <br />
+                        Tap/click the QR code to view it in fullscreen.
+                    </p>
+                    <QRCodeModal qrImages={[selectedQR]} />
+                </div>
+
                 {/* Reference Number only for GCash */}
                 {showReferenceNumber && (
                     <div className="grid gap-2">
@@ -167,15 +176,6 @@ export default function Payment({
                         />
                     )}
                     <InputError message={paymentProofError} className="mt-2" />
-                </div>
-
-                {/* QR Code */}
-                <div className="flex flex-col items-center gap-4 p-4">
-                    <p className="text-center text-sm font-medium mb-2">
-                        You can pay using the QR code below. <br />
-                        Tap/click the QR code to view it in fullscreen.
-                    </p>
-                    <QRCodeModal qrImages={[selectedQR]} />
                 </div>
                 
                 <div className="flex justify-end">
