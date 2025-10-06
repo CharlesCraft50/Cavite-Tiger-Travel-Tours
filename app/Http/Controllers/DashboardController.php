@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Booking;
-use Inertia\Inertia;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
@@ -21,23 +20,83 @@ class DashboardController extends Controller
 
         if ($user->isAdmin()) {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                        ->orderByDesc('created_at')
-                        ->get();
-        } else if ($user->isDriver()) {
+                ->orderByDesc('created_at')
+                ->get();
+        } elseif ($user->isDriver()) {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                        ->where('driver_id', $user->id)
-                        ->orderByDesc('created_at')
-                        ->get();
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
         } else {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                        ->where('user_id', $user->id)
-                        ->orderByDesc('created_at')
-                        ->get();
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
         }
-        
+
         $bookingCount = $bookings->count();
 
         return Inertia::render('dashboard', [
+            'bookingCount' => $bookingCount,
+            'userBookings' => $bookings,
+        ]);
+    }
+
+    public function customTrip()
+    {
+        $user = Auth::user();
+
+        $bookings = null;
+
+        if ($user->isAdmin()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                ->orderByDesc('created_at')
+                ->get();
+        } elseif ($user->isDriver()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+        }
+
+        $bookingCount = $bookings->count();
+
+        return Inertia::render('dashboard/custom-trip', [
+            'bookingCount' => $bookingCount,
+            'userBookings' => $bookings,
+        ]);
+    }
+
+    public function localTrip()
+    {
+        $user = Auth::user();
+
+        $bookings = null;
+
+        if ($user->isAdmin()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                ->orderByDesc('created_at')
+                ->get();
+        } elseif ($user->isDriver()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+        }
+
+        $bookingCount = $bookings->count();
+
+        return Inertia::render('dashboard/local-trip', [
             'bookingCount' => $bookingCount,
             'userBookings' => $bookings,
         ]);

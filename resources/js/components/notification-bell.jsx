@@ -25,7 +25,7 @@ export default function NotificationBell() {
         }}
         className="cursor-pointer md:absolute md:right-1 md:top-2 relative"
       >
-        <Bell className="text-primary" />
+        <Bell className="text-white fill-white" />
         {unreadLength > 0 && (
           <span
             style={{

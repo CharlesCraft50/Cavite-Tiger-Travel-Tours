@@ -233,6 +233,16 @@
     .card.toDelete {
         @apply ring-red-500 bg-red-300 opacity-80 cursor-default;
     }
+
+    .swiper-pagination-bullet {
+        background: #000 !important;
+        opacity: 0.6;
+    }
+
+    .swiper-pagination-bullet-active {
+        background: #f87171 !important; /* Tailwind pink-400 */
+        opacity: 1;
+    }
 }
 
 @layer utilities {

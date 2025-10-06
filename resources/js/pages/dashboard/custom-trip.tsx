@@ -7,7 +7,7 @@ import { isAdmin, isDriver } from '@/lib/utils';
 import { Booking, SharedData, TourPackage } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import '../../css/dashboard.css';
+import '../../../css/dashboard.css';
 import BottomNav from '@/components/ui/bottom-nav';
 import clsx from 'clsx';
 import { Button } from '@headlessui/react';
@@ -22,11 +22,12 @@ type DashboardProps = {
     userBookings: Booking[];
 };
 
-export default function Dashboard({ bookingCount, userBookings }: DashboardProps) {
+export default function CustomTrip({ bookingCount, userBookings }: DashboardProps) {
     const { auth } = usePage<SharedData>().props;
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
     const [packages, setPackages] = useState<TourPackage[]>([]);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
         const fetchPackages = async () => {
@@ -48,100 +49,72 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
     return (
         <DashboardLayout title="" href="/dashboard">
             <div className="flex mb-2 gap-2">
-                <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><LayoutDashboard /> Dashboard</Link>
-                <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
+                <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><LayoutDashboard /> Dashboard</Link>
+                <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><Truck className="fill-black" /> Custom Trip</Link>
                 <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Plane className="fill-black" /> Local Trip</Link>
             </div>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <div className="container mx-auto px-4 py-8">
                     {/* Header Section */}
-                    <div className="mb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                      <div>
                         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
-                            Welcome, {auth.user.first_name}!
+                          Custom Trip!
                         </h1>
                         {!(isAdmins || isDrivers) && (
-                            <p className="text-gray-600 dark:text-gray-300">
-                                You have {upcomingTrips} upcoming trip{upcomingTrips !== 1 ? 's' : ''} — ready for adventure?
-                            </p>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            Choose your desired trips and vehicles.
+                          </p>
                         )}
-                        {!(isAdmins || isDrivers) && (
-                            <div className="flex justify-center mt-4 px-4">
-                                <div className="container mx-auto px-4 mt-4 max-w-4xl"> {/* keeps consistent width */}
-                                    <Swiper
-                                        modules={[Autoplay, Pagination]}
-                                        spaceBetween={20}
-                                        slidesPerView={1}
-                                        loop={true}
-                                        autoplay={{
-                                        delay: 3000,
-                                        disableOnInteraction: false,
-                                        }}
-                                        pagination={{
-                                        clickable: true,
-                                        dynamicBullets: true,
-                                        }}
-                                        className="rounded-xl overflow-hidden shadow-md"
-                                    >
-                                        <SwiperSlide>
-                                        <img
-                                            src="https://i.ibb.co/cXRrgPNs/ctt-c-6.jpg"
-                                            alt="Image 1"
-                                            className="w-full h-64 sm:h-64 md:h-72 lg:h-120 object-cover"
-                                        />
-                                        </SwiperSlide>
-                                        <SwiperSlide>
-                                        <img
-                                            src="https://i.ibb.co/Wv4F3SfC/ctt-c-5.jpg"
-                                            alt="Image 2"
-                                            className="w-full h-64 sm:h-64 md:h-72 lg:h-120 object-cover"
-                                        />
-                                        </SwiperSlide>
-                                        <SwiperSlide>
-                                        <img
-                                            src="https://i.ibb.co/BWwC1cp/ctt-c-4.jpg"
-                                            alt="Image 3"
-                                            className="w-full h-64 sm:h-64 md:h-72 lg:h-120 object-cover"
-                                        />
-                                        </SwiperSlide>
-                                    </Swiper>
-                                </div>
-                            </div>
+                      </div>
+
+                      {/* Book Now button changes dynamically */}
+                      {!(isAdmins || isDrivers) &&
+                        packages.length > 0 &&
+                        packages[activeIndex] && (
+                          <Link
+                            href={`/packages/${packages[activeIndex].slug}`}
+                            className="mt-4 sm:mt-0 inline-block bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-200"
+                          >
+                            Book Now →
+                          </Link>
                         )}
                     </div>
-
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        {/* Upcoming Trips */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
-                            <div className="text-center">
-                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Upcoming Trips</h3>
-                                <div className="text-4xl font-bold text-primary mb-2">
-                                    {upcomingTrips}
-                                </div>
+                        {!(isAdmins || isDrivers) && packages.length > 0 && (
+                          <div className="flex justify-center mt-4 px-4">
+                            <div className="container mx-auto px-4 mt-4 max-w-4xl">
+                              <Swiper
+                                modules={[Autoplay, Pagination]}
+                                spaceBetween={20}
+                                slidesPerView={1}
+                                loop={true}
+                                autoplay={{
+                                  delay: 3000,
+                                  disableOnInteraction: false,
+                                }}
+                                pagination={{
+                                  clickable: true,
+                                  dynamicBullets: true,
+                                }}
+                                onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+                                className="rounded-xl overflow-hidden shadow-md"
+                              >
+                                {packages.map((pkg) => (
+                                  <SwiperSlide key={pkg.id}>
+                                    <img
+                                      src={pkg.image_overview || '/images/default-package.jpg'} // fallback if image missing
+                                      alt={pkg.title}
+                                      className="w-full h-64 sm:h-64 md:h-72 lg:h-120 object-cover"
+                                    />
+                                  </SwiperSlide>
+                                ))}
+                              </Swiper>
                             </div>
-                        </div>
+                          </div>
+                        )}
+                  
 
-                        {/* Total Completed */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
-                            <div className="text-center">
-                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{!(isAdmins || isDrivers) ? "Total Completed Trips" : "Accepted"}</h3>
-                                <div className="text-4xl font-bold text-green-600 mb-2">
-                                    {bookingCount - upcomingTrips}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Total Spent */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
-                            <div className="text-center">
-                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{!(isAdmins || isDrivers) ? "Total Spent" : "Revenue"}</h3>
-                                <div className="flex items-center justify-center text-4xl font-bold text-yellow-600 mb-2">
-                                    <PriceSign />
-                                    <span>{totalSpent.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    
 
                     {/* Content Sections */}
                     <div className={clsx("grid gap-8", !(isAdmins || isDrivers) && "grid-cols-1 xl:grid-cols-2")}>

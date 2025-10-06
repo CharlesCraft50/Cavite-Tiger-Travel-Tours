@@ -52,7 +52,7 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
     const isDashboard = component.startsWith("dashboard");
     
     return (
-        <nav className="bg-neutral-800 border-b shadow-sm sticky top-0 z-50">
+        <nav className="bg-[#5c1f1d] border-b shadow-sm sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
