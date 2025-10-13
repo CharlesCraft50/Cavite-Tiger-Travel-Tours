@@ -1,232 +1,326 @@
-import BookingList from '@/components/booking-list';
-import BookingListCard from '@/components/booking-list-card';
-import PackageListCard from '@/components/package-list-card';
-import PriceSign from '@/components/price-sign';
+import { TourPackage, SharedData, Country, City } from '@/types';
+import { useState, useEffect, useRef, Fragment } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/dashboard-layout';
-import { isAdmin, isDriver } from '@/lib/utils';
-import { Booking, SharedData, TourPackage } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
-import '../../../css/dashboard.css';
-import BottomNav from '@/components/ui/bottom-nav';
-import clsx from 'clsx';
-import { Button } from '@headlessui/react';
-import { LayoutDashboard, Plane, Truck } from 'lucide-react';
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
+import { Listbox, Transition } from '@headlessui/react';
+import { Search, ChevronDownIcon, X, LayoutDashboard, Truck, Plane } from 'lucide-react';
+import CardImageBackground from '@/components/ui/card-image-bg';
+import { Button } from '@/components/ui/button';
+import ShowPage from '../packages/show';
+import ModalLarge from '@/components/ui/modal-large';
+import Index from '../packages';
+import CityList from '@/components/city-list';
+import { useLoading } from '@/components/ui/loading-provider';
+import PackagesOverview from '@/components/packages-overview';
 
-type DashboardProps = {
-    bookingCount: number;
-    userBookings: Booking[];
+type PackagesIndexProps = {
+  packages: TourPackage[];
+  cities: City[];
+  selectedCountry: Country;
 };
 
-export default function LocalTrip({ bookingCount, userBookings }: DashboardProps) {
-    const { auth } = usePage<SharedData>().props;
-    const isAdmins = isAdmin(auth.user);
-    const isDrivers = isDriver(auth.user);
-    const [packages, setPackages] = useState<TourPackage[]>([]);
-    const [activeIndex, setActiveIndex] = useState(0);
+const ITEMS_PER_LOAD = 8;
 
-    useEffect(() => {
-        const fetchPackages = async () => {
-            try {
-                const response = await fetch('/api/packages/latest');
-                const packages = response.json();
-                setPackages(await packages);
-            } catch (error) {
-                console.error('Error fetching packages: ', error);
-            }
-        }
+// Helper: convert shorthand durations like "3D2N" → "3 Days 2 Nights"
+const formatDuration = (duration: string) => {
+  if (!duration) return '';
+  const match = duration.match(/(\d+)D(\d+)N/i);
+  if (match) {
+    const [, days, nights] = match;
+    return `${days} Day${days !== '1' ? 's' : ''} ${nights} Night${nights !== '1' ? 's' : ''}`;
+  }
+  return duration;
+};
 
-        fetchPackages();
-    }, []);
+export default function LocalTrip({ packages: initialPackages, cities, selectedCountry }: PackagesIndexProps) {
+  const { auth } = usePage<SharedData>().props;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState<'newest' | 'oldest'>('newest');
+  const [selectedPackage, setSelectedPackage] = useState<TourPackage | null>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const showRef = useRef<HTMLDivElement>(null);
+  const [showCreateTripModal, setShowCreateTripModal] = useState(false);
+  const ITEMS_PER_PAGE = 2;
 
-    const upcomingTrips = userBookings.filter(b => new Date(b.departure_date) > new Date()).length;
-    const totalSpent = userBookings.reduce((sum, b) => sum + Number(b.total_amount ?? 0), 0);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const packageSlug = params.get('package');
 
-    return (
-        <DashboardLayout title="" href="/dashboard">
-            <div className="flex mb-2 gap-2">
-                <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><LayoutDashboard /> Dashboard</Link>
-                <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
-                <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><Plane className="fill-black" /> Local Trip</Link>
+    if (packageSlug && initialPackages?.length) {
+      const foundPackage = initialPackages.find((pkg) => pkg.slug === packageSlug);
+      if (foundPackage) {
+        setSelectedPackage(foundPackage);
+        setTimeout(() => {
+          showRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+      }
+    }
+  }, [initialPackages]);
+
+  // Filter and sort
+  const filteredPackages = initialPackages.filter(
+    (pkg) =>
+      pkg.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (pkg.overview && pkg.overview.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const sortedPackages = [...filteredPackages].sort((a, b) => {
+    const diff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return sortOption === 'newest' ? diff : -diff;
+  });
+
+  // Group by duration (Others if undefined)
+  const groupedPackages = sortedPackages.reduce((acc, pkg) => {
+    const duration = pkg.duration?.trim() || '';
+    let formatted = duration ? formatDuration(duration) : 'Others';
+    if (!acc[formatted]) acc[formatted] = [];
+    acc[formatted].push(pkg);
+    return acc;
+  }, {} as Record<string, TourPackage[]>);
+
+  const [visiblePackages, setVisiblePackages] = useState(sortedPackages.slice(0, ITEMS_PER_LOAD));
+  const [currentIndex, setCurrentIndex] = useState(ITEMS_PER_LOAD);
+  const [hasMore, setHasMore] = useState(sortedPackages.length > ITEMS_PER_LOAD);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const loadMorePackages = () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const nextIndex = currentIndex + ITEMS_PER_LOAD;
+    const nextPackages = sortedPackages.slice(currentIndex, nextIndex);
+    setVisiblePackages((prev) => [...prev, ...nextPackages]);
+    setCurrentIndex(nextIndex);
+    if (nextIndex >= sortedPackages.length) setHasMore(false);
+    setLoadingMore(false);
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+      if (fullHeight - (scrollTop + windowHeight) < 200 && hasMore) {
+        loadMorePackages();
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentIndex, hasMore]);
+
+  useEffect(() => {
+    const newVisible = sortedPackages.slice(0, ITEMS_PER_LOAD);
+    setVisiblePackages(newVisible);
+    setCurrentIndex(ITEMS_PER_LOAD);
+    setHasMore(sortedPackages.length > ITEMS_PER_LOAD);
+  }, [searchQuery, sortOption, filteredPackages.length]);
+
+  // Scroll into view when a package is selected
+  useEffect(() => {
+    if (selectedPackage && showRef.current) {
+      setTimeout(() => {
+        showRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+    }
+  }, [selectedPackage]);
+
+  const { start, stop } = useLoading();
+  const [activeCityId, setActiveCityId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [activeModal, setActiveModal] = useState(false);
+  const [allPackages, setAllPackages] = useState<TourPackage[]>([]);
+
+  const handleCityClick = (cityId: number) => {
+    start();
+    setActiveCityId(cityId);
+    setCurrentPage(0);
+    router.get(route('localTrip'), { city_id: cityId, no_paginate: true }, {
+        preserveScroll: true,
+        preserveState: true,
+        only: ['packages'],
+        onSuccess: (page: any) => {
+            setAllPackages(page.props.packages || []);
+            stop();
+            setActiveModal(true);
+        },
+        onError: stop,
+    });
+  };
+
+  return (
+    <DashboardLayout title="LocalTrip" href="/localtrip">
+      <Head title="LocalTrip" />
+      <div className="flex mb-2 gap-2">
+        <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><LayoutDashboard /> Dashboard</Link>
+        <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
+        <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><Plane className="fill-black" /> Local Trip</Link>
+      </div>
+      <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">
+        {selectedPackage ? (
+          <div ref={showRef} className="flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b pb-3 mb-4">
+              <Button variant="outline" onClick={() => {
+                setSelectedPackage(null);
+              }}>
+                ← Back to Packages
+              </Button>
+              <h2 className="text-lg font-semibold">{selectedPackage.title}</h2>
+              <div className="w-16" />
             </div>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-                <div className="container mx-auto px-4 py-8">
-                    {/* Header Section */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                      <div>
-                        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
-                          Local Trip!
-                        </h1>
-                        {!(isAdmins || isDrivers) && (
-                          <p className="text-gray-600 dark:text-gray-300">
-                            Discover amazing local destinations and quick getaways.
-                          </p>
-                        )}
-                      </div>
 
-                      {/* Book Now button changes dynamically */}
-                      {!(isAdmins || isDrivers) &&
-                        packages.length > 0 &&
-                        packages[activeIndex] && (
-                          <Link
-                            href={`/packages/${packages[activeIndex].slug}`}
-                            className="mt-4 sm:mt-0 inline-block bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-200"
-                          >
-                            Book Now →
-                          </Link>
-                        )}
-                    </div>
-                        {!(isAdmins || isDrivers) && packages.length > 0 && (
-                          <div className="flex justify-center mt-4 px-4">
-                            <div className="container mx-auto px-4 mt-4 max-w-4xl">
-                              <Swiper
-                                modules={[Autoplay, Pagination]}
-                                spaceBetween={20}
-                                slidesPerView={1}
-                                loop={true}
-                                autoplay={{
-                                  delay: 3000,
-                                  disableOnInteraction: false,
-                                }}
-                                pagination={{
-                                  clickable: true,
-                                  dynamicBullets: true,
-                                }}
-                                onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-                                className="rounded-xl overflow-hidden shadow-md"
-                              >
-                                {packages.map((pkg) => (
-                                  <SwiperSlide key={pkg.id}>
-                                    <img
-                                      src={pkg.image_overview || '/images/default-package.jpg'} // fallback if image missing
-                                      alt={pkg.title}
-                                      className="w-full h-64 sm:h-64 md:h-72 lg:h-120 object-cover"
-                                    />
-                                  </SwiperSlide>
-                                ))}
-                              </Swiper>
-                            </div>
-                          </div>
-                        )}
-                  
+            <ShowPage
+              packages={selectedPackage}
+              categories={selectedPackage.package_categories ?? []}
+              preferredVans={selectedPackage.preferred_vans ?? []}
+              otherServices={selectedPackage.other_services ?? []}
+              isWishlisted={selectedPackage.wishlist?.id != null}
+              disableNav
+            />
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-row mb-8 justify-between">
+              <div className="flex flex-col">
+                <h1 className="text-2xl font-semibold">Local Trip!</h1>
+                <h1 className="text-1xl">Are you ready for adventure?</h1>
+              </div>
+              <div className="flex flex-col justify-center">
+                <Button
+                  className="bg-[#5c1f1d] cursor-pointer hover:bg-[#3d1514]"
+                  onClick={() => setShowCreateTripModal(true)}
+                >
+                  Create Own Trip
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-row items-center w-full gap-4 mb-4">
+              <div className="relative flex-grow" ref={searchRef}>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                  <Search size={20} />
+                </span>
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  type="text"
+                  placeholder="Search local trips..."
+                  className="border rounded-lg p-2 pl-9 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
 
-                    
+              <Listbox value={sortOption} onChange={setSortOption}>
+                <div className="relative w-40">
+                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
+                    <span className="block truncate">
+                      {sortOption === 'newest' ? 'Newest to Oldest' : 'Oldest to Newest'}
+                    </span>
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+                    </span>
+                  </Listbox.Button>
 
-                    {/* Content Sections */}
-                    <div className={clsx("grid gap-8", !(isAdmins || isDrivers) && "grid-cols-1 xl:grid-cols-2")}>
-                        {/* Upcoming Trips Section */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                                    {(isAdmins || isDrivers) ? 'Recent Bookings' : 'Upcoming Trips'}
-                                </h2>
-                                {userBookings.length > 3 && (
-                                    <Link 
-                                        href="/bookings" 
-                                        className="text-primary hover:opacity-80 font-medium text-sm transition-opacity duration-200"
-                                    >
-                                        View All →
-                                    </Link>
-                                )}
-                            </div>
-                            
-                            <div className="space-y-4">
-                                {(isAdmins || isDrivers) ? (
-                                    <BookingList bookings={userBookings} limit={3} />
-                                ) : (
-                                    <BookingListCard bookings={userBookings} limit={3} />
-                                )}
-                                
-                                {userBookings.length === 0 && (
-                                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                        <p>No trips scheduled yet</p>
-                                        {!(isAdmins || !isDrivers) && (
-                                            <Link 
-                                                href="/packages" 
-                                                className="inline-block mt-4 bg-primary hover:opacity-90 text-white px-6 py-2 rounded-lg transition-opacity duration-200"
-                                            >
-                                                Browse Packages
-                                            </Link>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Recommended Packages Section */}
-                        {!(isAdmins || isDrivers) && (
-                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                                        Recommended for You
-                                    </h2>
-                                    <Link 
-                                        href="/packages" 
-                                        className="text-primary hover:opacity-80 font-medium text-sm transition-opacity duration-200"
-                                    >
-                                        View All →
-                                    </Link>
-                                </div>
-                                
-                                <div className="space-y-4">
-                                    <PackageListCard packages={packages} limit={3} />
-                                    
-                                    {packages.length === 0 && (
-                                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                            <div className="animate-pulse">
-                                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-2"></div>
-                                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Additional Action Cards for regular users */}
-                    {!(isAdmins || isDrivers) && (
-                        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Link 
-                                href="/packages" 
-                                className="bg-primary hover:opacity-90 text-white rounded-2xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 group"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="text-xl font-bold mb-2">Explore Packages</h3>
-                                        <p className="text-pink-100">Discover amazing destinations</p>
-                                    </div>
-                                    <div className="text-3xl group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
-                                        ✈️
-                                    </div>
-                                </div>
-                            </Link>
-
-                            <Link 
-                                href="/bookings" 
-                                className="bg-green-500 hover:bg-green-600 text-white rounded-2xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 group"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="text-xl font-bold mb-2">My Bookings</h3>
-                                        <p className="text-green-100">View your travel history</p>
-                                    </div>
-                                    <div className="text-3xl group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
-                                        📋
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-                    )}
+                  <Transition
+                    as={Fragment}
+                    leave="transition ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Listbox.Options className="absolute z-50 mt-1 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg max-h-60 focus:outline-none sm:text-sm">
+                      <Listbox.Option
+                        className={({ active }) =>
+                          `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
+                            active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                          }`
+                        }
+                        value="newest"
+                      >
+                        Newest to Oldest
+                      </Listbox.Option>
+                      <Listbox.Option
+                        className={({ active }) =>
+                          `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
+                            active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                          }`
+                        }
+                        value="oldest"
+                      >
+                        Oldest to Newest
+                      </Listbox.Option>
+                    </Listbox.Options>
+                  </Transition>
                 </div>
+              </Listbox>
             </div>
-            {!(isAdmins || isDrivers) && (
-                <BottomNav />
-            )}
-        </DashboardLayout>
-    );
+
+            {Object.entries(groupedPackages).map(([duration, pkgs]) => (
+              <div key={duration} className="mb-12">
+                <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
+                  Duration - {duration}
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pkgs.map((pkg) => (
+                    <div key={pkg.id} className="relative">
+                      <CardImageBackground
+                        id={pkg.id}
+                        title={pkg.title}
+                        src={pkg.image_overview ?? ''}
+                        size="smallWide"
+                        editable={false}
+                        onClick={() => setSelectedPackage(pkg)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {loadingMore && <p className="text-center mt-4 text-gray-500">Loading more...</p>}
+          </>
+        )}
+      </div>
+
+      <ModalLarge activeModal={showCreateTripModal} setActiveModal={setShowCreateTripModal}>
+        <div className="space-y-10">
+          <div>
+              <h2 className="text-xl font-semibold mb-4">Cities</h2>
+              <div className="flex flex-wrap gap-4 p-4">
+                  {cities.map((city => (
+                      <CardImageBackground
+                          id={city.id}
+                          inputId="image-overview-edit"
+                          key={city.id}
+                          title={city.name}
+                          src={city.image_url}
+                          city={city}
+                          size='small'
+                          onClick={() => handleCityClick(city.id)}
+                      />
+                  )))}
+              </div>
+              
+          </div>
+        </div>
+      </ModalLarge>
+
+      <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
+          <div className="mt-4">
+              <PackagesOverview
+                  currentPackages={allPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}
+                  totalPages={Math.ceil(allPackages.length / ITEMS_PER_PAGE)}
+                  currentPage={currentPage}
+                  setCurrentPage={setCurrentPage}
+                  isAdmin={false}
+                  onLocalTrip={true}
+              />
+          </div>
+      </ModalLarge>
+    </DashboardLayout>
+  );
 }

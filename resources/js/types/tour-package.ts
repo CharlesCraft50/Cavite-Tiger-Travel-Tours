@@ -1,6 +1,8 @@
 import { City } from "./city";
 import { OtherService } from "./other-service";
 import { PackageCategory } from "./package-category";
+import { PreferredVan } from "./preferred-van";
+import { Wishlist } from "./wishlist";
 
 export interface TourPackage {
     id: number;
@@ -26,6 +28,8 @@ export interface TourPackage {
     base_price: number;
     other_services: OtherService[];
     package_categories: PackageCategory[];
+    wishlist: Wishlist;
+    preferred_vans: PreferredVan[];
     city?: City;
 
     created_at: string;

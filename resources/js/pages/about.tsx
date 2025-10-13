@@ -7,8 +7,8 @@ import Footer from '@/components/footer';
 export default function AboutPage() {
   return (
     <>
-        <Navbar />
-        <Head title='About'/>
+      <Navbar />
+      <Head title='About'/>
       <section className="relative bg-cover bg-center bg-no-repeat min-h-[500px]" style={{ backgroundImage: "url('https://cavitetigerstravelandtours.netlify.app/wp-content/uploads/2022/06/290875293_713107549780355_8510002955865993783_n.jpg')" }}>
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center text-white">

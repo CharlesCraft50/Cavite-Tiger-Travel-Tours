@@ -11,6 +11,7 @@ type PackagesOverviewContent = {
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   isAdmin?: boolean;
+  onLocalTrip?: boolean;
 };
 
 export default function PackagesOverview({
@@ -19,6 +20,7 @@ export default function PackagesOverview({
   currentPage,
   setCurrentPage,
   isAdmin,
+  onLocalTrip,
 }: PackagesOverviewContent) {
   return (
     <div className="flex flex-col h-full justify-between">
@@ -26,7 +28,7 @@ export default function PackagesOverview({
       <div className="flex-1 overflow-y-auto grid gap-4">
         {currentPackages.map((p) => (
           <div key={p.id} className="relative">
-            <OverviewContent packageData={p} />
+            <OverviewContent packageData={p} onLocalTrip={onLocalTrip} />
 
             {isAdmin && (
               <Link 

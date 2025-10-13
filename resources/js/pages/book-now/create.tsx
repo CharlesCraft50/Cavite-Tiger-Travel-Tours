@@ -14,6 +14,7 @@ import PriceSign from "@/components/price-sign";
 import { format, addDays } from "date-fns";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { Select } from "@headlessui/react";
 
 type BookNowCreateProps = {
     packages: TourPackage;
@@ -346,7 +347,7 @@ export default function Create({
                     </p>
                 </div>
 
-                {/* <div className="grid gap-4">
+                <div className="grid gap-4">
                     <Label htmlFor="package_category_id">Select Package Option</Label>
                     <Select
                         id="package_category_id"
@@ -363,7 +364,7 @@ export default function Create({
                             ))
                         }
                     </Select>
-                </div> */}
+                </div>
 
                 {/* Form Inputs */}
                 <div className="grid grid-cols-1 gap-6">

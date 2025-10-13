@@ -1,0 +1,31 @@
+import { Button } from '@/components/ui/button';
+import DashboardLayout from '@/layouts/dashboard-layout';
+import { ExternalLink } from 'lucide-react';
+
+export default function Certifications() {
+    return (
+        <DashboardLayout title="Certifications" href="/wishlists">
+            <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex flex-col justify-center items-center overflow-hidden rounded-xl border md:min-h-min p-4">
+                <h1 className="mb-8 text-3xl font-semibold">Certifications</h1>
+                <div className="grid grid-cols-2 gap-12">
+                    <img 
+                        src="https://i.ibb.co/S4ZrBwGN/CAITO.jpg"
+                        className="max-w-sm max-h-sm object-contain border-4" 
+                    />
+                    <img 
+                        src="https://i.ibb.co/gZtMR6VQ/DOT-Accreditation-Cert.png"
+                        className="max-w-sm max-h-sm object-contain border-4" 
+                    />
+                    <img 
+                        src="https://i.ibb.co/W4Sc48nN/Gemini-Generated-Image-b7qngeb7qngeb7qn.png"
+                        className="max-w-sm max-h-sm object-contain border-4" 
+                    />
+                    <img 
+                        src="https://i.ibb.co/d0jmmVXR/PHILTOA.png"
+                        className="max-w-sm max-h-sm object-contain border-4" 
+                    />
+                </div>
+            </div>
+        </DashboardLayout>
+    );
+}

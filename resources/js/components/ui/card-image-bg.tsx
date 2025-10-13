@@ -21,7 +21,7 @@ type CardImageBackgroundProps = {
     onDeletion?: () => void,
     onEdit?: () => void;
     hasChangeImageBtn?: boolean;
-    size?: "small" | "medium" | "large";
+    size?: "small" | "medium" | "large" | "smallWide" | "mediumWide" | "largeWide";
     packageId?: number,
     forImageOverview?: boolean,
 };
@@ -119,7 +119,12 @@ export default function CardImageBackground({
     const sizeClasses = {
         small: "w-62 h-76",
         medium: "w-76 h-84",
-        large: "w-96 h-96"
+        large: "w-96 h-96",
+
+        // 🆕 Wide (horizontal) versions
+        smallWide: "w-[20rem] h-[12rem]",
+        mediumWide: "w-[26rem] h-[16rem]",
+        largeWide: "w-[30rem] h-[18rem]"
     };
     const sizeClass = sizeClasses[size];
 

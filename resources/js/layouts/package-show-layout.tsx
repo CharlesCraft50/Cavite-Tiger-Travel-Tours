@@ -11,17 +11,24 @@ interface PackageShowLayoutProps {
     auth?: Auth;
     isWishlisted?: boolean;
     editable?: boolean;
+    disableNav?: boolean;
 }
 
-export default function PackageShowLayout({ id, children, packages, editable, auth, isWishlisted, ...props }: PackageShowLayoutProps) {
+export default function PackageShowLayout({ id, children, packages, editable, auth, isWishlisted, disableNav, ...props }: PackageShowLayoutProps) {
 
     return (
         <>
-            <Navbar removeNavItems />
-            <BackButton 
-                href="/packages"
-                className="ms-12 mb-0 mt-2" 
-            />
+            {disableNav ? null : (
+                <>
+                    <Navbar removeNavItems />
+                    <BackButton 
+                        href="/packages"
+                        className="ms-12 mb-0 mt-2" 
+                    />
+                </>
+            )}
+            
+            
             <PackagHeaderLayout 
                 id={packages.id}
                 auth={auth}

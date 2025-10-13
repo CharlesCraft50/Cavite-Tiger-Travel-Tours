@@ -4,31 +4,40 @@ import PackageListCard from '@/components/package-list-card';
 import PriceSign from '@/components/price-sign';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { isAdmin, isDriver } from '@/lib/utils';
-import { Booking, SharedData, TourPackage } from '@/types';
+import { Booking, SharedData, TourPackage, User, PreferredVan, VanCategory } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import '../../../css/dashboard.css';
 import BottomNav from '@/components/ui/bottom-nav';
 import clsx from 'clsx';
-import { Button } from '@headlessui/react';
 import { LayoutDashboard, Plane, Truck } from 'lucide-react';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import FormLayout from "@/layouts/form-layout";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import VanSelection from "@/components/van-selection";
+import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from "react-datepicker";
 
 type DashboardProps = {
     bookingCount: number;
     userBookings: Booking[];
+    preferredVans: PreferredVan[];
+    vanCategories: VanCategory[];
 };
 
-export default function CustomTrip({ bookingCount, userBookings }: DashboardProps) {
+export default function CustomTrip({ bookingCount, userBookings, preferredVans, vanCategories }: DashboardProps) {
     const { auth } = usePage<SharedData>().props;
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
     const [packages, setPackages] = useState<TourPackage[]>([]);
     const [activeIndex, setActiveIndex] = useState(0);
 
+    // --- Fetch Packages ---
     useEffect(() => {
         const fetchPackages = async () => {
             try {
@@ -39,194 +48,149 @@ export default function CustomTrip({ bookingCount, userBookings }: DashboardProp
                 console.error('Error fetching packages: ', error);
             }
         }
-
         fetchPackages();
     }, []);
 
     const upcomingTrips = userBookings.filter(b => new Date(b.departure_date) > new Date()).length;
     const totalSpent = userBookings.reduce((sum, b) => sum + Number(b.total_amount ?? 0), 0);
 
+    // --- Form State ---
+    const [formData, setFormData] = useState({
+        first_name: auth.user.first_name || '',
+        last_name: auth.user.last_name || '',
+        contact_number: auth.user.contact_number || '',
+        email: auth.user.email || '',
+        date_of_trip: '',
+        pickup_time: '',
+        dropoff_time: '',
+        pickup_address: auth.user.address || '',
+        destination: '',
+        preferred_van_id: null as number | null,
+    });
+
+    const [selectedVanIds, setSelectedVanIds] = useState<number[]>([]);
+    const [drivers, setDrivers] = useState<User[]>([]);
+
+    const toggleVanSelection = (vanId: number) => {
+        if(selectedVanIds.includes(vanId)) {
+            setSelectedVanIds([]);
+            setFormData({...formData, preferred_van_id: null});
+        } else {
+            setSelectedVanIds([vanId]);
+            setFormData({...formData, preferred_van_id: vanId});
+        }
+    };
+
+    const [vanList, setVanList] = useState<PreferredVan[]>(preferredVans);
+    const [vanCategoryList, setVanCategoryList] = useState<VanCategory[]>(vanCategories);
+
     return (
         <DashboardLayout title="" href="/dashboard">
+            {/* Top Navigation */}
             <div className="flex mb-2 gap-2">
                 <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><LayoutDashboard /> Dashboard</Link>
                 <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><Truck className="fill-black" /> Custom Trip</Link>
                 <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Plane className="fill-black" /> Local Trip</Link>
             </div>
+
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <div className="container mx-auto px-4 py-8">
                     {/* Header Section */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                      <div>
-                        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
-                          Custom Trip!
-                        </h1>
-                        {!(isAdmins || isDrivers) && (
-                          <p className="text-gray-600 dark:text-gray-300">
-                            Choose your desired trips and vehicles.
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Book Now button changes dynamically */}
-                      {!(isAdmins || isDrivers) &&
-                        packages.length > 0 &&
-                        packages[activeIndex] && (
-                          <Link
-                            href={`/packages/${packages[activeIndex].slug}`}
-                            className="mt-4 sm:mt-0 inline-block bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-200"
-                          >
-                            Book Now →
-                          </Link>
-                        )}
-                    </div>
-                        {!(isAdmins || isDrivers) && packages.length > 0 && (
-                          <div className="flex justify-center mt-4 px-4">
-                            <div className="container mx-auto px-4 mt-4 max-w-4xl">
-                              <Swiper
-                                modules={[Autoplay, Pagination]}
-                                spaceBetween={20}
-                                slidesPerView={1}
-                                loop={true}
-                                autoplay={{
-                                  delay: 3000,
-                                  disableOnInteraction: false,
-                                }}
-                                pagination={{
-                                  clickable: true,
-                                  dynamicBullets: true,
-                                }}
-                                onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-                                className="rounded-xl overflow-hidden shadow-md"
-                              >
-                                {packages.map((pkg) => (
-                                  <SwiperSlide key={pkg.id}>
-                                    <img
-                                      src={pkg.image_overview || '/images/default-package.jpg'} // fallback if image missing
-                                      alt={pkg.title}
-                                      className="w-full h-64 sm:h-64 md:h-72 lg:h-120 object-cover"
-                                    />
-                                  </SwiperSlide>
-                                ))}
-                              </Swiper>
-                            </div>
-                          </div>
-                        )}
-                  
-
-                    
-
-                    {/* Content Sections */}
-                    <div className={clsx("grid gap-8", !(isAdmins || isDrivers) && "grid-cols-1 xl:grid-cols-2")}>
-                        {/* Upcoming Trips Section */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                                    {(isAdmins || isDrivers) ? 'Recent Bookings' : 'Upcoming Trips'}
-                                </h2>
-                                {userBookings.length > 3 && (
-                                    <Link 
-                                        href="/bookings" 
-                                        className="text-primary hover:opacity-80 font-medium text-sm transition-opacity duration-200"
-                                    >
-                                        View All →
-                                    </Link>
-                                )}
-                            </div>
-                            
-                            <div className="space-y-4">
-                                {(isAdmins || isDrivers) ? (
-                                    <BookingList bookings={userBookings} limit={3} />
-                                ) : (
-                                    <BookingListCard bookings={userBookings} limit={3} />
-                                )}
-                                
-                                {userBookings.length === 0 && (
-                                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                        <p>No trips scheduled yet</p>
-                                        {!(isAdmins || !isDrivers) && (
-                                            <Link 
-                                                href="/packages" 
-                                                className="inline-block mt-4 bg-primary hover:opacity-90 text-white px-6 py-2 rounded-lg transition-opacity duration-200"
-                                            >
-                                                Browse Packages
-                                            </Link>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                        <div>
+                            <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">Custom Trip!</h1>
+                            {!(isAdmins || isDrivers) && (
+                                <p className="text-gray-600 dark:text-gray-300">
+                                    Choose your desired trips and vehicles.
+                                </p>
+                            )}
                         </div>
-
-                        {/* Recommended Packages Section */}
-                        {!(isAdmins || isDrivers) && (
-                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                                        Recommended for You
-                                    </h2>
-                                    <Link 
-                                        href="/packages" 
-                                        className="text-primary hover:opacity-80 font-medium text-sm transition-opacity duration-200"
-                                    >
-                                        View All →
-                                    </Link>
-                                </div>
-                                
-                                <div className="space-y-4">
-                                    <PackageListCard packages={packages} limit={3} />
-                                    
-                                    {packages.length === 0 && (
-                                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                            <div className="animate-pulse">
-                                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-2"></div>
-                                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
                     </div>
 
-                    {/* Additional Action Cards for regular users */}
-                    {!(isAdmins || isDrivers) && (
-                        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Link 
-                                href="/packages" 
-                                className="bg-primary hover:opacity-90 text-white rounded-2xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 group"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="text-xl font-bold mb-2">Explore Packages</h3>
-                                        <p className="text-pink-100">Discover amazing destinations</p>
+                    {/* CustomTrip Form */}
+                    {!isAdmins && !isDrivers && (
+                        <div className="p-4">
+                            <form className="flex flex-col gap-6">
+                                {/* Name */}
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid gap-2">
+                                        <Label>First Name</Label>
+                                        <Input value={formData.first_name} disabled />
                                     </div>
-                                    <div className="text-3xl group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
-                                        ✈️
+                                    <div className="grid gap-2">
+                                        <Label>Last Name</Label>
+                                        <Input value={formData.last_name} disabled />
                                     </div>
                                 </div>
-                            </Link>
 
-                            <Link 
-                                href="/bookings" 
-                                className="bg-green-500 hover:bg-green-600 text-white rounded-2xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 group"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="text-xl font-bold mb-2">My Bookings</h3>
-                                        <p className="text-green-100">View your travel history</p>
+                                {/* Contact & Email */}
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid gap-2">
+                                        <Label>Contact Number</Label>
+                                        <Input value={formData.contact_number} disabled />
                                     </div>
-                                    <div className="text-3xl group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
-                                        📋
+                                    <div className="grid gap-2">
+                                        <Label>Email</Label>
+                                        <Input value={formData.email} disabled />
                                     </div>
                                 </div>
-                            </Link>
+
+                                {/* Date of Trip */}
+                                <div className="grid gap-2">
+                                    <Label>Date of Trip</Label>
+                                    <DatePicker
+                                        selected={formData.date_of_trip ? new Date(formData.date_of_trip) : null}
+                                        onChange={(date: Date | null) => date && setFormData({...formData, date_of_trip: date.toISOString().split('T')[0]})}
+                                        className="w-full border px-3 py-2 rounded-md"
+                                        placeholderText="Select date of trip"
+                                    />
+                                </div>
+
+                                {/* Pick-up & Drop-off Time */}
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid gap-2">
+                                        <Label>Pick-up Time</Label>
+                                        <Input type="time" value={formData.pickup_time} onChange={(e) => setFormData({...formData, pickup_time: e.target.value})} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label>Drop-off Time</Label>
+                                        <Input type="time" value={formData.dropoff_time} onChange={(e) => setFormData({...formData, dropoff_time: e.target.value})} />
+                                    </div>
+                                </div>
+
+                                {/* Pickup & Destination */}
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid gap-2">
+                                        <Label>Pickup Address</Label>
+                                        <Input type="text" value={formData.pickup_address} onChange={(e) => setFormData({...formData, pickup_address: e.target.value})} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label>Destination</Label>
+                                        <Input type="text" value={formData.destination} onChange={(e) => setFormData({...formData, destination: e.target.value})} />
+                                    </div>
+                                </div>
+
+                                {/* Preferred Van */}
+                                <div className="space-y-10">
+                                    <div>
+                                        <h2 className="text-xl font-semibold mb-4">Preferred Vans</h2>
+                                        <VanSelection
+                                            preferredVans={vanList}
+                                            drivers={drivers ?? []}
+                                            small={true}
+                                            vanCategories={vanCategoryList}
+                                            selectedVanIds={selectedVanIds}
+                                            onSelect={toggleVanSelection}
+                                        />
+                                    </div>
+                                </div>
+
+                                <Button type="submit" className="w-full mt-4">SUBMIT</Button>
+                            </form>
                         </div>
                     )}
                 </div>
             </div>
-            {!(isAdmins || isDrivers) && (
-                <BottomNav />
-            )}
         </DashboardLayout>
     );
 }

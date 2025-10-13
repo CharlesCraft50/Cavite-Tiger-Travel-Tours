@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Country;
+use App\Models\PreferredVan;
+use App\Models\TourPackage;
+use App\Models\User;
+use App\Models\VanCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -66,39 +71,49 @@ class DashboardController extends Controller
 
         $bookingCount = $bookings->count();
 
+        $preferredVans = PreferredVan::with(['availabilities', 'category'])->get();
+        $vanCategories = VanCategory::all();
+        $drivers = User::where('role', 'driver')->get();
+
         return Inertia::render('dashboard/custom-trip', [
             'bookingCount' => $bookingCount,
             'userBookings' => $bookings,
+            'preferredVans' => $preferredVans,
+            'drivers' => $drivers,
+            'vanCategories' => $vanCategories,
         ]);
     }
 
-    public function localTrip()
+    public function localTrip(Request $request)
     {
-        $user = Auth::user();
+        $selectedCountryName = 'Philippines';
+        $selectedCountry = Country::where('name', $selectedCountryName)->first();
+        $cities = $selectedCountry ? $selectedCountry->cities : collect();
 
-        $bookings = null;
+        $baseQuery = TourPackage::query();
 
-        if ($user->isAdmin()) {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                ->orderByDesc('created_at')
-                ->get();
-        } elseif ($user->isDriver()) {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                ->where('driver_id', $user->id)
-                ->orderByDesc('created_at')
-                ->get();
-        } else {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
-                ->where('user_id', $user->id)
-                ->orderByDesc('created_at')
-                ->get();
+        if ($request->has('city_id')) {
+            $baseQuery->where('city_id', $request->city_id);
         }
 
-        $bookingCount = $bookings->count();
+        $mainQuery = (clone $baseQuery);
+
+        $packages = $mainQuery->get();
+
+        $packages->load([
+            'categories',
+            'preferredVans.availabilities',
+            'wishlist',
+            'otherServices' => function ($query) {
+                $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
+            },
+        ]);
 
         return Inertia::render('dashboard/local-trip', [
-            'bookingCount' => $bookingCount,
-            'userBookings' => $bookings,
+            'packages' => $packages,
+            'cities' => $cities,
+            'countries' => Country::all(),
+            'selectedCountry' => $selectedCountry,
         ]);
     }
 

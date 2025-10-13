@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\BookingController;
@@ -37,8 +38,8 @@ Route::get('/contact', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/custom-trip', [DashboardController::class, 'customTrip'])->name('custom-trip');
-    Route::get('/local-trip', [DashboardController::class, 'localTrip'])->name('local-trip');
+    Route::get('/custom-trip', [DashboardController::class, 'customTrip'])->name('customTrip');
+    Route::get('/local-trip', [DashboardController::class, 'localTrip'])->name('localTrip');
 
     // ✅ Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -48,6 +49,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('bookings', BookingController::class);
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
     Route::resource('wishlists', WishlistController::class);
+    Route::get('/dashboard/about', [AboutController::class, 'index'])->name('dasboard.about');
+    Route::get('/certifications', [AboutController::class, 'certifications'])->name('certifications');
+    Route::get('/terms-and-conditions', [AboutController::class, 'termsAndConditions'])->name('termsAndConditions');
+    Route::get('/privacy-policy', [AboutController::class, 'privacyPolicy'])->name('privacyPolicy');
+    Route::get('/cancellation-policy', [AboutController::class, 'cancellationPolicy'])->name('cancellationPolicy');
 });
 
 Route::post('/image/upload', [ImageController::class, 'store'])->name('image.store');

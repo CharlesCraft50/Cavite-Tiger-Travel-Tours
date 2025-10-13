@@ -2,15 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use App\Models\City;
-use App\Models\PackageCategory;
-use App\Models\Comment;
-use App\Models\PreferredVan;
-use App\Models\OtherService;
 
 class TourPackage extends Model
 {
@@ -40,7 +34,7 @@ class TourPackage extends Model
         'base_price' => 'float',
     ];
 
-    protected static function booted() 
+    protected static function booted()
     {
         static::creating(function ($package) {
             $slug = Str::slug($package->title);
@@ -64,7 +58,8 @@ class TourPackage extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function preferredVans() {
+    public function preferredVans()
+    {
         return $this->belongsToMany(PreferredVan::class, 'package_preferred_van');
     }
 
@@ -73,5 +68,10 @@ class TourPackage extends Model
         return $this->belongsToMany(OtherService::class, 'other_service_tour_packages')
             ->withPivot('package_specific_price', 'is_recommended', 'sort_order')
             ->withTimestamps();
+    }
+
+    public function wishlist()
+    {
+        return $this->hasOne(Wishlist::class);
     }
 }

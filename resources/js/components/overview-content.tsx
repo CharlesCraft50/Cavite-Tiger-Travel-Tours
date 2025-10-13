@@ -21,6 +21,7 @@ type OverviewContentProps = {
     disableAutomaticShortDescription?: boolean;
     setAutomaticShortDescription?: (e: boolean) => void;
     editable?: boolean;
+    onLocalTrip?: boolean;
 }
 
 export function stripHtmlTags(html?: string): string {
@@ -38,6 +39,7 @@ export default function OverviewContent({
     disableAutomaticShortDescription,
     setAutomaticShortDescription, 
     editable,
+    onLocalTrip,
  }: OverviewContentProps) {
   
     useEffect(() => {
@@ -130,14 +132,14 @@ export default function OverviewContent({
                     {!editable && (
                         <div className="flex justify-end">
                             <LinkLoading
-                                href={!editable ? route('packages.show', {
+                                href={onLocalTrip ? route('localTrip', { package: packageData?.slug }) : !editable ? route('packages.show', {
                                     slug: packageData?.slug
                                 }) : ""}
                                 useUI={false}
                                 loadingVisible={!editable}
                                 className="btn-primary text-sm flex"
                             >
-                                View Tour
+                                Let's Go!
                             </LinkLoading>
                         </div>
                     )}

@@ -10,9 +10,9 @@ import { PlusSquareIcon, Search } from 'lucide-react';
 import { isAdmin } from '@/lib/utils';
 
 type PackagesIndexProps = {
-    packages: TourPackage[]; 
+    packages?: TourPackage[]; 
     cities: City[]; 
-    countries: Country[]; 
+    countries?: Country[]; 
     selectedCountry: Country;
 }
 

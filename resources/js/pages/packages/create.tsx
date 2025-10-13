@@ -504,6 +504,7 @@ export default function Index({
                             id={city.id}
                             inputId="image-overview-edit"
                             key={city.id}
+                            size="smallWide"
                             title={city.name}
                             src={city.image_url}
                         />
@@ -617,7 +618,7 @@ export default function Index({
                 </div>
 
                 <hr />
-                {/* <div className="hidden">
+                <div>
                     <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-12">
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-bold text-gray-800">
@@ -655,7 +656,7 @@ export default function Index({
                             editable
                         />
                     </div>
-                </div> */}
+                </div>
 
                 <Button type="submit" className="mt-2 w-full btn-primary cursor-pointer text-md" tabIndex={5} disabled={processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}

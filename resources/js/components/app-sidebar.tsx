@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BarChart2, Book, BookOpen, Folder, HeartIcon, Home, LayoutGrid, Settings, Settings2 } from 'lucide-react';
+import { BarChart2, Book, BookOpen, Folder, HeartIcon, Home, Info, LayoutGrid, Settings, Settings2 } from 'lucide-react';
 import AppLogo from './app-logo';
 import type { SharedData } from '@/types'; // adjust path if needed
 import { isAdmin, isDriver } from '@/lib/utils';
@@ -43,6 +43,35 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
         href: '/dashboard',
         icon: Home,
     },
+    ...(!(isAdmins || isDrivers) ? [
+        {
+            title: 'About',
+            href: '/dashboard/about',
+            icon: Info,
+            children: [
+                {
+                    title: 'Information',
+                    href: '/dashboard/about',
+                },
+                {
+                    title: 'Certifications',
+                    href: '/certifications',
+                },
+                {
+                    title: 'Terms and Conditions',
+                    href: '/terms-and-conditions',
+                },
+                {
+                    title: 'Privacy Policy',
+                    href: '/privacy-policy',
+                },
+                {
+                    title: 'Cancellation Policy',
+                    href: '/cancellation-policy',
+                },
+            ],
+        },
+    ] : []),
     {
         title: 'Bookings',
         href: '/bookings',
