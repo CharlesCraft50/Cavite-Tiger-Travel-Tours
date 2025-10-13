@@ -24,16 +24,16 @@ class DashboardController extends Controller
         $bookings = null;
 
         if ($user->isAdmin()) {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
                 ->orderByDesc('created_at')
                 ->get();
         } elseif ($user->isDriver()) {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
                 ->where('driver_id', $user->id)
                 ->orderByDesc('created_at')
                 ->get();
         } else {
-            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory'])
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
                 ->where('user_id', $user->id)
                 ->orderByDesc('created_at')
                 ->get();

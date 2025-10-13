@@ -7,6 +7,7 @@ type ModalLargeProps = {
     description?: string;
     activeModal: boolean;
     fullScreen?: boolean;
+    wrapContent?: boolean;
     setActiveModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -15,7 +16,7 @@ export type ModalLargeRef = {
 }
 
 const ModalLarge = forwardRef<ModalLargeRef, PropsWithChildren<ModalLargeProps>>(
-  ({ children, title, description, activeModal, fullScreen, setActiveModal }, ref) => {
+  ({ children, title, description, activeModal, fullScreen, wrapContent, setActiveModal }, ref) => {
 
   const [isClosing, setIsClosing] = useState(false);
   // const [isOpening, setIsOpening] = useState(false);
@@ -53,7 +54,10 @@ const ModalLarge = forwardRef<ModalLargeRef, PropsWithChildren<ModalLargeProps>>
 
         {/* Modal */}
         <div className={clsx(
-                "fixed top-1/2 left-1/2", fullScreen ? "w-screen h-screen max-w-full max-h-full" : "w-[90vw] h-[90vh]", " max-w-6xl transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 text-black dark:text-white rounded-md sm:rounded-xl shadow-xl p-4 sm:p-6 overflow-y-auto z-150 transition-all duration-200 ease-in-out",
+                "fixed top-1/2 left-1/2", 
+                fullScreen ? "w-screen h-screen max-w-full max-h-full" : "w-[90vw] h-[90vh]", 
+                " max-w-6xl transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 text-black dark:text-white rounded-md sm:rounded-xl shadow-xl p-4 sm:p-6 overflow-y-auto z-150 transition-all duration-200 ease-in-out",
+                wrapContent ? "max-h-max overflow-visible" : "h-[90vh] overflow-y-auto"
                 // activeModal && !isClosing ? "opacity-100 scale-100" : "opacity-0 scale-95  translate-y-4",
                 // activeModal && !isOpening ? "opacity-100" : "opacity-0 translate-y-4"
               )}

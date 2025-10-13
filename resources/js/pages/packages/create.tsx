@@ -619,7 +619,7 @@ export default function Index({
 
                 <hr />
                 <div>
-                    <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-12">
+                    {/* <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-12">
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-bold text-gray-800">
                             More About This Package
@@ -641,11 +641,11 @@ export default function Index({
 
                             <InputError message={categoriesContentError} className="mt-2" />
                         </div>
-                    </div>
+                    </div> */}
 
                     <hr />
 
-                    <div className="grid gap-2">
+                    {/* <div className="grid gap-2">
                         <OtherServiceSelection
                             otherServices={otherServiceList}
                             selectedOtherServiceIds={selectedOtherServiceIds}
@@ -655,7 +655,7 @@ export default function Index({
                             onSave={(newServices) => addOtherServices(newServices)}
                             editable
                         />
-                    </div>
+                    </div> */}
                 </div>
 
                 <Button type="submit" className="mt-2 w-full btn-primary cursor-pointer text-md" tabIndex={5} disabled={processing}>

@@ -74,7 +74,7 @@ export default function ShowPage({
 
         {/* Additional Package Information */}
         <div className="mt-16 border-t-4 border-dashed border-pink-600 pt-8">
-          <div className="text-center mb-8">
+          {/* <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-800">
               More About This Package
             </h2>
@@ -90,7 +90,7 @@ export default function ShowPage({
               selectedCategory={category}
               packageTitle={packages.title}
             />
-          )}
+          )} */}
 
           {/* Vans Section */}
           {preferredVans?.length > 0 && (

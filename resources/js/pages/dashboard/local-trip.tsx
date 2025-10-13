@@ -151,7 +151,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
       <Head title="LocalTrip" />
       <div className="flex mb-2 gap-2">
         <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><LayoutDashboard /> Dashboard</Link>
-        <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
+        {/* <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link> */}
         <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><Plane className="fill-black" /> Local Trip</Link>
       </div>
       <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">
@@ -188,7 +188,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
                   className="bg-[#5c1f1d] cursor-pointer hover:bg-[#3d1514]"
                   onClick={() => setShowCreateTripModal(true)}
                 >
-                  Create Own Trip
+                  Explore Cities
                 </Button>
               </div>
             </div>
@@ -286,7 +286,11 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
         )}
       </div>
 
-      <ModalLarge activeModal={showCreateTripModal} setActiveModal={setShowCreateTripModal}>
+      <ModalLarge 
+        activeModal={showCreateTripModal} 
+        setActiveModal={setShowCreateTripModal}
+        wrapContent={true}
+      >
         <div className="space-y-10">
           <div>
               <h2 className="text-xl font-semibold mb-4">Cities</h2>
@@ -309,7 +313,11 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
         </div>
       </ModalLarge>
 
-      <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
+      <ModalLarge 
+        activeModal={activeModal} 
+        setActiveModal={setActiveModal}
+        wrapContent={true}
+      >
           <div className="mt-4">
               <PackagesOverview
                   currentPackages={allPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}

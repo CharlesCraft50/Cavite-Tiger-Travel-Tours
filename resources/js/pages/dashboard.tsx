@@ -43,13 +43,17 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
     }, []);
 
     const upcomingTrips = userBookings.filter(b => new Date(b.departure_date) > new Date()).length;
-    const totalSpent = userBookings.reduce((sum, b) => sum + Number(b.total_amount ?? 0), 0);
+    const acceptedBookings = userBookings.filter(b =>
+        b.payment?.status.toLowerCase() === 'accepted' &&
+        b.status.toLowerCase() !== 'cancelled'
+    );
+    const totalSpent = acceptedBookings.reduce((sum, b) => sum + Number(b.total_amount ?? 0), 0);
 
     return (
         <DashboardLayout title="" href="/dashboard">
             <div className="flex mb-2 gap-2">
                 <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><LayoutDashboard /> Dashboard</Link>
-                <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
+                {/* <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link> */}
                 <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Plane className="fill-black" /> Local Trip</Link>
             </div>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
