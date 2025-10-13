@@ -556,10 +556,10 @@ export default function Create({
                                     ? new Date(
                                         Math.max(
                                             new Date(availableDates.from).getTime(),
-                                            new Date().setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 // tomorrow
+                                            addDays(new Date(), 3).getTime() // 3 days from today
                                         )
                                     )
-                                    : new Date(Date.now() + 24 * 60 * 60 * 1000) // fallback: tomorrow
+                                    : addDays(new Date(), 3) // fallback: 3 days from today
                             }
                             maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
                             excludeDates={
