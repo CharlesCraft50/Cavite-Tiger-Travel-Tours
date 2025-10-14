@@ -18,6 +18,7 @@ type VanSelectionProps = {
     preferredVans: PreferredVan[];
     drivers?: User[],
     selectedVanIds?: number[];
+    bookedVanIdsToday?: number[];
     onSelect?: (vanId: number) => void;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     textLabel?: string;
@@ -38,6 +39,7 @@ export default function VanSelection({
     preferredVans,
     drivers = [],
     selectedVanIds,
+    bookedVanIdsToday,
     onSelect,
     onChange,
     textLabel,
@@ -433,229 +435,245 @@ export default function VanSelection({
 
     const renderVanCard = (van: EditablePreferredVan) => {
         const isSelected = selectedVanIds?.includes(van.id);
+        const isBookedToday = bookedVanIdsToday?.includes(van.id);
         return (
-            <div
-                key={van.id}
-                onClick={() => {
-                    if(!isEditing && selectable) {
-                        onSelect?.(van.id);
-                    }
-                }}
-                className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default", isEditing && "cursor-grab")}
-            >
-                {isEditing ? (
-                    <div className="flex items-center justify-center">
-                        <ImageSimpleBox
-                            key={van.id}
-                            id={`van-image-${van.id}`}
-                            imagePreview={van.image_url ?? ''}
-                            setImagePreview={(e) => handleChange(van.id, 'image_url', e)}
-                            setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
-                            editable={isEditing}
-                            className="w-full h-32"
-                        />
-                    </div>
-                ) : (
-                    <img
-                        src={van.image_url ?? ''}
-                        alt={van.name}
-                        className="img-card"
-                    />
-                )}
-                
-                {isSelected && !isEditing && (
-                    <span className="selected-text">
-                        Selected
-                    </span>
-                )}
-
-                {editable && isEditing && (
-                    <div 
-                        className="absolute top-2 left-2"
-                        
-                    >
-                        <Move className="w-8 h-8 p-2 border rounded bg-gray-400 cursor-move"/>
-                    </div>
-                )}
-
-                {editable && isEditing && (
-                    <div 
-                        className="absolute top-2 right-2"
-                        onClick={(e) => {
-                            e.stopPropagation();
-
-                            if (van.isNew) {
-                                handleDeletion(van);
-                                return;
-                            }
-
-                            if(van.action == 'delete') {
-                                undoDeletion(van);
-                            } else {
-                                setVanToDelete(van);
-                            }
-                            
-                        }}
-                    >
-                        {van.action === 'delete' ? (
-                            <Undo className="w-8 h-8 p-2 border rounded bg-blue-400 cursor-pointer" />
-                        ) : (
-                            <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
-                        )}
-                    </div>
-                )}
-                
-                <div className="mt-2">
-                    <p className="text-lg font-semibold">
-                        {isEditing ? (
-                            <Input
-                                type="text"
-                                value={van.name}
-                                ref={van.isNew ? lastAddedVanRef : null}
-                                onChange={(e) => handleChange(van.id, 'name', e.target.value)}
-                                className="p-0 text-lg outline-none px-2 w-full font-semibold"
-                            />
-                        ) : (
-                            van.name
-                        )}
-                    </p>
-
+            <div className="flex flex-col gap-2">
+                <div
+                    key={van.id}
+                    onClick={() => {
+                        if(!isEditing && selectable) {
+                            onSelect?.(van.id);
+                        }
+                    }}
+                    className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default", isEditing && "cursor-grab")}
+                >
                     {isEditing ? (
-                        <div className="flex justify-between">
-                            <p>
-                                Pax:
-                                <Input
-                                    type="number"
-                                    min={1}
-                                    value={van.pax_adult}
-                                    onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
-                                    className="p-0 text-lg outline-none px-2 w-full font-semibold"
-                                />
-                            </p>
-                            {/* <p>
-                                Kids:
-                                <Input
-                                    type="number"
-                                    value={van.pax_kids}
-                                    onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
-                                    className="p-0 text-lg outline-none px-2 font-semibold"
-                                />
-                            </p> */}
+                        <div className="flex items-center justify-center">
+                            <ImageSimpleBox
+                                key={van.id}
+                                id={`van-image-${van.id}`}
+                                imagePreview={van.image_url ?? ''}
+                                setImagePreview={(e) => handleChange(van.id, 'image_url', e)}
+                                setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
+                                editable={isEditing}
+                                className="w-full h-32"
+                            />
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-600">Pax: {van.pax_adult}</p>
+                        <img
+                            src={van.image_url ?? ''}
+                            alt={van.name}
+                            className="img-card"
+                        />
                     )}
 
-                    <p className="text-sm font-medium text-green-700">
-                        {isEditing ? (
-                            <span className="flex items-center">
-                                <PriceSign />
+                    {isBookedToday && (
+                        <span className="selected-text bg-red-600">
+                            Fully booked today
+                        </span>
+                    )}
+
+                    {isSelected && !isEditing && (
+                        <span className="selected-text">
+                            Selected
+                        </span>
+                    )} 
+
+                    {editable && isEditing && (
+                        <div 
+                            className="absolute top-2 left-2"
+                            
+                        >
+                            <Move className="w-8 h-8 p-2 border rounded bg-gray-400 cursor-move"/>
+                        </div>
+                    )}
+
+                    {editable && isEditing && (
+                        <div 
+                            className="absolute top-2 right-2"
+                            onClick={(e) => {
+                                e.stopPropagation();
+
+                                if (van.isNew) {
+                                    handleDeletion(van);
+                                    return;
+                                }
+
+                                if(van.action == 'delete') {
+                                    undoDeletion(van);
+                                } else {
+                                    setVanToDelete(van);
+                                }
+                                
+                            }}
+                        >
+                            {van.action === 'delete' ? (
+                                <Undo className="w-8 h-8 p-2 border rounded bg-blue-400 cursor-pointer" />
+                            ) : (
+                                <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
+                            )}
+                        </div>
+                    )}
+                    
+                    <div className="mt-2">
+                        <p className="text-lg font-semibold">
+                            {isEditing ? (
                                 <Input
                                     type="text"
-                                    value={van.additional_fee}
-                                    onChange={(e) => handleChange(van.id, 'additional_fee', e.target.value)}
-                                    className="p-0 outline-none px-2 w-full"
+                                    value={van.name}
+                                    ref={van.isNew ? lastAddedVanRef : null}
+                                    onChange={(e) => handleChange(van.id, 'name', e.target.value)}
+                                    className="p-0 text-lg outline-none px-2 w-full font-semibold"
                                 />
-                            </span>
+                            ) : (
+                                van.name
+                            )}
+                        </p>
+
+                        {isEditing ? (
+                            <div className="flex justify-between">
+                                <p>
+                                    Pax:
+                                    <Input
+                                        type="number"
+                                        min={1}
+                                        value={van.pax_adult}
+                                        onChange={(e) => handleChange(van.id, 'pax_adult', e.target.value)}
+                                        className="p-0 text-lg outline-none px-2 w-full font-semibold"
+                                    />
+                                </p>
+                                {/* <p>
+                                    Kids:
+                                    <Input
+                                        type="number"
+                                        value={van.pax_kids}
+                                        onChange={(e) => handleChange(van.id, 'pax_kids', e.target.value)}
+                                        className="p-0 text-lg outline-none px-2 font-semibold"
+                                    />
+                                </p> */}
+                            </div>
                         ) : (
-                            <>
-                                <PriceSign />
-                                {van.additional_fee.toLocaleString()}
-                            </>
+                            <p className="text-sm text-gray-600">Pax: {van.pax_adult}</p>
                         )}
-                    </p>
+
+                        <p className="text-sm font-medium text-green-700">
+                            {isEditing ? (
+                                <span className="flex items-center">
+                                    <PriceSign />
+                                    <Input
+                                        type="text"
+                                        value={van.additional_fee}
+                                        onChange={(e) => handleChange(van.id, 'additional_fee', e.target.value)}
+                                        className="p-0 outline-none px-2 w-full"
+                                    />
+                                </span>
+                            ) : (
+                                <>
+                                    <PriceSign />
+                                    {van.additional_fee.toLocaleString()}
+                                </>
+                            )}
+                        </p>
+                    </div>
+
+                    {isEditing && (
+                        <div className="text-sm font-medium mt-2">
+                            <div className="flex flex-col space-y-2">
+                                <p>Assigned Driver:</p>
+                                <select
+                                    value={van.user_id ?? ''}
+                                    onChange={(e) => handleChange(van.id, 'user_id', Number(e.target.value))}
+                                    className="w-full text-md cursor-pointer p-1 border border-r-4"
+                                >
+                                    <option value="">-- Select Driver --</option>
+                                    {drivers?.map((driver) => (
+                                        <option key={driver.id} value={driver.id}>
+                                            {driver.first_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
+                    {!isEditing && (van.driver?.first_name || drivers.find((d) => d.id === van.user_id)?.first_name) && (
+                        <div className="text-sm font-medium mt-2">
+                            <div>
+                                <p className="text-sm font-semibold">Assigned Driver</p>
+                                <p>
+                                    {van.driver?.first_name ?? drivers.find((d) => d.id === van.user_id)?.first_name ?? ''}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {isEditing && (
+                        <div className="mt-2">
+                            <div className="flex flex-col space-y-2">
+                                <p className="text-sm font-medium">Category</p>
+                                <select
+                                    value={van.van_category_id ?? ''}
+                                    onChange={(e) =>
+                                        handleChange(van.id, 'van_category_id', Number(e.target.value), {
+                                            name: vanCategories?.find((c) => c.id === Number(e.target.value))?.name,
+                                            scroll_order: vanCategories?.find((c) => c.id === Number(e.target.value))?.sort_order,
+                                        })
+                                    }
+                                    className="w-full text-md cursor-pointer p-1 border border-r-4"
+                                >
+                                    <option value="">-- Select Category --</option>
+                                    {vanCategories?.map((category) => (
+                                        <option key={category?.id} value={category?.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
+                    {isEditing && (
+                        <div className="mt-2">
+                            <div className="flex flex-col space-y-2">
+                                <p className="text-sm font-medium">Plate Number</p>
+                                <Input 
+                                    type="text" 
+                                    value={van.plate_number || ''} 
+                                    onChange={(e) => 
+                                        handleChange(van.id, 'plate_number', e.target.value)
+                                    }
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {!isEditing && editable && van.plate_number != null &&  (
+                        <div className="mt-2">
+                            <div className="text-sm font-medium mt-2">
+                                <p className="text-sm font-semibold">Plate Number</p>
+                                <p>{van.plate_number}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* {!isEditing && (van.category != null) && (
+                        <div className="text-sm font-medium mt-2">
+                            <div>
+                                <p className="text-sm font-semibold">Category</p>
+                                <p>
+                                    {van.category?.name}
+                                </p>
+                            </div>
+                        </div>
+                    )} */}
                 </div>
 
-                {isEditing && (
-                    <div className="text-sm font-medium mt-2">
-                        <div className="flex flex-col space-y-2">
-                            <p>Assigned Driver:</p>
-                            <select
-                                value={van.user_id ?? ''}
-                                onChange={(e) => handleChange(van.id, 'user_id', Number(e.target.value))}
-                                className="w-full text-md cursor-pointer p-1 border border-r-4"
-                            >
-                                <option value="">-- Select Driver --</option>
-                                {drivers?.map((driver) => (
-                                    <option key={driver.id} value={driver.id}>
-                                        {driver.first_name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+                {/* Disclaimer for fully booked vans */}
+                {isBookedToday && (
+                    <p className="text-xs text-amber-700 mt-1 italic">
+                    ⚠️ This van is fully booked for today. You can still select it for advance bookings.
+                    </p>
                 )}
-
-                {!isEditing && (van.driver?.first_name || drivers.find((d) => d.id === van.user_id)?.first_name) && (
-                    <div className="text-sm font-medium mt-2">
-                        <div>
-                            <p className="text-sm font-semibold">Assigned Driver</p>
-                            <p>
-                                {van.driver?.first_name ?? drivers.find((d) => d.id === van.user_id)?.first_name ?? ''}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {isEditing && (
-                    <div className="mt-2">
-                        <div className="flex flex-col space-y-2">
-                            <p className="text-sm font-medium">Category</p>
-                            <select
-                                value={van.van_category_id ?? ''}
-                                onChange={(e) =>
-                                    handleChange(van.id, 'van_category_id', Number(e.target.value), {
-                                        name: vanCategories?.find((c) => c.id === Number(e.target.value))?.name,
-                                        scroll_order: vanCategories?.find((c) => c.id === Number(e.target.value))?.sort_order,
-                                    })
-                                }
-                                className="w-full text-md cursor-pointer p-1 border border-r-4"
-                            >
-                                <option value="">-- Select Category --</option>
-                                {vanCategories?.map((category) => (
-                                    <option key={category?.id} value={category?.id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                )}
-
-                {isEditing && (
-                    <div className="mt-2">
-                        <div className="flex flex-col space-y-2">
-                            <p className="text-sm font-medium">Plate Number</p>
-                            <Input 
-                                type="text" 
-                                value={van.plate_number || ''} 
-                                onChange={(e) => 
-                                    handleChange(van.id, 'plate_number', e.target.value)
-                                }
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {!isEditing && editable && van.plate_number != null &&  (
-                    <div className="mt-2">
-                        <div className="text-sm font-medium mt-2">
-                            <p className="text-sm font-semibold">Plate Number</p>
-                            <p>{van.plate_number}</p>
-                        </div>
-                    </div>
-                )}
-
-                {/* {!isEditing && (van.category != null) && (
-                    <div className="text-sm font-medium mt-2">
-                        <div>
-                            <p className="text-sm font-semibold">Category</p>
-                            <p>
-                                {van.category?.name}
-                            </p>
-                        </div>
-                    </div>
-                )} */}
             </div>
         );
     };

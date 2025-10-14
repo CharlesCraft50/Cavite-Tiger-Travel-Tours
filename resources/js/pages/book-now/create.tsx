@@ -118,6 +118,39 @@ export default function Create({
     const [totalAmount, setTotalAmount] = useState<number>();
     const [reminderSignUp, setReminderSignUp] = useState(false);
     const [contactNumberError, setContactNumberError] = useState('');
+    const [bookedVanIdsToday, setBookedVanIdsToday] = useState<number[]>([]);
+    useEffect(() => {
+        const todayStr = format(new Date(), "yyyy-MM-dd");
+
+        async function checkAllVans() {
+            const results: number[] = [];
+
+            await Promise.all(
+            preferredVans.map(async (van) => {
+                try {
+                const res = await fetch(`/api/van/${van.id}/availability`);
+                const data = await res.json();
+
+                // normalize the booked dates
+                const bookedDates = (data.fully_booked_dates || []).map(
+                    (d: string) => format(new Date(d), "yyyy-MM-dd")
+                );
+
+                if (bookedDates.includes(todayStr)) {
+                    results.push(van.id);
+                }
+                } catch (err) {
+                console.error(`Error checking van ${van.id}:`, err);
+                }
+            })
+            );
+
+            setBookedVanIdsToday(results);
+        }
+
+        checkAllVans();
+        }, [preferredVans]);
+
 
     useEffect(() => {
         if (!user) {
@@ -480,6 +513,7 @@ export default function Create({
                         textLabel="Select your preferred van"
                         required={true}
                         vanCategories={vanCategories}
+                        bookedVanIdsToday={bookedVanIdsToday}
                     />
                     <InputError message={errors.preferred_van_id} className="mt-2" />
                 </div>
