@@ -22,7 +22,7 @@ class UpdateBookingRequest extends FormRequest
             'total_amount' => ['nullable', 'numeric'],
             'pax_adult' => ['nullable', 'numeric'],
             'pax_kids' => ['nullable', 'numeric'],
-            'payment_status' => ['nullable', 'in:pending,accepted,declined'],
+            'payment_status' => ['nullable', 'in:pending,on_process,accepted,declined'],
             'pickup_address' => ['sometimes', 'string', 'max:255'],
         ];
     }

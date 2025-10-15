@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
-import { FormEventHandler, useEffect, useState } from "react";
+import React, { FormEventHandler, useEffect, useState } from "react";
 import InputError from "@/components/input-error";
 import VanSelection from "@/components/van-selection";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -15,6 +15,10 @@ import { format, addDays } from "date-fns";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { Select } from "@headlessui/react";
+import ModalLarge from "@/components/ui/modal-large";
+import TermsAndConditions from "../dashboard/about/terms-and-conditions";
+import PrivacyPolicy from "../dashboard/about/privacy-policy";
+import CancellationPolicy from "../dashboard/about/cancellation-policy";
 
 type BookNowCreateProps = {
     packages: TourPackage;
@@ -343,6 +347,23 @@ export default function Create({
 
         return number; // fallback
     }
+
+      const [checked, setChecked] = useState({
+        terms: false,
+        privacy: false,
+        cancellation: false,
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked: isChecked } = e.target;
+        setChecked((prev) => ({ ...prev, [name]: isChecked }));
+    };
+
+    const allChecked = checked.terms && checked.privacy && checked.cancellation;
+
+    const [ activeModal, setActiveModal ] = useState(false);
+
+    const [ agreementIndex, setAgreementIndex ] = useState(0);
     
     return (
         <FormLayout removeNavItems hasBackButton backButtonHref={`/packages/${packages.slug}`}>
@@ -653,7 +674,67 @@ export default function Create({
                     </div>
                 </div>
 
-                <Button type="submit" className="mt-2 w-full btn-primary -md cursor-pointer" tabIndex={5} disabled={processing}>
+                <div className="flex flex-col gap-2">
+                    <h2>Agreements</h2>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="terms"
+                            checked={checked.terms}
+                            onChange={handleChange}
+                        />{" "}
+                            I have read and agree to the&nbsp;
+                        <strong 
+                            className="underline cursor-pointer text-blue-500"
+                            onClick={() => {
+                                setAgreementIndex(1);
+                                setActiveModal(true);
+                            }}
+                        >
+                            Terms and Conditions
+                        </strong>.
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="privacy"
+                            checked={checked.privacy}
+                            onChange={handleChange}
+                        />{" "}
+                            I have read and agree to the&nbsp;
+                            <strong
+                                className="underline cursor-pointer text-blue-500"
+                                onClick={() => {
+                                    setAgreementIndex(1);
+                                    setActiveModal(true);
+                                }}
+                            >
+                                Privacy Policy
+                            </strong>.
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="cancellation"
+                            checked={checked.cancellation}
+                            onChange={handleChange}
+                        />{" "}
+                        I have read and agree to the&nbsp;
+                        <strong
+                            className="underline cursor-pointer text-blue-500"
+                            onClick={() => {
+                                setAgreementIndex(2);
+                                setActiveModal(true);
+                            }}
+                        >
+                            Cancellation Policy
+                        </strong>.
+                    </label>
+                </div>
+
+                <Button type="submit" className="mt-2 w-full btn-primary -md cursor-pointer" tabIndex={5} disabled={!(allChecked) || processing}>
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     SUBMIT
                 </Button>
@@ -664,6 +745,12 @@ export default function Create({
                     </div>
                 )}
             </form>
+        
+            <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
+                {agreementIndex == 0 && <TermsAndConditions disableNav />}
+                {agreementIndex == 1 && <PrivacyPolicy disableNav />}
+                {agreementIndex == 2 && <CancellationPolicy disableNav />}
+            </ModalLarge>
         </FormLayout>
     );
 }

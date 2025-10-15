@@ -220,10 +220,13 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('pax_kids', data.pax_kids.toString());
         formData.append('pax_adult', data.pax_adult.toString());
         formData.append('total_amount', Math.floor(computedTotal).toString());
-        formData.append('payment_status', data.payment_status || 'pending');
+        formData.append('payment_status', data.payment_status);
 
         if(data.payment_status != null || data.payment_status != '') {
-            formData.append('status', data.payment_status);
+            const bookingStatus = data.payment_status === 'on_process'
+                ? 'pending'
+                : data.payment_status;
+            formData.append('status', bookingStatus);
         }
 
         selectedOtherServiceIds.forEach((id) => {
@@ -730,6 +733,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                             className="w-full p-2 border border-gray-300 rounded-md mt-1"
                                         >
                                             <option value="pending">Pending</option>
+                                            <option value="on_process">On Process</option>
                                             <option value="accepted">Accepted</option>
                                             <option value="declined">Declined</option>
                                         </select>
@@ -738,7 +742,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                     booking.payment?.status && (
                                         <p className="flex flex-col text-md p-2 text-gray-600">
                                             Payment Status
-                                            <strong className="capitalize text-primary">{booking.payment?.status}</strong>
+                                            <strong className="capitalize text-primary">{booking.payment?.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</strong>
                                         </p>
                                     )
                                 )}

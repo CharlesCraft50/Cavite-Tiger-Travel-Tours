@@ -7,9 +7,10 @@ import { isAdmin, isDriver } from '@/lib/utils';
 type DashboardProps = {
     title: string,
     href: string,
+    disableNav?: boolean,
 };
 
-export default function DashboardLayout({ title, href, children } : PropsWithChildren<DashboardProps>) {
+export default function DashboardLayout({ title, href, children, disableNav } : PropsWithChildren<DashboardProps>) {
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -23,10 +24,16 @@ export default function DashboardLayout({ title, href, children } : PropsWithChi
     const isDrivers = isDriver(auth.user);
 
 return (
-        <AppLayoutSearch breadcrumbs={breadcrumbs} hasSearchBar={!(isAdmins || isDrivers) ? true : false} removeNavItems={!(isAdmins || isDrivers) ? false : true}>
-            <Head title={title} />
-            
+    !disableNav ?
+        (
+            <AppLayoutSearch breadcrumbs={breadcrumbs} hasSearchBar={!(isAdmins || isDrivers) ? true : false} removeNavItems={!(isAdmins || isDrivers) ? false : true}>
+                <Head title={title} />
+                
+                <main className="p-8">{children}</main>
+            </AppLayoutSearch>
+        ) : (
             <main className="p-8">{children}</main>
-        </AppLayoutSearch>
+        )
+    
     );
 }

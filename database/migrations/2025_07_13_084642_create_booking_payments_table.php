@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('payment_method')->nullable();
             $table->string('reference_number');
             $table->string('payment_proof_path');
-            $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');
+            $table->enum('status', ['pending', 'on_process', 'accepted', 'declined'])->default('pending');
 
             $table->timestamps();
         });

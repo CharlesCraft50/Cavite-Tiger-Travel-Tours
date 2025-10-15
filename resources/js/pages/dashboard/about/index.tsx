@@ -2,9 +2,9 @@ import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { ExternalLink } from 'lucide-react';
 
-export default function Index() {
+export default function Index({disableNav} : {disableNav?: boolean;}) {
     return (
-        <DashboardLayout title="Information" href="/wishlists">
+        <DashboardLayout title="Information" href="/dashboard/about" disableNav={disableNav}>
             <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex flex-col justify-center items-center overflow-hidden rounded-xl border md:min-h-min p-4">
                 <h1 className="mb-4 text-3xl font-semibold">About</h1>
                 <img 

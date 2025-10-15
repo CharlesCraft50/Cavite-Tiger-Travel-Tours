@@ -2,9 +2,9 @@ import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { ExternalLink } from 'lucide-react';
 
-export default function CancellationPolicy() {
+export default function CancellationPolicy({disableNav} : {disableNav?: boolean;}) {
     return (
-        <DashboardLayout title="Cancellation Policy" href="/wishlists">
+        <DashboardLayout title="Cancellation Policy" href="/cancellation-policy" disableNav={disableNav}>
             <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex flex-col overflow-hidden rounded-xl border md:min-h-min p-6">
                 <h1 className="text-2xl font-semibold">Cancellation Policy</h1>
                 <section className="mx-auto px-4 py-8 space-y-6 text-gray-700">
