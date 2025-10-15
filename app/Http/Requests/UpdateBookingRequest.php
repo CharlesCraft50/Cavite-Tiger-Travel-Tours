@@ -17,7 +17,7 @@ class UpdateBookingRequest extends FormRequest
             'preferred_van_id' => ['nullable', 'exists:preferred_vans,id'],
             'departure_date' => ['nullable', 'date'],
             'return_date' => ['nullable', 'date', 'after_or_equal:departure_date'],
-            'status' => ['sometimes', 'required', 'in:pending,accepted,declined,past_due,cancelled,completed'],
+            'status' => ['sometimes', 'required', 'in:pending,on_process,accepted,declined,past_due,cancelled,completed'],
             'notes' => ['nullable', 'string'],
             'total_amount' => ['nullable', 'numeric'],
             'pax_adult' => ['nullable', 'numeric'],

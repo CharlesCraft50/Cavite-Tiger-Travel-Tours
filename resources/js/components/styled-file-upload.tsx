@@ -106,14 +106,16 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <input
-          id={id}
-          type="file"
-          accept={accept}
-          multiple={multiple}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          onChange={handleInputChange}
-        />
+        {selectedFiles.length === 0 && (
+          <input
+            id={id}
+            type="file"
+            accept={accept}
+            multiple={multiple}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            onChange={handleInputChange}
+          />
+        )}
 
         {selectedFiles.length > 0 ? (
           <div className="space-y-3">

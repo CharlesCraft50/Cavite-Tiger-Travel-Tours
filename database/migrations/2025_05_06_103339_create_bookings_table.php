@@ -42,7 +42,7 @@ return new class extends Migration
             $table->json('valid_id_paths')->nullable();
 
             // Admin Status
-            $table->enum('status', ['pending', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'on_process', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])->default('pending');
 
             $table->timestamps();
         });

@@ -132,7 +132,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                     maxSize="10MB"
                                     onChange={(file) => {
                                         if (Array.isArray(file)) {
-                                            setProfilePhoto(file[0]); // take the first file if multiple were returned
+                                            setProfilePhoto(file[0]);
                                         } else {
                                             setProfilePhoto(file);
                                         }

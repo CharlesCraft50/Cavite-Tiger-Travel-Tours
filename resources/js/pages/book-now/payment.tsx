@@ -78,6 +78,7 @@ export default function Payment({
         <FormLayout
             title={booking_payment?.status === 'declined' ? '❌ Payment Declined – Resubmit Required' : 'Booking Pending'}
             description="To confirm your booking, please pay using GCash or BPI and provide a screenshot of your payment."
+            hasBackButton
         >
             <Head title="Payment" />
             <form onSubmit={submit} className="flex flex-col gap-6">
@@ -159,9 +160,14 @@ export default function Payment({
                         supportedFormats="JPG, PNG, GIF"
                         maxSize="10MB"
                         onChange={(file) => {
-                            setData("payment_proof", file);
+                            if (Array.isArray(file)) {
+                                setData("payment_proof", file[0]);
+                            } else {
+                                setData("payment_proof", file);
+                            }
+
                             if (file) {
-                                const url = URL.createObjectURL(file);
+                                const url = Array.isArray(file) ? URL.createObjectURL(file[0]) : URL.createObjectURL(file);
                                 setImagePreview(url);
                                 setPaymentProofError("");
                             } else {

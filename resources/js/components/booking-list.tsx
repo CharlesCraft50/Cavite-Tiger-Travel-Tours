@@ -182,6 +182,7 @@ export default function BookingList({ bookings, limit, searchByUserId, statusFil
                           "bg-red-100 text-red-800": absoluteStatus === "declined" || absoluteStatus === "past_due",
                           "bg-gray-200 text-gray-700": absoluteStatus === "cancelled",
                           "bg-gray-200 text-green-600": absoluteStatus === "completed",
+                          "bg-amber-200 text-amber-600": absoluteStatus === "on_process",
                         }
                       )}
                     >

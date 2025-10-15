@@ -20,10 +20,12 @@ export default function FormLayout({ children, title, description, disableNav, r
         
             {disableNav ? null : <Navbar removeNavItems={removeNavItems} />}
             {hasBackButton && (
-                <Button onClick={() => window.history.back()} className="text-sm cursor-pointer flex items-center gap-2 btn-primary">
-                    <ArrowLeft className="w-4 h-4" />
-                    Back
-                </Button>
+                <div className="p-4">
+                    <Button onClick={() => window.history.back()} className="text-sm cursor-pointer flex items-center gap-2 btn-primary">
+                        <ArrowLeft className="w-4 h-4" />
+                        Back
+                    </Button>
+                </div>
             )}
             <div className="p-4 md:p-6">
                 <FormSimpleLayout title={title} description={description} {...props}>

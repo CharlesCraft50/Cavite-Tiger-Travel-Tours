@@ -224,9 +224,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('payment_status', data.payment_status);
 
         if(data.payment_status != null || data.payment_status != '') {
-            const bookingStatus = data.payment_status === 'on_process'
-                ? 'pending'
-                : data.payment_status;
+            const bookingStatus = data.payment_status;
             formData.append('status', bookingStatus);
         }
 
@@ -357,12 +355,6 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
                 {(isAdmins || isDrivers) ? (
                     <div className="flex flex-row gap-2">
-                        <Link 
-                            href={route('localTrip', { package: packages?.slug })}
-                            className="btn-primary cursor-pointer text-xs py-2 flex items-center justify-center"
-                        >
-                            Visit Package
-                        </Link>
                         <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
                             <Pencil className="w-4 h-4" />
                         </Button>
@@ -660,6 +652,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                                     onChange={(e) => setData('status', e.target.value)}
                                                 >
                                                     <option value="pending">Pending</option>
+                                                    <option value="on_process">On Process</option>
                                                     <option value="accepted">Accepted</option>
                                                     <option value="declined">Declined</option>
                                                     <option value="past_due">Past Due</option>
