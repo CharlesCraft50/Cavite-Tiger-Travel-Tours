@@ -1,6 +1,7 @@
 import { BookingPayment } from "./booking-payment";
 import { OtherService } from "./other-service";
 import { PackageCategory } from "./package-category";
+import { PreferredPreparation } from "./preferred-preparation";
 import { PreferredVan } from "./preferred-van";
 import { TourPackage } from "./tour-package";
 
@@ -36,6 +37,10 @@ export interface Booking {
     payment: BookingPayment;
     booking_number: string;
     total_amount: number;
+    preferred_preparation_id: number;
+    valid_id_path?: string | null;
+    
+    preferred_preparation: PreferredPreparation;
 
     created_at: string;
     updated_at: string;

@@ -2,23 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreBookNowRequest;
+use App\Mail\BookingCreated;
+use App\Models\Booking;
+use App\Models\PreferredPreparation;
+use App\Models\PreferredVan;
 use App\Models\TourPackage;
 use App\Models\User;
-use App\Models\PreferredVan;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Http\Requests\StoreBookNowRequest;
-use App\Models\Booking;
 use App\Models\VanCategory;
 use App\Services\VanAvailabilityService;
+use App\Traits\StoresImages;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Mail\BookingCreated;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class BookNowController extends Controller
 {
+    use StoresImages;
+
     /**
      * Display a listing of the resource.
      */
@@ -31,7 +34,8 @@ class BookNowController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request, $slug, $categorySlug = null) {
+    public function create(Request $request, $slug, $categorySlug = null)
+    {
         $packages = TourPackage::where('slug', $slug)->firstOrFail();
 
         $packages->load([
@@ -53,6 +57,7 @@ class BookNowController extends Controller
 
         $drivers = User::where('role', 'driver')->get();
         $vanCategories = VanCategory::all();
+        $preferredPreparations = PreferredPreparation::all();
 
         return Inertia::render('book-now/create', [
             'packages' => $packages,
@@ -62,6 +67,7 @@ class BookNowController extends Controller
             'preferredVans' => $packages->preferredVans,
             'otherServices' => $packages->otherServices,
             'vanCategories' => $vanCategories,
+            'preferredPreparations' => $preferredPreparations,
         ]);
     }
 
@@ -84,8 +90,13 @@ class BookNowController extends Controller
         // Get package, category, van, other services
         $package = TourPackage::with(['categories', 'otherServices'])->findOrFail($validated['tour_package_id']);
 
-        if(empty($availability)) {
+        if (empty($availability)) {
             return back()->withErrors(['preferred_van_id' => 'Van availability not found.']);
+        }
+
+        if ($request->hasFile('valid_id')) {
+            $path = $this->storeGetImage($request, 'valid_id', $request->user()->id.'/valid_id');
+            $validated['valid_id_path'] = asset('storage/'.$path);
         }
 
         $from = Carbon::parse($validated['departure_date']);
@@ -104,26 +115,26 @@ class BookNowController extends Controller
 
         // $until = Carbon::parse($validated['return_date']);
 
-        if($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
+        if ($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
             return back()->withErrors(['departure_date' => 'Selected dates are outside van\'s availability range.']);
         }
 
-        if(in_array($from->toDateString(), $availability['fully_booked_dates']) || 
+        if (in_array($from->toDateString(), $availability['fully_booked_dates']) ||
             in_array($until->toDateString(), $availability['fully_booked_dates'])) {
-                return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
+            return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
         }
 
         $van = PreferredVan::findOrFail($validated['preferred_van_id']);
 
         // ✅ Per person pricing
         $adults = (int) ($validated['pax_adult'] ?? 1);
-        $kids   = (int) ($validated['pax_kids'] ?? 0);
+        $kids = (int) ($validated['pax_kids'] ?? 0);
         $people = $adults + $kids;
 
         $totalAmount = $people * $package->base_price;
 
         // Add custom category price if applicable
-        if (!empty($validated['package_category_id'])) {
+        if (! empty($validated['package_category_id'])) {
             $category = $package->categories->firstWhere('id', $validated['package_category_id']);
             if ($category && $category->use_custom_price && $category->custom_price !== null) {
                 $totalAmount += $category->custom_price;
@@ -145,12 +156,12 @@ class BookNowController extends Controller
 
         $booking = Booking::create([
             ...$validated,
-            'return_date'    => $until->toDateString(),
+            'return_date' => $until->toDateString(),
             'total_amount' => $totalAmount,
             'driver_id' => $validated['driver_id'],
             'user_id' => $userId,
         ]);
-        
+
         if ($request->has('other_services')) {
             $booking->otherServices()->sync($request->input('other_services'));
         }
@@ -166,7 +177,7 @@ class BookNowController extends Controller
     public function show(string $id)
     {
         //
-        
+
     }
 
     /**

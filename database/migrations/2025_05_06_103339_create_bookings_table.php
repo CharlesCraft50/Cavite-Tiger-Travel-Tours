@@ -34,6 +34,12 @@ return new class extends Migration
             $table->string('booking_number')->unique();
             $table->decimal('total_amount')->nullable();
             $table->string('pickup_address');
+            $table->foreignId('preferred_preparation_id')
+                ->nullable()
+                ->constrained()
+                ->onDelete('set null');
+
+            $table->string('valid_id_path')->nullable();
 
             // Admin Status
             $table->enum('status', ['pending', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])->default('pending');

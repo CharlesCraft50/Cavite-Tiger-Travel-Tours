@@ -3,11 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Database\Seeders\TourPackagesTableSeeder;
-use Database\Seeders\UsersTableSeeder;
-use Database\Seeders\PreferredVansTableSeeder;
-use Database\Seeders\OtherServicesTableSeeder;
-use Database\Seeders\VanCategoryTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,7 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             VanCategoryTableSeeder::class,
         ]);
-        
+
         $this->call([
             PreferredVansTableSeeder::class,
         ]);
@@ -33,7 +28,9 @@ class DatabaseSeeder extends Seeder
             OtherServicesTableSeeder::class,
         ]);
 
-    }
+        $this->call([
+            PreferredPreparationSeeder::class,
+        ]);
 
-    
+    }
 }

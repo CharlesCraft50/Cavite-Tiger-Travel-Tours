@@ -14,6 +14,7 @@ import PriceSign from './price-sign';
 import VanSelection from './van-selection';
 import { formatStatus, isAdmin, isDriver } from '@/lib/utils';
 import { Label } from './ui/label';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type BookingDetailsProp = {
     booking: Booking;
@@ -339,6 +340,8 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         setData('total_amount', computedTotal);
     }, [computedTotal]);
 
+    const [openImage, setOpenImage] = useState<string | null>(null);
+
   return (
     <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200", booking.status == 'completed' && "bg-green-200")} onSubmit={submit}>
         <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
@@ -349,11 +352,30 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         {booking.booking_number}
                     </h3>
                 </div>
+                
+                
 
-                {(isAdmins || isDrivers) && (
-                    <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
-                        <Pencil className="w-4 h-4" />
-                    </Button>
+                {(isAdmins || isDrivers) ? (
+                    <div className="flex flex-row gap-2">
+                        <Link 
+                            href={route('localTrip', { package: packages?.slug })}
+                            className="btn-primary cursor-pointer text-xs py-2 flex items-center justify-center"
+                        >
+                            Visit Package
+                        </Link>
+                        <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
+                            <Pencil className="w-4 h-4" />
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="flex flex-row gap-2">
+                        <Link 
+                            href={route('localTrip', { package: packages?.slug })}
+                            className="btn-primary cursor-pointer text-xs py-2 flex items-center justify-center"
+                        >
+                            Visit Package
+                        </Link>
+                    </div>
                 )}
             </div>
 
@@ -401,9 +423,40 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             <p className="text-sm text-gray-600">Tour Package</p>
                             <p className="text-base font-medium">{booking.tour_package?.title}</p>
 
-                            <p className="text-sm text-gray-600 mt-2">Selected Option</p>
-                            <p className="text-base font-medium">{booking.package_category?.name}</p>
+                            {/* <p className="text-sm text-gray-600 mt-2">Selected Option</p>
+                            <p className="text-base font-medium">{booking.package_category?.name}</p> */}
+                            <p className="text-sm text-gray-600 mt-2">Selected Preferred Preparation</p>
+                            <p className="text-base font-medium">{booking.preferred_preparation?.label}</p>
+
+                            {booking.preferred_preparation?.requires_valid_id && (
+                                <>
+                                    <p className="text-sm text-gray-600 mt-2">Valid Id</p>
+                                    <div 
+                                        className="w-80 h-52 flex items-center justify-center bg-gray-100 rounded-md overflow-hidden cursor-pointer"
+                                        onClick={() => setOpenImage(booking?.valid_id_path ?? '')}
+                                    >
+                                        <img
+                                            alt="Valid Id"
+                                            className="max-w-full max-h-full object-contain cursor-pointer block"
+                                            src={booking?.valid_id_path ?? ''}
+                                        />
+                                    </div>
+                                </>
+                            )}
                         </div>
+
+                        <Dialog open={!!openImage} onOpenChange={(open) => !open && setOpenImage(null)}>
+                            <DialogContent className="p-0 max-w-md sm:max-w-lg bg-transparent rounded-none">
+                                {openImage && (
+                                    <img
+                                    src={openImage}
+                                    alt="QR Code Fullscreen"
+                                    className="w-full h-full object-contain cursor-pointer"
+                                    onClick={() => setOpenImage(null)}
+                                    />
+                                )}
+                            </DialogContent>
+                        </Dialog>
 
                         <hr />
 

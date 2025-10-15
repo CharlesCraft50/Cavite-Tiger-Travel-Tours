@@ -30,6 +30,8 @@ class Booking extends Model
         'status',
         'total_amount',
         'driver_id',
+        'preferred_preparation_id',
+        'valid_id_path',
     ];
 
     protected static function booted()
@@ -76,5 +78,10 @@ class Booking extends Model
     public function driver()
     {
         return $this->belongsTo(User::class, 'driver_id');
+    }
+
+    public function preferredPreparation()
+    {
+        return $this->belongsTo(PreferredPreparation::class);
     }
 }

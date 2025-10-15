@@ -1,5 +1,5 @@
 import FormLayout from "@/layouts/form-layout";
-import { OtherService, PackageCategory, PreferredVan, SharedData, TourPackage, User, VanCategory } from "@/types";
+import { OtherService, PackageCategory, PreferredPreparation, PreferredVan, SharedData, TourPackage, User, VanCategory } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ import ModalLarge from "@/components/ui/modal-large";
 import TermsAndConditions from "../dashboard/about/terms-and-conditions";
 import PrivacyPolicy from "../dashboard/about/privacy-policy";
 import CancellationPolicy from "../dashboard/about/cancellation-policy";
+import StyledFileUpload from "@/components/styled-file-upload";
+import { error } from "console";
 
 type BookNowCreateProps = {
     packages: TourPackage;
@@ -28,6 +30,7 @@ type BookNowCreateProps = {
     preferredVans: PreferredVan[];
     otherServices: OtherService[];
     vanCategories: VanCategory[];
+    preferredPreparations: PreferredPreparation[];
 }
 
 export default function Create({ 
@@ -38,6 +41,7 @@ export default function Create({
     preferredVans,
     otherServices,
     vanCategories,
+    preferredPreparations,
 }: BookNowCreateProps) {
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
@@ -57,8 +61,10 @@ export default function Create({
         notes: string;
         pickup_address: string;
         preferred_van_id: number | null;
-        other_services: number[],
-        driver_id: number | null,
+        other_services: number[];
+        driver_id: number | null;
+        preferred_preparation_id: number;
+        valid_id: File | null;
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -80,7 +86,11 @@ export default function Create({
         preferred_van_id: null,
         other_services: [],
         driver_id: null,
+        preferred_preparation_id: 0,
+        valid_id: null,
     });
+
+    const [imagePreview, setImagePreview] = useState(auth.user.profile_photo);
 
     useEffect(() => {
         const url = new URL(window.location.href);
@@ -364,6 +374,8 @@ export default function Create({
     const [ activeModal, setActiveModal ] = useState(false);
 
     const [ agreementIndex, setAgreementIndex ] = useState(0);
+
+    const [ requiresValidId, setRequiresValidId ] = useState(false);
     
     return (
         <FormLayout removeNavItems hasBackButton backButtonHref={`/packages/${packages.slug}`}>
@@ -399,6 +411,58 @@ export default function Create({
                     <p id="package_title" className="p-2 border rounded bg-gray-100">
                         {packages.title}
                     </p>
+                </div>
+
+                <div className="grid gap-4">
+                    <Label htmlFor="preferred_preparation_id" required>Selected Preferred Preparation</Label>
+                    <select
+                        id="preferred_preparation_id"
+                        className="border p-2 rounded cursor-pointer"
+                        onChange={(e) => {
+                            const selectedId = Number(e.target.value);
+                            const selectedPrep = preferredPreparations.find(p => p.id === selectedId);
+
+                            setData('preferred_preparation_id', selectedId);
+                            setRequiresValidId(selectedPrep?.requires_valid_id || false);
+                        }}
+                    >
+                        <option value="">Select Preparation</option>
+                        {preferredPreparations?.map((p) => (
+                            <option key={p.id} value={p.id}>
+                            {p.label}
+                            </option>
+                        ))}
+                    </select>
+                    <InputError message={errors.preferred_preparation_id} className="mt-2" />
+
+                    {requiresValidId && (
+                        <StyledFileUpload
+                            id="valid_id"
+                            label="Upload one valid ID"
+                            required
+                            accept="image/*"
+                            value={data.valid_id}
+                            error={errors.valid_id}
+                            description="Upload a clear photo for your valid ID."
+                            supportedFormats="JPG, PNG"
+                            maxSize="10MB"
+                            onChange={(file) => {
+                            setData('valid_id', file);
+                            if (file) {
+                                const url = URL.createObjectURL(file);
+                                setImagePreview(url);
+                            } else {
+                                setImagePreview('');
+                            }
+                            }}
+                        />
+                    )}
+                    {imagePreview && (
+                        <img
+                            src={imagePreview}
+                            className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
+                        />
+                    )}
                 </div>
 
                 {/* <div className="grid gap-4">
@@ -680,6 +744,7 @@ export default function Create({
                         <input
                             type="checkbox"
                             name="terms"
+                            className="cursor-pointer"
                             checked={checked.terms}
                             onChange={handleChange}
                         />{" "}
@@ -699,6 +764,7 @@ export default function Create({
                         <input
                             type="checkbox"
                             name="privacy"
+                            className="cursor-pointer"
                             checked={checked.privacy}
                             onChange={handleChange}
                         />{" "}
@@ -718,6 +784,7 @@ export default function Create({
                         <input
                             type="checkbox"
                             name="cancellation"
+                            className="cursor-pointer"
                             checked={checked.cancellation}
                             onChange={handleChange}
                         />{" "}
