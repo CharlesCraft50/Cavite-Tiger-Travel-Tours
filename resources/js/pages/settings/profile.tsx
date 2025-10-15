@@ -131,9 +131,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                     supportedFormats="JPG, PNG, GIF"
                                     maxSize="10MB"
                                     onChange={(file) => {
-                                        setProfilePhoto(file);
+                                        if (Array.isArray(file)) {
+                                            setProfilePhoto(file[0]); // take the first file if multiple were returned
+                                        } else {
+                                            setProfilePhoto(file);
+                                        }
+
                                         if (file) {
-                                            const url = URL.createObjectURL(file);
+                                            const url = Array.isArray(file) ? URL.createObjectURL(file[0]) : URL.createObjectURL(file);
                                             setImagePreview(url);
                                             setProfilePhotoError("");
                                         } else {
