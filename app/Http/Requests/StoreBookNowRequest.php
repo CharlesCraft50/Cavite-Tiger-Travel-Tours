@@ -66,6 +66,9 @@ class StoreBookNowRequest extends FormRequest
 
             'valid_id' => [
                 $requiresId ? 'required' : 'nullable',
+                'array',
+            ],
+            'valid_id.*' => [
                 'image',
                 'mimes:jpg,jpeg,png',
                 'max:2048',

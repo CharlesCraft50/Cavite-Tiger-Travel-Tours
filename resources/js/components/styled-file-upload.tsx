@@ -6,8 +6,9 @@ interface StyledFileUploadProps {
   label?: string;
   required?: boolean;
   accept?: string;
-  onChange?: (file: File | null) => void; // Changed here
-  value?: File | null;
+  multiple?: boolean;
+  onChange?: (file: File | File[] | null) => void;
+  value?: File | File[] | null;
   error?: string;
   description?: string;
   maxSize?: string;
@@ -20,6 +21,7 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
   label,
   required = false,
   accept = 'image/*',
+  multiple = false, // default false
   onChange,
   value,
   error,
@@ -28,53 +30,65 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
   supportedFormats = 'JPG, PNG, GIF',
   className = '',
 }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(value || null);
-  const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>(Array.isArray(value) ? value : value ? [value] : []);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
-    setSelectedFile(value || null);
+    setSelectedFiles(Array.isArray(value) ? value : value ? [value] : []);
   }, [value]);
 
-  const handleFileChange = (file: File | null): void => {
-    setSelectedFile(file);
+  const handleFilesChange = (files: File[]) => {
+    setSelectedFiles(files);
     if (onChange) {
-      onChange(file); // pass file directly
+      if (multiple) {
+        onChange(files);
+      } else {
+        onChange(files[0] || null);
+      }
     }
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0] || null;
-    handleFileChange(file);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files ? Array.from(event.target.files) : [];
+    if (multiple) {
+      handleFilesChange([...selectedFiles, ...files]);
+    } else {
+      handleFilesChange(files.slice(0, 1));
+    }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>): void => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
-    const file = e.dataTransfer.files?.[0] || null;
-    if (file && file.type.match(accept.replace('*', '.*'))) {
-      handleFileChange(file);
+    const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+    const filteredFiles = files.filter(f => f.type.match(accept.replace('*', '.*')));
+    if (multiple) {
+      handleFilesChange([...selectedFiles, ...filteredFiles]);
+    } else {
+      handleFilesChange(filteredFiles.slice(0, 1));
     }
   };
 
-  const removeFile = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    handleFileChange(null);
+  const removeFile = (index: number) => {
+    const newFiles = [...selectedFiles];
+    newFiles.splice(index, 1);
+    handleFilesChange(newFiles);
   };
 
-  const getBorderColor = (): string => {
+  const getBorderColor = () => {
     if (error) return 'border-red-400 bg-red-50';
     if (isDragOver) return 'border-blue-500 bg-blue-50';
-    if (selectedFile) return 'border-green-400 bg-green-50';
+    if (selectedFiles.length > 0) return 'border-green-400 bg-green-50';
     return 'border-gray-300 bg-gray-50';
   };
 
@@ -96,30 +110,29 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
           id={id}
           type="file"
           accept={accept}
-          className={`
-            absolute inset-0 w-full h-full opacity-0 cursor-pointer
-            ${selectedFile ? 'hidden' : ''}
-          `}
+          multiple={multiple}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           onChange={handleInputChange}
         />
 
-        {selectedFile ? (
+        {selectedFiles.length > 0 ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-center">
-              <Check className="w-12 h-12 text-green-500" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-green-700">{selectedFile.name}</p>
-              <p className="text-xs text-green-600">File selected successfully</p>
-            </div>
-            <button
-              type="button"
-              onClick={removeFile}
-              className="bg-amber-200 hover:bg-amber-200/90 p-2 rounded inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800 transition-colors cursor-pointer"
-            >
-              <X className="w-3 h-3" />
-              Remove file
-            </button>
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="flex items-center justify-between border p-2 rounded-md bg-white">
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium text-green-700">{file.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="bg-amber-200 hover:bg-amber-200/90 p-1 rounded inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                  Remove
+                </button>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="space-y-3">
@@ -136,17 +149,13 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
         )}
       </div>
 
-      {!selectedFile && !error && (
+      {!selectedFiles.length && !error && (
         <p className="text-xs text-gray-500 text-center">
           Supported formats: {supportedFormats} (Max {maxSize})
         </p>
       )}
 
-      {error && (
-        <p className="text-xs text-red-600 text-center">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-xs text-red-600 text-center">{error}</p>}
     </div>
   );
 };

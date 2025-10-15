@@ -31,7 +31,11 @@ class Booking extends Model
         'total_amount',
         'driver_id',
         'preferred_preparation_id',
-        'valid_id_path',
+        'valid_id_paths',
+    ];
+
+    protected $casts = [
+        'valid_id_paths' => 'array',
     ];
 
     protected static function booted()

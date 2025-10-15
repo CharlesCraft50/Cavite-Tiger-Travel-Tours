@@ -38,9 +38,9 @@ export interface Booking {
     booking_number: string;
     total_amount: number;
     preferred_preparation_id: number;
-    valid_id_path?: string | null;
     
     preferred_preparation: PreferredPreparation;
+    valid_id_paths?: string[]; 
 
     created_at: string;
     updated_at: string;

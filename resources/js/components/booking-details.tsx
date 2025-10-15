@@ -428,35 +428,42 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             <p className="text-sm text-gray-600 mt-2">Selected Preferred Preparation</p>
                             <p className="text-base font-medium">{booking.preferred_preparation?.label}</p>
 
-                            {booking.preferred_preparation?.requires_valid_id && (
+                            {booking.preferred_preparation?.requires_valid_id && (booking.valid_id_paths || []).length > 0 && (
                                 <>
-                                    <p className="text-sm text-gray-600 mt-2">Valid Id</p>
-                                    <div 
-                                        className="w-80 h-52 flex items-center justify-center bg-gray-100 rounded-md overflow-hidden cursor-pointer"
-                                        onClick={() => setOpenImage(booking?.valid_id_path ?? '')}
-                                    >
-                                        <img
-                                            alt="Valid Id"
-                                            className="max-w-full max-h-full object-contain cursor-pointer block"
-                                            src={booking?.valid_id_path ?? ''}
-                                        />
+                                    <p className="text-sm text-gray-600 mt-2">Valid ID</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {(booking.valid_id_paths || []).map((path, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="w-40 h-52 flex items-center justify-center bg-gray-100 rounded-md overflow-hidden cursor-pointer"
+                                                onClick={() => setOpenImage(path)}
+                                            >
+                                                <img
+                                                    alt={`Valid ID ${idx + 1}`}
+                                                    className="max-w-full max-h-full object-contain cursor-pointer"
+                                                    src={path}
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
+
+                                    <Dialog open={!!openImage} onOpenChange={(open) => !open && setOpenImage(null)}>
+                                        <DialogContent className="p-0 max-w-md sm:max-w-lg bg-transparent rounded-none">
+                                            {openImage && (
+                                                <img
+                                                    src={openImage}
+                                                    alt="Valid ID Fullscreen"
+                                                    className="w-full h-full object-contain cursor-pointer"
+                                                    onClick={() => setOpenImage(null)}
+                                                />
+                                            )}
+                                        </DialogContent>
+                                    </Dialog>
                                 </>
                             )}
                         </div>
 
-                        <Dialog open={!!openImage} onOpenChange={(open) => !open && setOpenImage(null)}>
-                            <DialogContent className="p-0 max-w-md sm:max-w-lg bg-transparent rounded-none">
-                                {openImage && (
-                                    <img
-                                    src={openImage}
-                                    alt="QR Code Fullscreen"
-                                    className="w-full h-full object-contain cursor-pointer"
-                                    onClick={() => setOpenImage(null)}
-                                    />
-                                )}
-                            </DialogContent>
-                        </Dialog>
+                        
 
                         <hr />
 

@@ -64,7 +64,7 @@ export default function Create({
         other_services: number[];
         driver_id: number | null;
         preferred_preparation_id: number;
-        valid_id: File | null;
+        valid_id: File[];
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -87,10 +87,10 @@ export default function Create({
         other_services: [],
         driver_id: null,
         preferred_preparation_id: 0,
-        valid_id: null,
+        valid_id: [],
     });
 
-    const [imagePreview, setImagePreview] = useState(auth.user.profile_photo);
+    const [imagePreview, setImagePreview] = useState<string[]>([]);
 
     useEffect(() => {
         const url = new URL(window.location.href);
@@ -438,30 +438,43 @@ export default function Create({
                     {requiresValidId && (
                         <StyledFileUpload
                             id="valid_id"
-                            label="Upload one valid ID"
+                            label="Upload valid IDs"
                             required
                             accept="image/*"
+                            multiple
                             value={data.valid_id}
                             error={errors.valid_id}
-                            description="Upload a clear photo for your valid ID."
+                            description="Upload clear photos for your valid IDs."
                             supportedFormats="JPG, PNG"
                             maxSize="10MB"
-                            onChange={(file) => {
-                            setData('valid_id', file);
-                            if (file) {
-                                const url = URL.createObjectURL(file);
-                                setImagePreview(url);
-                            } else {
-                                setImagePreview('');
-                            }
+                            onChange={(fileOrFiles: File | File[] | null) => {
+                                const files = Array.isArray(fileOrFiles)
+                                    ? fileOrFiles
+                                    : fileOrFiles
+                                    ? [fileOrFiles]
+                                    : [];
+
+                                setData('valid_id', files);
+
+                                if (files.length > 0) {
+                                    const urls = files.map(file => URL.createObjectURL(file));
+                                    setImagePreview(urls);
+                                } else {
+                                    setImagePreview([]);
+                                }
                             }}
                         />
                     )}
-                    {imagePreview && (
-                        <img
-                            src={imagePreview}
-                            className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
-                        />
+                    {imagePreview?.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {imagePreview.map((url, idx) => (
+                                <img
+                                    key={idx}
+                                    src={url}
+                                    className="w-40 max-w-full rounded-lg border border-gray-300 object-contain"
+                                />
+                            ))}
+                        </div>
                     )}
                 </div>
 

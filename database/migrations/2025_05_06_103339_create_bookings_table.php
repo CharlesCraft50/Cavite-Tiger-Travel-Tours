@@ -39,7 +39,7 @@ return new class extends Migration
                 ->constrained()
                 ->onDelete('set null');
 
-            $table->string('valid_id_path')->nullable();
+            $table->json('valid_id_paths')->nullable();
 
             // Admin Status
             $table->enum('status', ['pending', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])->default('pending');

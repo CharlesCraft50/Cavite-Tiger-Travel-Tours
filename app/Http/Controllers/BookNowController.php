@@ -94,9 +94,17 @@ class BookNowController extends Controller
             return back()->withErrors(['preferred_van_id' => 'Van availability not found.']);
         }
 
+        $validIdPaths = [];
         if ($request->hasFile('valid_id')) {
-            $path = $this->storeGetImage($request, 'valid_id', $request->user()->id.'/valid_id');
-            $validated['valid_id_path'] = asset('storage/'.$path);
+            foreach ($request->file('valid_id') as $index => $file) {
+                $filename = 'image_'.($index + 1).'.'.$file->getClientOriginalExtension();
+                $path = $file->storeAs($request->user()->id.'/valid_id', $filename, 'public');
+                $validIdPaths[] = asset('storage/'.$path);
+            }
+        }
+
+        if (! empty($validIdPaths)) {
+            $validated['valid_id_paths'] = $validIdPaths; // store array of uploaded image URLs
         }
 
         $from = Carbon::parse($validated['departure_date']);
