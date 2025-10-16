@@ -106,18 +106,28 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {selectedFiles.length === 0 && (
-          <input
-            id={id}
-            type="file"
-            accept={accept}
-            multiple={multiple}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            onChange={handleInputChange}
-          />
-        )}
+        <input
+          id={id}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          onChange={handleInputChange}
+        />
 
-        {selectedFiles.length > 0 ? (
+        {selectedFiles.length === 0 ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-center">
+              <Upload className={`w-12 h-12 ${error ? 'text-red-400' : 'text-gray-400'}`} />
+            </div>
+            <div>
+              <p className={`text-sm font-medium ${error ? 'text-red-700' : 'text-gray-700'}`}>
+                Click to upload or drag and drop
+              </p>
+              <p className={`text-xs ${error ? 'text-red-600' : 'text-gray-500'}`}>{description}</p>
+            </div>
+          </div>
+        ) : (
           <div className="space-y-3">
             {selectedFiles.map((file, index) => (
               <div key={index} className="flex items-center justify-between border p-2 rounded-md bg-white">
@@ -135,18 +145,6 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
                 </button>
               </div>
             ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-center justify-center">
-              <Upload className={`w-12 h-12 ${error ? 'text-red-400' : 'text-gray-400'}`} />
-            </div>
-            <div>
-              <p className={`text-sm font-medium ${error ? 'text-red-700' : 'text-gray-700'}`}>
-                Click to upload or drag and drop
-              </p>
-              <p className={`text-xs ${error ? 'text-red-600' : 'text-gray-500'}`}>{description}</p>
-            </div>
           </div>
         )}
       </div>
