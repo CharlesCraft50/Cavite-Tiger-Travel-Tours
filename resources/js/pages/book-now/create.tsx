@@ -467,17 +467,6 @@ export default function Create({
                             }}
                         />
                     )}
-                    {imagePreview?.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {imagePreview.map((url, idx) => (
-                                <img
-                                    key={idx}
-                                    src={url}
-                                    className="w-40 max-w-full rounded-lg border border-gray-300 object-contain"
-                                />
-                            ))}
-                        </div>
-                    )}
                 </div>
 
                 {/* <div className="grid gap-4">

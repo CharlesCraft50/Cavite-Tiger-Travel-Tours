@@ -21,7 +21,7 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
   label,
   required = false,
   accept = 'image/*',
-  multiple = false, // default false
+  multiple = false,
   onChange,
   value,
   error,
@@ -31,11 +31,27 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
   className = '',
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>(Array.isArray(value) ? value : value ? [value] : []);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
     setSelectedFiles(Array.isArray(value) ? value : value ? [value] : []);
   }, [value]);
+
+  useEffect(() => {
+    // Generate image preview URLs
+    if (selectedFiles.length > 0) {
+      const urls = selectedFiles.map(file => URL.createObjectURL(file));
+      setImagePreviews(urls);
+      
+      // Cleanup URLs when component unmounts or files change
+      return () => {
+        urls.forEach(url => URL.revokeObjectURL(url));
+      };
+    } else {
+      setImagePreviews([]);
+    }
+  }, [selectedFiles]);
 
   const handleFilesChange = (files: File[]) => {
     setSelectedFiles(files);
@@ -55,6 +71,8 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
     } else {
       handleFilesChange(files.slice(0, 1));
     }
+    // Reset input value to allow selecting the same file again
+    event.target.value = '';
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -129,25 +147,39 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
           </div>
         ) : (
           <div className="space-y-3">
-            {selectedFiles.map((file, index) => (
-              <div key={index} className="flex items-center justify-between border p-2 rounded-md bg-white">
-                <div className="flex items-center gap-2">
-                  <Check className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium text-green-700">{file.name}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeFile(index)}
-                  className="bg-amber-200 hover:bg-amber-200/90 p-1 rounded inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800 transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                  Remove
-                </button>
-              </div>
-            ))}
+            <div className="flex items-center justify-center gap-2">
+              <Check className="w-5 h-5 text-green-500" />
+              <span className="text-sm font-medium text-green-700">
+                {selectedFiles.length} {selectedFiles.length === 1 ? 'file' : 'files'} selected
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">Click or drag to add more files</p>
           </div>
         )}
       </div>
+
+      {/* Image Previews with Remove Button */}
+      {imagePreviews.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4">
+          {imagePreviews.map((url, index) => (
+            <div key={index} className="relative w-40 h-40 group">
+              <img
+                src={url}
+                alt={`Preview ${index + 1}`}
+                className="w-full h-full rounded-lg border border-gray-300 object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => removeFile(index)}
+                className="cursor-pointer absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                aria-label="Remove image"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {!selectedFiles.length && !error && (
         <p className="text-xs text-gray-500 text-center">

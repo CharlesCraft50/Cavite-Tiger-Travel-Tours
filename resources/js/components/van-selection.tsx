@@ -449,7 +449,7 @@ export default function VanSelection({
                     className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default", isEditing && "cursor-grab")}
                 >
                     {isEditing ? (
-                        <div className="flex items-center justify-center">
+                        <div className="flex items-center justify-center -mx-4">
                             <ImageSimpleBox
                                 key={van.id}
                                 id={`van-image-${van.id}`}
@@ -458,14 +458,17 @@ export default function VanSelection({
                                 setImageFile={(e) => handleChange(van.id, 'image_url_file', e)}
                                 editable={isEditing}
                                 className="w-full h-32"
+                                objectContain
                             />
                         </div>
                     ) : (
-                        <img
-                            src={van.image_url ?? ''}
-                            alt={van.name}
-                            className="img-card"
-                        />
+                       <div className="-mx-4">
+                            <img
+                                src={van.image_url ?? ''}
+                                alt={van.name}
+                                className="img-card"
+                            />
+                        </div>
                     )}
 
                     {isBookedToday && (

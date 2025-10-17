@@ -8,9 +8,10 @@ type ImageUploadBoxProps = {
  setImageFile?: (file: File) => void;
  editable?: boolean;
  className?: string;
+ objectContain?: boolean;
 }
 
-export default function ImageSimpleBox({ id, imagePreview, setImagePreview, setImageFile, className, editable }: ImageUploadBoxProps) {
+export default function ImageSimpleBox({ id, imagePreview, setImagePreview, setImageFile, className, objectContain, editable }: ImageUploadBoxProps) {
     
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -44,7 +45,7 @@ export default function ImageSimpleBox({ id, imagePreview, setImagePreview, setI
                 {imagePreview && imagePreview !== 'null' ? (
                     <img src={imagePreview} 
                         alt="Image Preview"
-                        className="image-preview" 
+                        className={clsx("image-preview", objectContain && "object-contain" )}
                     />
                 ) : (
                     editable ? (

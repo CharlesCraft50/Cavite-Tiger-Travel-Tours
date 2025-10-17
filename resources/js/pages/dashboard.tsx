@@ -223,7 +223,7 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                     {!(isAdmins || isDrivers) && (
                         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Link 
-                                href="/packages" 
+                                href="/local-trip" 
                                 className="bg-primary hover:opacity-90 text-white rounded-2xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 group"
                             >
                                 <div className="flex items-center justify-between">

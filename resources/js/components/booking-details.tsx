@@ -468,6 +468,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                         selectedVanIds={selectedVanIds}
                                         onSelect={toggleVanSelection}
                                         vanCategories={vanCategories}
+                                        small
                                     />
 
                                     <div className="grid gap-2">
