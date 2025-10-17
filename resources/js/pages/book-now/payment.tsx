@@ -176,12 +176,12 @@ export default function Payment({
                             }
                         }}
                     />
-                    {imagePreview && (
+                    {/* {imagePreview && (
                         <img
                             src={imagePreview}
                             className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
                         />
-                    )}
+                    )} */}
                     <InputError message={paymentProofError} className="mt-2" />
                 </div>
                 

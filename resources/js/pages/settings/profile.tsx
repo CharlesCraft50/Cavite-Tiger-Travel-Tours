@@ -146,12 +146,12 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                         }
                                     }}
                                 />
-                                {imagePreview && (
+                                {/* {imagePreview && (
                                     <img
                                         src={imagePreview}
                                         className="w-40 max-w-full rounded-lg border border-gray-300 mt-2 object-contain"
                                     />
-                                )}
+                                )} */}
                             </div>
 
                             <InputError message={profilePhotoError} className="mt-2" />
