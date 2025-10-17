@@ -756,7 +756,7 @@ export default function Create({
                         <strong 
                             className="underline cursor-pointer text-blue-500"
                             onClick={() => {
-                                setAgreementIndex(1);
+                                setAgreementIndex(0);
                                 setActiveModal(true);
                             }}
                         >
