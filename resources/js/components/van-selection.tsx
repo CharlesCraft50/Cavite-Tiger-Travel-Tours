@@ -356,7 +356,8 @@ export default function VanSelection({
 
         tempVans
             .filter(van =>
-                van.name.toLowerCase().includes(search.toLowerCase())
+                van.name.toLowerCase().includes(search.toLowerCase()) ||
+                (van.category?.name || 'Uncategorized').toLowerCase().includes(search.toLowerCase())
             )
             .forEach(van => {
                 const categoryName = van.category?.name || 'Uncategorized';

@@ -64,7 +64,7 @@ export default function Create({
         other_services: number[];
         driver_id: number | null;
         preferred_preparation_id: number;
-        valid_id: File[];
+        valid_id: File[] | null;
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -424,6 +424,8 @@ export default function Create({
 
                             setData('preferred_preparation_id', selectedId);
                             setRequiresValidId(selectedPrep?.requires_valid_id || false);
+                            setImagePreview([]);
+                            setData('valid_id', null);
                         }}
                     >
                         <option value="">Select Preparation</option>

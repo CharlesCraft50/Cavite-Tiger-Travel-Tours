@@ -109,6 +109,7 @@ export default function BookingList({ bookings, limit, searchByUserId, statusFil
           >
             <option value="">All Statuses</option>
             <option value="pending">Pending</option>
+            <option value="on_process">On Process</option>
             <option value="accepted">Accepted</option>
             <option value="cancelled">Cancelled</option>
             <option value="past_due">Past Due</option>

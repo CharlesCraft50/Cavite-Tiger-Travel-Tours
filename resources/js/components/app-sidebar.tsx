@@ -43,6 +43,36 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
         href: '/dashboard',
         icon: Home,
     },
+    {
+        title: 'Bookings',
+        href: '/bookings',
+        icon: Book,
+        children: [
+            {
+                title: 'Pending',
+                href: '/bookings?status=pending',
+            },
+            {
+                title: 'On Process',
+                href: '/bookings?status=on_process',
+            },
+            {
+                title: 'Accepted',
+                href: '/bookings?status=accepted',
+            },
+            {
+                title: 'Cancelled',
+                href: '/bookings?status=cancelled',
+            },
+        ],
+    },
+    ...(!(isAdmins || isDrivers) ? [
+        {
+            title: 'Wishlist',
+            href: '/wishlists',
+            icon: HeartIcon,
+        },
+    ] : []),
     ...(!(isAdmins || isDrivers) ? [
         {
             title: 'About',
@@ -70,32 +100,6 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
                     href: '/cancellation-policy',
                 },
             ],
-        },
-    ] : []),
-    {
-        title: 'Bookings',
-        href: '/bookings',
-        icon: Book,
-        children: [
-            {
-                title: 'Pending',
-                href: '/bookings?status=pending',
-            },
-            {
-                title: 'Accepted',
-                href: '/bookings?status=accepted',
-            },
-            {
-                title: 'Cancelled',
-                href: '/bookings?status=cancelled',
-            },
-        ],
-    },
-    ...(!(isAdmins || isDrivers) ? [
-        {
-            title: 'Wishlist',
-            href: '/wishlists',
-            icon: HeartIcon,
         },
     ] : []),
     ...(isAdmins

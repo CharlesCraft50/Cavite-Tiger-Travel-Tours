@@ -33,6 +33,10 @@ export default function Analytics({ bookings }: AnalyticsProps) {
       onClick: () => setActiveStatus('pending'),
     },
     {
+      icon: <Clock className="h-6 w-6 text-amber-600" />, label: "On Process", value: bookings.filter(b => b.status === 'pending').length,
+      onClick: () => setActiveStatus('on_process'),
+    },
+    {
       icon: <XCircle className="h-6 w-6 text-red-500" />, label: "Declined", value: bookings.filter(b => b.status === 'declined').length,
       onClick: () => setActiveStatus('declined'),
     },

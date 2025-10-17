@@ -59,7 +59,7 @@ export default function navbar({ hasSearchBar, removeNavItems = false, inDashboa
 
                     <div className="flex items-center gap-2 whitespace-nowrap">
                         <AppLogoIcon className="h-14 w-auto shrink-0 text-red-800" />
-                            <Link href={isDashboard ? "/packages" : "/dashboard"} className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
+                            <Link href={route('dashboard')} className="text-xl font-bold text-white">Cavite Tiger Travel and Tours</Link>
                     </div>
 
                     {/* Desktop Nav */}

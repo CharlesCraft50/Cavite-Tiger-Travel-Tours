@@ -114,6 +114,7 @@ export default function Payment({
                             setData("payment_proof", null);
                             setImagePreview("");
                             setPaymentProofError("");
+                            setData('reference_number', ''); 
                         }}
                         className="border px-3 py-2 rounded-md"
                     >
