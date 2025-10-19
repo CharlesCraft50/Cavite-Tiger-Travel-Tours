@@ -87,8 +87,22 @@ class PackageController extends Controller
             $validated['image_overview'] = asset('storage/'.$this->storeGetImage($request, 'image_overview', 'packages'));
         }
 
+        $imageBannerPaths = [];
+
+        // if ($request->hasFile('image_banner')) {
+        //     $validated['image_banner'] = asset('storage/'.$this->storeGetImage($request, 'image_banner', 'packages'));
+        // }
+
         if ($request->hasFile('image_banner')) {
-            $validated['image_banner'] = asset('storage/'.$this->storeGetImage($request, 'image_banner', 'packages'));
+            foreach ($request->file('image_banner') as $index => $file) {
+                $filename = 'image_banner_'.($index + 1).'.'.$file->getClientOriginalExtension();
+                $path = $file->storeAs('packages/image_banner', $filename, 'public');
+                $imageBannerPaths[] = asset('storage/'.$path);
+            }
+        }
+
+        if (! empty($imageBannerPaths)) {
+            $validated['image_banner'] = json_encode($imageBannerPaths);
         }
 
         DB::beginTransaction();
@@ -256,10 +270,24 @@ class PackageController extends Controller
 
         $redirectUrl = null;
 
+        // if ($request->hasFile('image_banner')) {
+        //     $validated['image_banner'] = asset('storage/'.$this->storeGetImage($request, 'image_banner', 'packages'));
+        // } else {
+        //     unset($validated['image_banner']);
+        // }
+
+        $imageBannerPaths = [];
+
         if ($request->hasFile('image_banner')) {
-            $validated['image_banner'] = asset('storage/'.$this->storeGetImage($request, 'image_banner', 'packages'));
+            foreach ($request->file('image_banner') as $file) {
+                $filename = uniqid('image_banner_').'.'.$file->getClientOriginalExtension();
+                $path = $file->storeAs('packages/image_banner', $filename, 'public');
+                $imageBannerPaths[] = asset('storage/'.$path);
+            }
+
+            $validated['image_banner'] = json_encode($imageBannerPaths);
         } else {
-            unset($validated['image_banner']);
+            $validated['image_banner'] = $package->image_banner;
         }
 
         if ($request->hasFile('image_overview')) {

@@ -66,6 +66,30 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
             },
         ],
     },
+    {
+        title: 'Custom Trips',
+        href: '/custom-trips',
+        collapsable: true,
+        icon: BookOpen,
+        children: [
+            {
+                title: 'Pending',
+                href: '/custom-trips?status=pending',
+            },
+            {
+                title: 'On Process',
+                href: '/custom-trips?status=on_process',
+            },
+            {
+                title: 'Accepted',
+                href: '/custom-trips?status=accepted',
+            },
+            {
+                title: 'Cancelled',
+                href: '/custom-trips?status=cancelled',
+            },
+        ],
+    },
     ...(!(isAdmins || isDrivers) ? [
         {
             title: 'Wishlist',

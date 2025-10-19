@@ -216,9 +216,9 @@ export default function TravelChatbot() {
 
                             {/* Messages */}
                             <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50 min-h-0">
-                                {messages.map((message: MessageProps) => (
+                                {messages.map((message: MessageProps, index) => (
                                     <>
-                                        <div key={message.id} className={clsx("flex", message.sender === "bot" ? "justify-start" : "justify-end")}>
+                                        <div key={message.id ?? index} className={clsx("flex", message.sender === "bot" ? "justify-start" : "justify-end")}>
                                             <div
                                             className={clsx(
                                                 "px-3 py-2 border rounded-lg w-fit",

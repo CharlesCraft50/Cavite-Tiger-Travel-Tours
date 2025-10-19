@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\OtherService;
 use App\Models\PreferredVan;
 use App\Models\TourPackage;
+use App\Models\User;
 use App\Models\VanCategory;
 use App\Services\VanAvailabilityService;
 use Illuminate\Http\Request;
@@ -183,8 +184,10 @@ class BookingController extends Controller
 
     public function analytics()
     {
+
         return Inertia::render('dashboard/analytics/index', [
             'bookings' => Booking::with('payment')->get(),
+            'userCount' => User::count(),
         ]);
     }
 

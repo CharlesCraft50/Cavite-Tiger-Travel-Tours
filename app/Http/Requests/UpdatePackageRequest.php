@@ -17,11 +17,11 @@ class UpdatePackageRequest extends FormRequest
     public function prepareForValidation(): void
     {
         // Only keep image fields if they are uploaded files
-        if (!$this->hasFile('image_overview')) {
+        if (! $this->hasFile('image_overview')) {
             $this->request->remove('image_overview');
         }
 
-        if (!$this->hasFile('image_banner')) {
+        if (! $this->hasFile('image_banner')) {
             $this->request->remove('image_banner');
         }
     }
@@ -44,7 +44,8 @@ class UpdatePackageRequest extends FormRequest
             'available_from' => ['nullable', 'date', 'required_if:activeExpiry,true'],
             'available_until' => ['nullable', 'date', 'required_if:activeExpiry,true', 'after_or_equal:available_from'],
             'image_overview' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
-            'image_banner' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
+            'image_banner' => ['nullable', 'array'],
+            'image_banner.*' => ['image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'base_price' => ['nullable', 'required', 'integer'],
 
             // ✅ Validate categories as array

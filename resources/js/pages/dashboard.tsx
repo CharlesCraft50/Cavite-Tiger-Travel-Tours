@@ -53,7 +53,7 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
         <DashboardLayout title="" href="/dashboard">
             <div className="flex mb-2 gap-2">
                 <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><LayoutDashboard /> Dashboard</Link>
-                {/* <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link> */}
+                <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
                 <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Plane className="fill-black" /> Local Trip</Link>
             </div>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -81,8 +81,8 @@ export default function Dashboard({ bookingCount, userBookings }: DashboardProps
                                         disableOnInteraction: false,
                                         }}
                                         pagination={{
-                                        clickable: true,
-                                        dynamicBullets: true,
+                                            clickable: true,
+                                            dynamicBullets: true,
                                         }}
                                         className="rounded-xl overflow-hidden shadow-md"
                                     >

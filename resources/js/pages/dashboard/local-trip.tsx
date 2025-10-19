@@ -151,7 +151,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
       <Head title="LocalTrip" />
       <div className="flex mb-2 gap-2">
         <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><LayoutDashboard /> Dashboard</Link>
-        {/* <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link> */}
+        <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
         <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><Plane className="fill-black" /> Local Trip</Link>
       </div>
       <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">

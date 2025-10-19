@@ -1,7 +1,7 @@
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { Booking } from '@/types';
 import { BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Bar } from 'recharts';
-import { BarChart3, CalendarCheck, Clock, DollarSign, XCircle } from 'lucide-react';
+import { BarChart3, CalendarCheck, CircleSlash2Icon, Clock, DollarSign, UserCircle, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 const chartColors: Record<string, string> = {
@@ -9,15 +9,24 @@ const chartColors: Record<string, string> = {
   pending: '#facc15',  // yellow
   declined: '#ef4444', // red
   past_due: '#9ca3af', // gray
+  users: '#3b82f6',
+  income: '#10b981', // green for income
 };
 
 type AnalyticsProps = {
   bookings: Booking[];
+  userCount: number;
 };
 
-export default function Analytics({ bookings }: AnalyticsProps) {
+export default function Analytics({ bookings, userCount }: AnalyticsProps) {
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
   const [selectedLabel, setSelectedLabel] = useState("Total Bookings");
+
+  const acceptedBookings = bookings.filter(b =>
+        b.payment?.status.toLowerCase() === 'accepted' &&
+        b.status.toLowerCase() !== 'cancelled'
+    );
+  const totalSpent = acceptedBookings.reduce((sum, b) => sum + Number(b.total_amount ?? 0), 0);
 
   const stats = [
     {
@@ -45,29 +54,56 @@ export default function Analytics({ bookings }: AnalyticsProps) {
       onClick: () => setActiveStatus('past_due'),
     },
     {
+      icon: <CircleSlash2Icon className="h-6 w-6 text-red-900" />, label: "Cancelled", value: bookings.filter(b => b.status === 'cancelled').length,
+      onClick: () => setActiveStatus('cancelled'),
+    },
+    {
+      icon: <UserCircle className="h-6 w-6 text-red-900" />, label: "User Count", value: userCount,
+      onClick: () => setActiveStatus('users'),
+    },
+    {
       icon: <DollarSign className="h-6 w-6 text-emerald-500" />, label: "Total Income", 
-      value: `₱ ${bookings
-      .filter(b => b.payment?.status === "accepted")
-      .reduce((sum, b) => sum + Number(b.total_amount || 0), 0)
-      .toLocaleString("en-PH", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      })}`,
-      onClick: () => {},
+      value: `₱ ${totalSpent.toLocaleString()}`,
+      onClick: () => setActiveStatus('income'),
     },
   ];
 
   const filteredBookings = activeStatus ? bookings.filter(b => b.status === activeStatus) : bookings;
 
-  // Group bookings by month
-  const chartData = Object.values(
-    filteredBookings.reduce((acc, booking) => {
-      const month = new Date(booking.created_at).toLocaleString('default', { month: 'short', year: 'numeric' });
-      acc[month] = acc[month] || { month, count: 0 };
-      acc[month].count++;
-      return acc;
-    }, {} as Record<string, { month: string; count: number }>)
-  ).sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+  let chartData = [];
+
+  if (activeStatus === 'users') {
+      chartData = [{ month: 'All Time', count: userCount }];
+  } else if (activeStatus === 'income') {
+      // Group accepted bookings by month and sum total_amount
+      const incomeBookings = bookings.filter(b =>
+          b.payment?.status.toLowerCase() === 'accepted' &&
+          b.status.toLowerCase() !== 'cancelled'
+      );
+
+      const monthlyIncome = Object.values(
+          incomeBookings.reduce((acc, b) => {
+              const month = new Date(b.created_at).toLocaleString('default', { month: 'short', year: 'numeric' });
+              acc[month] = acc[month] || { month, total: 0 };
+              acc[month].total += Number(b.total_amount ?? 0);
+              return acc;
+          }, {} as Record<string, { month: string; total: number }>)
+      ).sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+
+      chartData = monthlyIncome.map(item => ({ month: item.month, count: item.total }));
+  } else {
+      const filteredBookings = activeStatus ? bookings.filter(b => b.status === activeStatus) : bookings;
+
+      chartData = Object.values(
+          filteredBookings.reduce((acc, booking) => {
+              const month = new Date(booking.created_at).toLocaleString('default', { month: 'short', year: 'numeric' });
+              acc[month] = acc[month] || { month, count: 0 };
+              acc[month].count++;
+              return acc;
+          }, {} as Record<string, { month: string; count: number }> )
+      ).sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+  }
+
 
   return (
     <DashboardLayout title="Analytics" href="/admin/analytics">
@@ -102,7 +138,11 @@ export default function Analytics({ bookings }: AnalyticsProps) {
 
         <div className="bg-white p-6 shadow rounded-xl border">
           <h2 className="text-lg font-semibold mb-4">
-            {activeStatus ? `${activeStatus.charAt(0).toUpperCase() + activeStatus.slice(1)} Bookings Over Time` : 'All Bookings Over Time'}
+            {activeStatus === 'users'
+              ? 'Total Users'
+              : activeStatus
+              ? `${activeStatus.charAt(0).toUpperCase() + activeStatus.slice(1)} Bookings Over Time`
+              : 'All Bookings Over Time'}
           </h2>
 
           {chartData.length === 0 ? (

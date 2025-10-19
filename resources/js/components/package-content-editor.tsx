@@ -3,7 +3,7 @@ import { Label } from './ui/label';
 import { Button } from '@/components/ui/button';
 import SimpleEditorModal from './simple-editor-modal';
 import { ModalLargeRef } from './ui/modal-large';
-import { useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 
 // Import TipTap styles
@@ -15,55 +15,57 @@ import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
 import "@/components/tiptap-templates/simple/simple-editor.scss"
 import PackageHeader from './package-header';
 
-
 type PackageContentEditorProps = {
     value: string;
     onChange: (value: string) => void;
     title?: string,
-    imageBanner?: string;
+    imageBanner?: string | string[];
     existingImageBanner?: string;
-    setImageBanner?: (e: string) => void;
-    setImageFile?: (file: File) => void;
+    setImageBanner?: (value: string | string[]) => void;
+    setImageFile?: Dispatch<SetStateAction<File[] | null>>;
     onClearContent?: () => void;
 }
 
 export const isEffectivelyEmptyHtml = (html: string) => {
     if (!html) return true;
     
-    // Strip whitespace from start/end
     const trimmed = html.trim();
     
     if (!trimmed) return true;
     
-    // Parse HTML string
     const div = document.createElement('div');
     div.innerHTML = trimmed;
 
-    // Check if all children are empty paragraphs or empty text nodes
     for (const child of div.childNodes) {
         if (child.nodeType === Node.TEXT_NODE) {
-        if (child.textContent?.trim()) {
-            return false; // Non-empty text node found
-        }
-        } else if (child.nodeType === Node.ELEMENT_NODE) {
-        const el = child as HTMLElement;
-        if (el.tagName.toLowerCase() === 'p') {
-            // Check if paragraph has any text or children
-            if (el.textContent?.trim()) {
-            return false; // Paragraph has content
+            if (child.textContent?.trim()) {
+                return false;
             }
-        } else {
-            // Some other element means content is not empty
-            return false;
-        }
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+            const el = child as HTMLElement;
+            if (el.tagName.toLowerCase() === 'p') {
+                if (el.textContent?.trim()) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
     }
 
-    // If all are empty paragraphs or empty text nodes, treat as empty
     return true;
 }
 
-export default function PackageContentEditor({ value, onChange, title, imageBanner, existingImageBanner, setImageBanner, setImageFile, onClearContent }: PackageContentEditorProps) {
+export default function PackageContentEditor({ 
+    value, 
+    onChange, 
+    title, 
+    imageBanner, 
+    existingImageBanner, 
+    setImageBanner, 
+    setImageFile, 
+    onClearContent 
+}: PackageContentEditorProps) {
     const [activeModal, setActiveModal] = useState(false);
 
     const modalRef = useRef<ModalLargeRef>(null);
@@ -77,7 +79,7 @@ export default function PackageContentEditor({ value, onChange, title, imageBann
     }
 
     const clearContent = () => {
-        closeModal(); // triggers close transition
+        closeModal();
         onClearContent?.();
         setTimeout(() => {
             setActiveModal(true);
@@ -96,16 +98,23 @@ export default function PackageContentEditor({ value, onChange, title, imageBann
         };
     }, [activeModal]);
 
-
-    
-
+    // ✅ Handle multiple files
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+        const files = e.target.files;
 
-        if(file && setImageBanner) {
-            const url = URL.createObjectURL(file);
-            setImageBanner(url);
-            setImageFile?.(file);
+        if(files && files.length > 0 && setImageBanner && setImageFile) {
+            // Convert FileList to Array and create blob URLs
+            const fileArray = Array.from(files);
+            const urls = fileArray.map(file => URL.createObjectURL(file));
+            
+            console.log('Files uploaded:', fileArray.length);
+            console.log('URLs created:', urls);
+            
+            // Set multiple URLs as array
+            setImageBanner(urls);
+            
+            // Pass all files
+            setImageFile(fileArray);
         }
     }
 
@@ -161,7 +170,16 @@ export default function PackageContentEditor({ value, onChange, title, imageBann
             
         </div>
 
-        <SimpleEditorModal value={value} onChange={onChange} modalRef={modalRef} activeModal={activeModal} setActiveModal={setActiveModal} imageBanner={imageBanner} handleImageUpload={handleImageUpload} hasBanner/>
+        <SimpleEditorModal 
+            value={value} 
+            onChange={onChange} 
+            modalRef={modalRef} 
+            activeModal={activeModal} 
+            setActiveModal={setActiveModal} 
+            imageBanner={imageBanner} 
+            handleImageUpload={handleImageUpload} 
+            hasBanner
+        />
     </div>
   )
 }

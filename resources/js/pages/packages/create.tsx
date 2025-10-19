@@ -21,6 +21,8 @@ import PriceSign from "@/components/price-sign";
 import { format } from "date-fns";
 import CityList from "@/components/city-list";
 import CardImageBackground from "@/components/ui/card-image-bg";
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 export type PackageForm = {
     title: string;
@@ -31,7 +33,7 @@ export type PackageForm = {
     content: string;
     duration: string;
     image_overview: string;
-    image_banner: string;
+    image_banner: string | string[];
     available_from: Date | null;
     available_until: Date | null;
     base_price: number | null;
@@ -112,7 +114,7 @@ export default function Index({
 
     const [activeExpiry, setActiveExpiry] = useState<boolean>(false);
     const [imageOverview, setImageOverview] = useState<File | null>(null);
-    const [imageBanner, setImageBanner] = useState<File | null>(null);
+    const [imageBanner, setImageBanner] = useState<File[] | null>(null);
     const [categories, setCategories] = useState<PackageCategory[]>([]);
     const [categoriesContentError, setCategoriesContentError] = useState('');
     const [existingImageOverview, setExistingImageOverview] = useState<string>('');
@@ -286,8 +288,10 @@ export default function Index({
             formData.append('image_overview', imageOverview);
         }
 
-        if(imageBanner) {
-            formData.append('image_banner', imageBanner);
+        if (imageBanner && imageBanner.length > 0) {
+            imageBanner.forEach((file) => {
+                formData.append('image_banner[]', file);
+            });
         }
 
         setContentError('');

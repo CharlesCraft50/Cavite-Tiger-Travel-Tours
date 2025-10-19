@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
-use App\Models\PreferredVanAvailability;
 use App\Models\Booking;
+use App\Models\PreferredVanAvailability;
 use Carbon\Carbon;
 
 class VanAvailabilityService
 {
     public function getAvailableDateRanges(int $vanId)
     {
-        $availability = PreferredVanAvailability::where('preferred_van_id', $vanId)->first();
+        // $availability = PreferredVanAvailability::where('preferred_van_id', $vanId)->first();
 
-        if (!$availability) return [];
+        // if (!$availability) return [];
 
-        $from = Carbon::parse($availability->available_from);
-        $until = Carbon::parse($availability->available_until);
+        // $from = Carbon::parse($availability->available_from);
+        // $until = Carbon::parse($availability->available_until);
 
         // Get all bookings for the van
         $bookings = Booking::where('preferred_van_id', $vanId)->get();
@@ -44,9 +44,9 @@ class VanAvailabilityService
         */
 
         // New logic to block the entire range from the first to the last booked date
-        if (!empty($bookedDates)) {
+        if (! empty($bookedDates)) {
             $firstBooked = Carbon::parse(min(array_keys($bookedDates)));
-            $lastBooked  = Carbon::parse(max(array_keys($bookedDates)));
+            $lastBooked = Carbon::parse(max(array_keys($bookedDates)));
 
             for ($date = $firstBooked; $date->lte($lastBooked); $date->addDay()) {
                 $fullyBookedDates[] = $date->toDateString();
@@ -54,8 +54,8 @@ class VanAvailabilityService
         }
 
         return [
-            'available_from' => $from->toDateString(),
-            'available_until' => $until->toDateString(),
+            // 'available_from' => $from->toDateString(),
+            // 'available_until' => $until->toDateString(),
             'fully_booked_dates' => $fullyBookedDates,
         ];
     }

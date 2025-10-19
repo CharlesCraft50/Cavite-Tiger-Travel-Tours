@@ -21,6 +21,11 @@ import PrivacyPolicy from "../dashboard/about/privacy-policy";
 import CancellationPolicy from "../dashboard/about/cancellation-policy";
 import StyledFileUpload from "@/components/styled-file-upload";
 import { error } from "console";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/autoplay';
 
 type BookNowCreateProps = {
     packages: TourPackage;
@@ -376,6 +381,12 @@ export default function Create({
     const [ agreementIndex, setAgreementIndex ] = useState(0);
 
     const [ requiresValidId, setRequiresValidId ] = useState(false);
+
+    const bannerImages: string[] = Array.isArray(packages.image_banner)
+        ? packages.image_banner
+        : typeof packages.image_banner === 'string'
+        ? JSON.parse(packages.image_banner)
+        : [];
     
     return (
         <FormLayout removeNavItems hasBackButton backButtonHref={`/packages/${packages.slug}`}>
@@ -384,12 +395,33 @@ export default function Create({
                 {/* Hero Image Header */}
                 {packages.image_banner && (
                     <div className="relative w-full h-64 md:h-96 overflow-hidden rounded-xl mb-6">
-                        <img
-                            src={packages.image_banner}
-                            alt="Tour Package Banner"
-                            className="absolute inset-0 w-full h-full object-cover object-center"
-                        />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center px-4">
+                         {bannerImages.length > 0 ? (
+                            <Swiper
+                                modules={[Pagination, Autoplay]}
+                                pagination={{ clickable: true }}
+                                autoplay={{ delay: 5000, disableOnInteraction: false }}
+                                loop={bannerImages.length > 1}
+                                className="w-full h-full"
+                            >
+                                {bannerImages.map((imgSrc, idx) => (
+                                <SwiperSlide key={idx}>
+                                    <img
+                                    src={imgSrc}
+                                    alt={`Banner ${idx + 1}`}
+                                    className="absolute inset-0 w-full h-full object-cover object-center"
+                                    />
+                                </SwiperSlide>
+                                ))}
+                            </Swiper>
+                        ) : (
+                                <img
+                                    src="https://via.placeholder.com/300x300?text=No+Image"
+                                    alt="Placeholder"
+                                    className="absolute inset-0 w-full h-full object-cover object-center"
+                                />
+                        )}
+
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center px-4 z-1 pointer-events-none">
                             <div className="bg-white/80 backdrop-blur-md p-6 rounded-lg text-center max-w-2xl">
                                 <h1 className="text-2xl md:text-4xl font-bold mb-2 text-gray-900">
                                     Book Now - {packages.title}

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('available_from')->nullable();
             $table->date('available_until')->nullable();
             $table->string('image_overview')->nullable(); // path to image_overview in /storage
-            $table->string('image_banner')->nullable(); // path to image_banner in /storage
+            $table->json('image_banner')->nullable(); // path to image_banner in /storage
             $table->string('slug', 100)->unique();
             $table->decimal('base_price', 10, 2)->default(0);
 

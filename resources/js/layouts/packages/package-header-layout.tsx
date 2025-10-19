@@ -92,18 +92,7 @@ export default function PackagHeaderLayout({
           slug={packages.slug}
           auth={auth}
           isWishlisted={isWishlisted}
-        >
-          {editable && (
-            <div
-              className="flex justify-end top-4 right-4 absolute z-[40]" 
-              onClick={handleEditBtn}
-            >
-                <Button className="btn-primary cursor-pointer">
-                    <PencilIcon className="w-4 h-4 text-white" />
-                </Button>
-            </div>
-          )}
-        </PackageHeader>
+        />
       )}
 
       {isEditing && (

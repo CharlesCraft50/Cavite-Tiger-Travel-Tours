@@ -8,6 +8,8 @@ use App\Http\Controllers\BookingPaymentController;
 use App\Http\Controllers\BookNowController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\CustomTripController;
+use App\Http\Controllers\CustomTripPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\OtherServiceController;
@@ -54,6 +56,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/terms-and-conditions', [AboutController::class, 'termsAndConditions'])->name('termsAndConditions');
     Route::get('/privacy-policy', [AboutController::class, 'privacyPolicy'])->name('privacyPolicy');
     Route::get('/cancellation-policy', [AboutController::class, 'cancellationPolicy'])->name('cancellationPolicy');
+
+    Route::post('/custom-trips', [CustomTripController::class, 'store'])->name('customTrips.store');
+    Route::get('/custom-trips', [CustomTripController::class, 'index'])->name('customTrips.index');
+    Route::get('/custom-trips/{id}', [CustomTripController::class, 'show'])->name('customTrips.show');
+    Route::post('/custom-trips/{id}/cancel', [CustomTripController::class, 'cancel'])->name('customTrips.cancel');
 });
 
 Route::post('/image/upload', [ImageController::class, 'store'])->name('image.store');
@@ -64,6 +71,9 @@ Route::get('/book-now/{slug}/category/{categorySlug?}', [BookNowController::clas
 Route::post('/book-now/booked', [BookNowController::class, 'store'])->name('booking.store');
 Route::get('/book-now/payment/{booking_id}', [BookingPaymentController::class, 'index'])->name('booking.payment');
 Route::post('/book-now/payment/create', [BookingPaymentController::class, 'store'])->name('booking.payment.store');
+
+Route::get('/custom-trips/payment/{trip_id}', [CustomTripPaymentController::class, 'index'])->name('customTrips.payment');
+Route::post('/custom-trips/payment/create', [CustomTripPaymentController::class, 'store'])->name('customTrip.payment.store');
 
 // Route::resource('packages', PackageController::class);
 Route::get('/packages/{packageSlug}/category/{categorySlug}', [PackageController::class, 'showCategory'])
@@ -91,6 +101,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/configurations/other-services', [ConfigurationController::class, 'otherServices'])->name('configurations.otherServices');
 
     Route::resource('/vancategories', VanCategoryController::class);
+
+    Route::put('/custom-trips/{id}', [CustomTripController::class, 'update'])->name('customTrips.update');
 });
 
 Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');

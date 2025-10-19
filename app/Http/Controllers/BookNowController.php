@@ -43,7 +43,8 @@ class BookNowController extends Controller
                 $query->where('has_button', true);
             },
             'preferredVans' => function ($query) {
-                $query->with(['availabilities', 'driver', 'category']);
+                // $query->with(['availabilities', 'driver', 'category']);
+                $query->with(['driver', 'category']);
             },
             'otherServices',
         ]);
@@ -123,9 +124,9 @@ class BookNowController extends Controller
 
         // $until = Carbon::parse($validated['return_date']);
 
-        if ($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
-            return back()->withErrors(['departure_date' => 'Selected dates are outside van\'s availability range.']);
-        }
+        // if ($from->lt($availability['available_from']) || $from->gt($availability['available_until'])) {
+        //     return back()->withErrors(['departure_date' => 'Selected dates are outside van\'s availability range.']);
+        // }
 
         if (in_array($from->toDateString(), $availability['fully_booked_dates']) ||
             in_array($until->toDateString(), $availability['fully_booked_dates'])) {

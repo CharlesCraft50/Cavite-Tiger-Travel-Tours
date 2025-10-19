@@ -793,6 +793,7 @@ export default function VanSelection({
             )}
             
             {/* Conditional Rendering: Draggable categorized view for both modes */}
+            {/* Conditional Rendering: Draggable categorized view for both modes */}
             {isEditing ? (
                 // Editing mode with draggable categories
                 <DragDropContext onDragStart={(start) => {
@@ -804,71 +805,112 @@ export default function VanSelection({
                     }}>
                     <Droppable droppableId="all-categories" type="CATEGORY">
                         {(provided) => (
-                        <div ref={provided.innerRef} {...provided.droppableProps}>
-                            {categoryOrder.map((category, catIndex) => (
-                            <Draggable
-                                draggableId={`category-${category.id}`}
-                                index={catIndex}
-                                key={category.id}
-                            >
-                                {(provided) => (
-                                <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    className="mb-6 rounded-lg border-2 border-dashed border-gray-300 p-4 bg-gray-50"
+                            <div ref={provided.innerRef} {...provided.droppableProps}>
+                                {categoryOrder.map((category, catIndex) => (
+                                <Draggable
+                                    draggableId={`category-${category.id}`}
+                                    index={catIndex}
+                                    key={category.id}
                                 >
-                                    <div className="absolute right-12" onClick={() => setCategoryToDelete(category)}>
-                                        <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
-                                    </div>
-                                    {/* Category header */}
-                                    <div className="flex items-center gap-3 mb-4" {...provided.dragHandleProps}>
-                                        <GripVertical size={20} className="text-gray-400" />
-                                        <h2 className="text-xl font-bold">{category.name}</h2>
-                                    </div>
+                                    {(provided) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        className="mb-6 rounded-lg border-2 border-dashed border-gray-300 p-4 bg-gray-50"
+                                    >
+                                        <div className="absolute right-12" onClick={() => setCategoryToDelete(category)}>
+                                            <TrashIcon className="w-8 h-8 p-2 border rounded bg-red-400 cursor-pointer" />
+                                        </div>
+                                        {/* Category header */}
+                                        <div className="flex items-center gap-3 mb-4" {...provided.dragHandleProps}>
+                                            <GripVertical size={20} className="text-gray-400" />
+                                            <h2 className="text-xl font-bold">{category.name}</h2>
+                                        </div>
 
-                                    {/* Vans inside category */}
-                                    <Droppable droppableId={category.id.toString()} type="VAN">
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.droppableProps}
-                                            className={clsx(
-                                                !small
-                                                ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-                                                : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4",
-                                                "min-h-[100px] border-1 border-dashed rounded-lg", // ensures area exists even when empty
-                                                snapshot.isDraggingOver && "bg-blue-50"           // highlight when dragging over
-                                            )}
-                                        >
-                                        {categorizedVans[category.name]?.map((van, vanIndex) => (
+                                        {/* Vans inside category */}
+                                        <Droppable droppableId={category.id.toString()} type="VAN">
+                                        {(provided, snapshot) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.droppableProps}
+                                                className={clsx(
+                                                    !small
+                                                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                                                    : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4",
+                                                    "min-h-[100px] border-1 border-dashed rounded-lg", // ensures area exists even when empty
+                                                    snapshot.isDraggingOver && "bg-blue-50"           // highlight when dragging over
+                                                )}
+                                            >
+                                            {categorizedVans[category.name]?.map((van, vanIndex) => (
+                                                <Draggable
+                                                    key={van.id}
+                                                    draggableId={van.id.toString()}
+                                                    index={vanIndex}
+                                                >
+                                                {(provided) => (
+                                                    <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    >
+                                                    {renderVanCard(van)}
+                                                    </div>
+                                                )}
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                            </div>
+                                        )}
+                                        </Droppable>
+                                    </div>
+                                    )}
+                                </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                    
+                    {/* Uncategorized Section - Non-draggable */}
+                    {categorizedVans['Uncategorized']?.length > 0 && (
+                        <div className="mb-6 rounded-lg border-2 border-dashed border-gray-300 p-4 bg-gray-50">
+                            <h2 className="text-xl font-bold mb-4">Uncategorized</h2>
+                            <Droppable droppableId="0" type="VAN">
+                                {(provided, snapshot) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                        className={clsx(
+                                            !small
+                                            ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                                            : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4",
+                                            "min-h-[100px] border-1 border-dashed rounded-lg",
+                                            snapshot.isDraggingOver && "bg-blue-50"
+                                        )}
+                                    >
+                                        {categorizedVans['Uncategorized'].map((van, vanIndex) => (
                                             <Draggable
                                                 key={van.id}
                                                 draggableId={van.id.toString()}
                                                 index={vanIndex}
                                             >
-                                            {(provided) => (
-                                                <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                >
-                                                {renderVanCard(van)}
-                                                </div>
-                                            )}
+                                                {(provided) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                    >
+                                                        {renderVanCard(van)}
+                                                    </div>
+                                                )}
                                             </Draggable>
                                         ))}
                                         {provided.placeholder}
-                                        </div>
-                                    )}
-                                    </Droppable>
-                                </div>
+                                    </div>
                                 )}
-                            </Draggable>
-                            ))}
-                            {provided.placeholder}
+                            </Droppable>
                         </div>
-                        )}
-                    </Droppable>
+                    )}
                     </DragDropContext>
 
             ) : (() => {
@@ -892,16 +934,18 @@ export default function VanSelection({
 
                     return (
                         <div key={category} className="mb-6">
-                        <h2 className="text-xl font-bold mt-4 mb-2">{category}</h2>
-                        <div
-                            className={clsx(
-                            !small
-                                ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-                                : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-                            )}
-                        >
-                            {vansForCategory.map((van) => renderVanCard(van))}
-                        </div>
+                            <h2 className="text-xl font-bold mt-4 mb-2">{category}</h2>
+                            <div
+                                className={clsx(
+                                !small
+                                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                                    : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                                )}
+                            >
+                                {vansForCategory.map((van) => (
+                                    <div key={van.id}>{renderVanCard(van)}</div>
+                                ))}
+                            </div>
                         </div>
                     );
                     })}

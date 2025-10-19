@@ -16,6 +16,8 @@ export * from './wishlist';
 export * from './van-category';
 export * from './notification';
 export * from './preferred-preparation';
+export * from './custom-trip';
+export * from './custom-trip-payment';
 
 export interface Auth {
     user: User;
@@ -36,6 +38,7 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    collapsable?: boolean;
     children?: NavItem[];
 }
 

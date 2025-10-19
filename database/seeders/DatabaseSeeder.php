@@ -9,7 +9,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            TourPackagesTableSeeder::class,
+            CountryCitiesTableSeeder::class,
         ]);
 
         $this->call([
@@ -22,10 +22,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             PreferredVansTableSeeder::class,
-        ]);
-
-        $this->call([
-            OtherServicesTableSeeder::class,
         ]);
 
         $this->call([

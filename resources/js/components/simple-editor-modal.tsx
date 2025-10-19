@@ -11,7 +11,7 @@ type SimpleEditorModalProps = {
     activeModal: boolean;
     setActiveModal: Dispatch<SetStateAction<boolean>>;
     title?: string;
-    imageBanner?: string;
+    imageBanner?: string | string[];
     handleImageUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     hasBanner?: boolean;
 }
