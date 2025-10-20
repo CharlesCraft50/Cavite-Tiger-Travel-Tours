@@ -25,6 +25,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            TourPackagesTableSeeder::class,
+            PackagePreferredVanSeeder::class,
+        ]);
+
+        $this->call([
             PreferredPreparationSeeder::class,
         ]);
 
