@@ -109,6 +109,7 @@ export default function Show({ user, bookings, totalSpent }: Props) {
                     <option key="user" value="user">User</option>
                     <option key="admin" value="admin">Admin</option>
                     <option key="driver" value="driver">Driver</option>
+                    <option key="staff" value="staff">Staff</option>
                   </select>
                 </>
               ) : (

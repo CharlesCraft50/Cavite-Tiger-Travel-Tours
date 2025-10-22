@@ -16,11 +16,12 @@ class UserController extends Controller
             ->get()
             ->map(function ($user) {
                 $user->total_spent = $user->bookings->sum('total_amount');
+
                 return $user;
             });
 
         return Inertia::render('dashboard/users/index', [
-            'users' => $users
+            'users' => $users,
         ]);
     }
 
@@ -31,7 +32,7 @@ class UserController extends Controller
         $bookings = $user->bookings;
 
         $totalSpent = $bookings
-            ->filter(fn($b) => optional($b->payment)->status === 'accepted')
+            ->filter(fn ($b) => optional($b->payment)->status === 'accepted')
             ->sum('total_amount');
 
         return Inertia::render('dashboard/users/show', [
@@ -40,10 +41,11 @@ class UserController extends Controller
             'totalSpent' => $totalSpent,
         ]);
     }
-    
-    public function update(Request $request, $id) {
+
+    public function update(Request $request, $id)
+    {
         $validated = $request->validate([
-            'role' => ['required', 'string', 'in:admin,user,driver'],
+            'role' => ['required', 'string', 'in:admin,user,driver,staff'],
         ]);
 
         $user = User::findOrFail($id);
@@ -53,6 +55,4 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'User role updated successfully.');
     }
-
 }
-
