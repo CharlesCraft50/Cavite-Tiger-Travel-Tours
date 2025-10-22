@@ -32,6 +32,10 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         booking.other_services?.map((s) => s.id) ?? []
     );
 
+    useEffect(() => {
+        console.log(booking.preferred_van);
+    }, []);
+
     const { auth } = usePage<SharedData>().props;
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
@@ -206,6 +210,25 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
         setHasChanges(changed);
     }, [data, booking]);
+
+    useEffect(() => {
+        if (!editable || !isEditing) return;
+
+        switch (data.payment_status) {
+            case 'accepted':
+            setData(prev => ({ ...prev, status: 'accepted' }));
+            break;
+            case 'pending':
+            case 'on_process':
+            setData(prev => ({ ...prev, status: 'on_process' }));
+            break;
+            case 'declined':
+            setData(prev => ({ ...prev, status: 'declined' }));
+            break;
+            default:
+            break;
+        }
+    }, [data.payment_status, editable, isEditing]);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -509,10 +532,10 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                         </>
                                     )}
 
-                                    {booking.preferred_van?.driver?.first_name != null || booking.preferred_van?.driver?.last_name != null && (
+                                    {booking.preferred_van && (
                                         <>
                                             <p className="text-sm text-gray-800">Assigned Driver</p>
-                                            <span className="text-black font-semibold">{booking.preferred_van?.driver?.first_name} {booking.preferred_van?.driver?.last_name}</span>
+                                            <span className="text-black font-semibold">{booking?.preferred_van.driver?.first_name} {booking?.preferred_van.driver?.last_name}</span>
                                         </>
                                     )}
 

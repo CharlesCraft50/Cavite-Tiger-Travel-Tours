@@ -34,7 +34,7 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
         <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
           <span className="text-red-600">CAVITE TIGER TRAVEL & TOURS</span>
         </h1>
-        <h2 className="text-3xl font-bold">SAFE TRAVEL</h2>
+        <h2 className="text-3xl font-bold">Your Safety Is Our Top Priority</h2>
         <p className="mt-4 text-lg">
           Professionally trained and safety-conscious driver. Well-maintained vans with passenger insurance.
         </p>
@@ -147,17 +147,17 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
         >
           <SwiperSlide>
             <p className="text-xl italic">“In their hearts humans plan their course, but the Lord establishes their steps.”</p>
-            <p className="mt-2 text-sm text-gray-300">— Proverbs 16:9</p>
+            <p className="mt-2 text-sm text-primary">— Proverbs 16:9</p>
           </SwiperSlide>
 
           <SwiperSlide>
             <p className="text-xl italic">“So do not fear, for I am with you; do not be dismayed, for I am your God.”</p>
-            <p className="mt-2 text-sm text-gray-300">— Isaiah 41:10</p>
+            <p className="mt-2 text-sm text-primary">— Isaiah 41:10</p>
           </SwiperSlide>
 
           <SwiperSlide>
             <p className="text-xl italic">“For he will command his angels concerning you to guard you in all your ways.”</p>
-            <p className="mt-2 text-sm text-gray-300">— Psalm 91:11</p>
+            <p className="mt-2 text-sm text-primary">— Psalm 91:11</p>
           </SwiperSlide>
         </Swiper>
       </div>

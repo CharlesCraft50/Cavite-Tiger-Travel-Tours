@@ -50,8 +50,7 @@ class CustomTripController extends Controller
         $user = Auth::user();
 
         $customTrip = CustomTrip::with([
-            'preferredVan',
-            'driver',
+            'preferredVan.driver',
             'payment',
         ])->findOrFail($id);
 

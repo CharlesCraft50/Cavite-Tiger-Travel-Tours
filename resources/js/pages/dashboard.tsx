@@ -64,6 +64,10 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
         })),
     ];
 
+    useEffect(() => {
+        console.log(userCustomTrips);
+    }, []);
+
     const upcomingTrips = allTrips.filter(t => t.date > new Date()).length;
     const acceptedTrips = allTrips.filter(t => {
     const status = t.paymentStatus?.toLowerCase() ?? '';
@@ -233,10 +237,11 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                                         <p className="font-semibold text-gray-900">
                                             {trip.type === 'custom' ? (
                                             <>
-                                                Custom Trip <span className="ml-2 text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full">Custom</span>
+                                                Custom Trip
+                                                {/* <span className="ml-2 text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full">Custom</span> */}
                                             </>
                                             ) : (
-                                            'Package Trip'
+                                                'Local Trip'
                                             )}
                                         </p>
                                         <p className="text-sm text-gray-600">
@@ -270,14 +275,14 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                                     </Link>
                                 ))
                             ) : (
-                                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                No upcoming trips yet.
-                                <Link
-                                    href="/packages"
-                                    className="inline-block mt-4 bg-primary hover:opacity-90 text-white px-6 py-2 rounded-lg transition-opacity duration-200"
-                                >
-                                    Browse Packages
-                                </Link>
+                                <div className="flex flex-col text-center py-8 text-gray-500 dark:text-gray-400">
+                                    <p>No upcoming trips yet.</p>
+                                    <Link
+                                        href={route('localTrip')}
+                                        className="inline-block mt-4 bg-primary hover:opacity-90 text-white px-6 py-2 rounded-lg transition-opacity duration-200"
+                                    >
+                                        Browse Packages
+                                    </Link>
                                 </div>
                             )
                             )}
@@ -292,7 +297,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                                         Recommended for You
                                     </h2>
                                     <Link 
-                                        href="/packages" 
+                                        href={route('localTrip')}
                                         className="text-primary hover:opacity-80 font-medium text-sm transition-opacity duration-200"
                                     >
                                         View All →

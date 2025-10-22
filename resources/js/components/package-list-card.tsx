@@ -74,10 +74,8 @@ export default function PackageListCard({ packages, limit, searchable, searchQue
                   </div>
 
                   <Link
-                    href={route('packages.show', {
-                      slug: pkg?.slug,
-                    })}
-                    className="flex-shrink-0"
+                    href={route('localTrip', { package: pkg?.slug })}
+                    className="flex-shrink- cursor-pointer"
                   >
                     <Button 
                       type="button" 
@@ -94,13 +92,13 @@ export default function PackageListCard({ packages, limit, searchable, searchQue
       ))}
 
       {/* Show all packages hint */}
-      {limit && packages.length > limit && (
+      {/* {limit && packages.length > limit && (
         <div className="text-center pt-2">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Showing {limit} of {packages.length} packages
           </p>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

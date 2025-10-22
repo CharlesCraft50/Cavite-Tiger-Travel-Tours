@@ -125,7 +125,7 @@ export default function Index({ packages, cities, countries, selectedCountry }: 
                 </div>
 
                 {/* City Cards */}
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4 justify-center items-center">
                     {!!isAdmins && (
                         <Link
                             href={route('packages.create')}
@@ -146,6 +146,7 @@ export default function Index({ packages, cities, countries, selectedCountry }: 
                             title={city.name}
                             src={city.image_url}
                             editable={!!isAdmins}
+                            size='small'
                         />
                     ))}
                 </div>

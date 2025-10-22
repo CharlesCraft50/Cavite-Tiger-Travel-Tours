@@ -245,9 +245,11 @@ export default function TravelChatbot() {
                                                 ) : message.text == "${contact}" ? (
                                                     <span>
                                                         You can reach us at:
-                                                        {"\n"}📞 0910-345-6119
-                                                        {"\n"}📧 gilbertarasan8@gmail.com
-                                                        {"\n"}📍 Cavite City, Philippines
+                                                        {"\n"}📞 0976-133-6322
+                                                        {"\n"}📞 0976-292-6382
+                                                        {"\n"}📧 cavitetigers2021@gmail.com
+                                                        {"\n"}📍 2nd Floor WLM Bldg., Salawag,
+                                                        {"\n"}&nbsp; &nbsp; &nbsp; &nbsp;Dasmariñas, Cavite
                                                         {"\n"}🕒 Mon–Sat: 8AM–6PM
                                                         {"\n"}🔗 Facebook:{" "}
                                                         <a

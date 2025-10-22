@@ -158,7 +158,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
         {selectedPackage ? (
           <div ref={showRef} className="flex flex-col gap-4">
             <div className="flex items-center justify-between border-b pb-3 mb-4">
-              <Button variant="outline" onClick={() => {
+              <Button variant="outline" className="bg-primary cursor-pointer text-white hover:bg-[#fb2056]/80 hover:text-white" onClick={() => {
                 setSelectedPackage(null);
               }}>
                 ← Back to Packages

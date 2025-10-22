@@ -91,8 +91,14 @@ class BookingController extends Controller
 
         $otherServices = OtherService::all();
 
-        $booking = Booking::with(['tourPackage', 'preferredVan', 'otherServices', 'payment', 'packageCategory', 'preferredPreparation'])
-            ->findOrFail($id);
+        $booking = Booking::with([
+            'tourPackage',
+            'preferredVan.driver',
+            'otherServices',
+            'payment',
+            'packageCategory',
+            'preferredPreparation',
+        ])->findOrFail($id);
 
         $packages = TourPackage::findOrFail($booking->tour_package_id);
         $vans = PreferredVan::with(['availabilities', 'driver', 'category'])->get();

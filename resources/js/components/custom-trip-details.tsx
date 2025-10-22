@@ -52,7 +52,7 @@ export default function CustomTripDetails({
     notes: trip.notes ?? '',
     payment_status: trip.payment?.status ?? 'pending',
     payment: trip.payment ?? null,
-    total_amount: trip.total_amount ?? 0,
+    total_amount: trip.total_amount,
     pax_adult: trip.pax_adult,
   });
 
@@ -65,6 +65,25 @@ export default function CustomTripDetails({
       setData({ ...data, preferred_van_id: vanId });
     }
   };
+
+  useEffect(() => {
+    if (!editable || !isEditing) return;
+
+    switch (data.payment_status) {
+        case 'accepted':
+        setData(prev => ({ ...prev, status: 'accepted' }));
+        break;
+        case 'pending':
+        case 'on_process':
+        setData(prev => ({ ...prev, status: 'on_process' }));
+        break;
+        case 'declined':
+        setData(prev => ({ ...prev, status: 'declined' }));
+        break;
+        default:
+        break;
+    }
+    }, [data.payment_status, editable, isEditing]);
 
   const handleSubmit: FormEventHandler = (e) => {
     e.preventDefault();
@@ -171,6 +190,33 @@ export default function CustomTripDetails({
             </Button>
           )}
         </div>
+          
+        {/* Admin Review Reminder */}
+        {data.total_amount === null || data.total_amount === undefined || Number(data.total_amount) === 0 && (
+            <div className="mt-4">
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
+                    >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                    />
+                    </svg>
+                    <p className="text-sm leading-relaxed">
+                    <span className="font-medium">Admin review pending:</span>{' '}
+                        Your booking request is being reviewed by our team. Please wait for the
+                        confirmation and total amount of your trip.
+                    </p>
+                </div>
+            </div>
+        )}
 
         {/* Customer Details */}
         <div className="mt-8">
@@ -444,13 +490,17 @@ export default function CustomTripDetails({
                         <PriceSign />
                         <Input
                             type="number"
-                            className="w-32 border border-gray-300 rounded-md px-2 py-1 text-right"
-                            value={data.total_amount}
+                            className="w-32 border border-gray-300 rounded-md px-2 py-1"
+                            value={data.total_amount ?? ''}
                             min={0}
                             step="0.01"
-                            onChange={(e) =>
-                            setData({ ...data, total_amount: Number(e.target.value) })
-                            }
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setData({
+                                ...data,
+                                    total_amount: value === '' ? undefined : Number(value),
+                                });
+                            }}
                         />
                         </div>
                     ) : (
