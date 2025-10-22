@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    $packages = TourPackage::whereIn('id', [1, 2])->get();
+    $packages = TourPackage::whereIn('id', [1, 2, 3, 4, 5, 6])->get();
 
     return Inertia::render('index', [
         'packages' => $packages,
@@ -61,19 +61,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/custom-trips', [CustomTripController::class, 'index'])->name('customTrips.index');
     Route::get('/custom-trips/{id}', [CustomTripController::class, 'show'])->name('customTrips.show');
     Route::post('/custom-trips/{id}/cancel', [CustomTripController::class, 'cancel'])->name('customTrips.cancel');
+
+    Route::get('/book-now/{slug}', [BookNowController::class, 'create'])->name('booking.create');
+    Route::get('/book-now/{slug}/category/{categorySlug?}', [BookNowController::class, 'create'])->name('booking.create.category');
+    Route::post('/book-now/booked', [BookNowController::class, 'store'])->name('booking.store');
+    Route::get('/book-now/payment/{booking_id}', [BookingPaymentController::class, 'index'])->name('booking.payment');
+    Route::post('/book-now/payment/create', [BookingPaymentController::class, 'store'])->name('booking.payment.store');
+
+    Route::get('/custom-trips/payment/{trip_id}', [CustomTripPaymentController::class, 'index'])->name('customTrips.payment');
+    Route::post('/custom-trips/payment/create', [CustomTripPaymentController::class, 'store'])->name('customTrip.payment.store');
+
 });
 
 Route::post('/image/upload', [ImageController::class, 'store'])->name('image.store');
 Route::get('/image/{id}', [ImageController::class, 'show'])->name('image.show');
-
-Route::get('/book-now/{slug}', [BookNowController::class, 'create'])->name('booking.create');
-Route::get('/book-now/{slug}/category/{categorySlug?}', [BookNowController::class, 'create'])->name('booking.create.category');
-Route::post('/book-now/booked', [BookNowController::class, 'store'])->name('booking.store');
-Route::get('/book-now/payment/{booking_id}', [BookingPaymentController::class, 'index'])->name('booking.payment');
-Route::post('/book-now/payment/create', [BookingPaymentController::class, 'store'])->name('booking.payment.store');
-
-Route::get('/custom-trips/payment/{trip_id}', [CustomTripPaymentController::class, 'index'])->name('customTrips.payment');
-Route::post('/custom-trips/payment/create', [CustomTripPaymentController::class, 'store'])->name('customTrip.payment.store');
 
 // Route::resource('packages', PackageController::class);
 Route::get('/packages/{packageSlug}/category/{categorySlug}', [PackageController::class, 'showCategory'])

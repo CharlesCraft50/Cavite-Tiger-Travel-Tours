@@ -29,7 +29,8 @@ export interface CustomTrip {
 
   // Admin Status
   status: string;
-
+  pax_adult: number;
+  pax_kids: number;
   // Notes / optional
   notes?: string;
 

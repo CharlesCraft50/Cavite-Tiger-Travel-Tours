@@ -16,13 +16,16 @@ import { DialogFooter } from './ui/dialog';
 type CustomTripListProps = {
   trips: CustomTrip[];
   limit?: number;
-  statusFilter?: string; // added
+  statusFilter?: string;
 };
 
 export default function CustomTripList({ trips, limit, statusFilter }: CustomTripListProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchBy, setSearchBy] = useState<'name' | 'destination' | 'booking_number' | 'email'>('name');
+  const [status, setStatus] = useState(statusFilter || '');
+  const [sortByDate, setSortByDate] = useState<'newest' | 'oldest'>('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [tripToCancel, setTripToCancel] = useState<CustomTrip | null>(null);
-  const [status, setStatus] = useState(statusFilter || ''); // added
   const itemsPerPage = 10;
 
   const getTripStatus = (trip: CustomTrip): string => {
@@ -45,54 +48,106 @@ export default function CustomTripList({ trips, limit, statusFilter }: CustomTri
     setTripToCancel(null);
   };
 
-  // Filter trips by status
-  const filteredTrips = trips.filter((trip) => {
-    const absoluteStatus = getTripStatus(trip);
-    return !status || absoluteStatus === status;
-  });
+  // ✅ Search & Filter logic
+  const filteredTrips = trips
+    .filter((trip) => {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = (() => {
+        switch (searchBy) {
+          case 'name':
+            return (`${trip.first_name} ${trip.last_name}`.toLowerCase().includes(query));
+          case 'destination':
+            return trip.destination?.toLowerCase().includes(query);
+          case 'booking_number':
+            return trip.booking_number?.toLowerCase().includes(query);
+          case 'email':
+            return trip.email?.toLowerCase().includes(query);
+          default:
+            return true;
+        }
+      })();
+      const matchesStatus = !status || getTripStatus(trip) === status;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date_of_trip).getTime();
+      const dateB = new Date(b.date_of_trip).getTime();
+      return sortByDate === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
   const totalPages = Math.ceil(filteredTrips.length / itemsPerPage);
   const paginatedTrips = limit
     ? filteredTrips.slice(0, limit)
     : filteredTrips.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Update URL when status changes
+  // Keep URL synced with filters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (status) {
-      params.set('status', status);
-    } else {
-      params.delete('status');
-    }
+    if (status) params.set('status', status);
+    else params.delete('status');
     window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
   }, [status]);
 
   return (
     <div className="overflow-x-auto rounded-lg border">
-      {/* Status filter */}
+      {/* Filters */}
       <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {/* Status filter */}
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="on_process">On Process</option>
+            <option value="accepted">Accepted</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="past_due">Past Due</option>
+            <option value="declined">Declined</option>
+            <option value="completed">Completed</option>
+          </select>
+
+          {/* Search */}
+          <input
+            type="text"
+            placeholder={`Search by ${searchBy.replace('_', ' ')}`}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-64"
+          />
+          <select
+            value={searchBy}
+            onChange={(e) => setSearchBy(e.target.value as any)}
+            className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          >
+            <option value="name">Name</option>
+            <option value="destination">Destination</option>
+            <option value="booking_number">Booking No.</option>
+            <option value="email">Email</option>
+          </select>
+        </div>
+
+        {/* Sort */}
         <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          value={sortByDate}
+          onChange={(e) => setSortByDate(e.target.value as any)}
           className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
         >
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="on_process">On Process</option>
-          <option value="accepted">Accepted</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="past_due">Past Due</option>
-          <option value="declined">Declined</option>
-          <option value="completed">Completed</option>
+          <option value="newest">Sort by Newest</option>
+          <option value="oldest">Sort by Oldest</option>
         </select>
       </div>
 
+      {/* Table */}
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Trip Number</th>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Date</th>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Name</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Destination</th>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Status</th>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Action</th>
           </tr>
@@ -105,6 +160,7 @@ export default function CustomTripList({ trips, limit, statusFilter }: CustomTri
                 <td className="px-4 py-2">{trip.booking_number}</td>
                 <td className="px-4 py-2">{trip.date_of_trip}</td>
                 <td className="px-4 py-2">{`${trip.first_name} ${trip.last_name}`}</td>
+                <td className="px-4 py-2">{trip.destination}</td>
                 <td className="px-4 py-2">
                   <span
                     className={clsx(
@@ -150,6 +206,7 @@ export default function CustomTripList({ trips, limit, statusFilter }: CustomTri
         </tbody>
       </table>
 
+      {/* Pagination */}
       {!limit && totalPages > 1 && (
         <div className="flex justify-center items-center gap-2 py-4">
           <button
@@ -181,16 +238,15 @@ export default function CustomTripList({ trips, limit, statusFilter }: CustomTri
         </div>
       )}
 
+      {/* Cancel Dialog */}
       <Dialog open={!!tripToCancel} onOpenChange={(open) => !open && setTripToCancel(null)}>
         <DialogContent className="p-4 max-w-md bg-white rounded shadow-xl">
           <DialogTitle className="text-lg font-semibold text-center mb-2">
             Cancel Trip "{tripToCancel?.booking_number}"?
           </DialogTitle>
-
           <DialogDescription className="text-sm text-gray-500 text-center mb-4">
             Are you sure you want to cancel this custom trip? This action cannot be undone.
           </DialogDescription>
-
           <DialogFooter className="flex justify-end gap-2">
             <DialogClose asChild>
               <Button variant="outline" className="cursor-pointer">

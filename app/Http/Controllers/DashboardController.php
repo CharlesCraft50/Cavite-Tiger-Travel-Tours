@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Country;
+use App\Models\CustomTrip;
 use App\Models\PreferredVan;
 use App\Models\TourPackage;
 use App\Models\User;
@@ -22,9 +23,13 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         $bookings = null;
+        $customTrips = null;
 
         if ($user->isAdmin()) {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->orderByDesc('created_at')
+                ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
                 ->orderByDesc('created_at')
                 ->get();
         } elseif ($user->isDriver()) {
@@ -32,8 +37,16 @@ class DashboardController extends Controller
                 ->where('driver_id', $user->id)
                 ->orderByDesc('created_at')
                 ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
         } else {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
                 ->where('user_id', $user->id)
                 ->orderByDesc('created_at')
                 ->get();
@@ -44,6 +57,7 @@ class DashboardController extends Controller
         return Inertia::render('dashboard', [
             'bookingCount' => $bookingCount,
             'userBookings' => $bookings,
+            'userCustomTrips' => $customTrips,
         ]);
     }
 

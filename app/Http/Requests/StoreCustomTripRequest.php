@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\PreferredVan;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCustomTripRequest extends FormRequest
@@ -13,6 +14,18 @@ class StoreCustomTripRequest extends FormRequest
     {
         // Allow all authenticated users to submit a custom trip
         return auth()->check();
+    }
+
+    public function prepareForValidation()
+    {
+        $van = PreferredVan::find($this->preferred_van_id);
+
+        if ($van) {
+            $this->merge([
+                'van_pax_adult_max' => $van->pax_adult,
+                'van_pax_kids_max' => $van->pax_kids,
+            ]);
+        }
     }
 
     /**
@@ -43,6 +56,19 @@ class StoreCustomTripRequest extends FormRequest
             // Booking (optional, handled by admin)
             'is_confirmed' => ['sometimes', 'boolean'],
             'total_amount' => ['nullable', 'numeric', 'min:0'],
+
+            'pax_adult' => [
+                'nullable',
+                'integer',
+                'min:0',
+                'max:'.($this->van_pax_adult_max ?? 1000),
+            ],
+            'pax_kids' => [
+                'nullable',
+                'integer',
+                'min:0',
+                'max:'.($this->van_pax_kids_max ?? 1000),
+            ],
 
             'notes' => ['nullable', 'string'],
         ];

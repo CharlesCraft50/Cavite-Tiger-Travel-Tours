@@ -27,6 +27,8 @@ class CustomTrip extends Model
         'booking_number',
         'total_amount',
         'status',
+        'pax_adult',
+        'pax_kids',
         'notes',
     ];
 

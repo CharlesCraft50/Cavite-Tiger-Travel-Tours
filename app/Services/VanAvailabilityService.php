@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\CustomTrip;
 use App\Models\PreferredVanAvailability;
 use Carbon\Carbon;
 
@@ -19,6 +20,7 @@ class VanAvailabilityService
 
         // Get all bookings for the van
         $bookings = Booking::where('preferred_van_id', $vanId)->get();
+        $customTrips = CustomTrip::where('preferred_van_id', $vanId)->get();
 
         // Build a map of booked date counts
         $bookedDates = [];
@@ -26,6 +28,15 @@ class VanAvailabilityService
         foreach ($bookings as $booking) {
             $start = Carbon::parse($booking->departure_date);
             $end = Carbon::parse($booking->return_date);
+
+            for ($date = $start; $date->lte($end); $date->addDay()) {
+                $bookedDates[$date->toDateString()] = ($bookedDates[$date->toDateString()] ?? 0) + 1;
+            }
+        }
+
+        foreach ($customTrips as $trip) {
+            $start = Carbon::parse($trip->departure_date);
+            $end = Carbon::parse($trip->return_date);
 
             for ($date = $start; $date->lte($end); $date->addDay()) {
                 $bookedDates[$date->toDateString()] = ($bookedDates[$date->toDateString()] ?? 0) + 1;

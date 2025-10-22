@@ -10,18 +10,29 @@ export default function ContactPage() {
       <Navbar />
       <Head title="Contact" />
       <section
-        className="relative bg-cover bg-center bg-no-repeat min-h-[500px]"
-        style={{
-          backgroundImage:
-            "url('https://scontent.fcrk1-3.fna.fbcdn.net/v/t39.30808-6/487416891_1137008725112257_7381819315721053898_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeEK4vUzK1LHLzqoW2Uu3kE4hyVvZakYhJSHJW9lqRiElFhzoZgoTeyvXqVVIJcy07Plm94kMv3fOOl92J1wGQJM&_nc_ohc=2MMi2Zb81NsQ7kNvwGGZLBC&_nc_oc=AdmRSTYV8_h6W4OD8TcxR7nA6BhD08ocfPzbyoZnyusjgXxpX1Bp95joIvi1ZUu9UhQ&_nc_zt=23&_nc_ht=scontent.fcrk1-3.fna&_nc_gid=yNfpvCs_5TTD1XD11TQ-NQ&oh=00_AfSQkUOeEA5szxURBDfhuCYrxGLsADe0QpAyWnL7GPp63w&oe=687EDC49')",
-        }}
+        className="relative bg-cover bg-center bg-no-repeat min-h-[500px] overflow-hidden"
       >
-        <div className="absolute inset-0 bg-black/50"></div>
+        {/* Background image with blur */}
+        <div
+          className="absolute inset-0 bg-cover bg-center blur-xs"
+          style={{
+            backgroundImage:
+              "url('https://i.ibb.co/zTcDc1JR/Untitled-17.png')",
+          }}
+        />
+
+        {/* Black overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+
+        {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center text-white">
           <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>
-          <p className="text-lg">We're here to help you plan your next adventure.</p>
+          <p className="text-lg">
+            We're here to help you plan your next adventure.
+          </p>
         </div>
       </section>
+
 
       <section className="max-w-5xl mx-auto px-6 py-16 space-y-10 text-gray-700">
         <div>

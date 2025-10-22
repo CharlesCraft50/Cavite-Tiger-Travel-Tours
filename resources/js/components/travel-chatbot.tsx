@@ -350,7 +350,7 @@ export default function TravelChatbot() {
                                 </div>
                             
                                 {/* Input */}
-                                <form onSubmit={handleMessage} className="flex flex-row justify-between space-x-2 sm:space-x-4 p-1 sm:p-2">
+                                {/* <form onSubmit={handleMessage} className="flex flex-row justify-between space-x-2 sm:space-x-4 p-1 sm:p-2">
                                     <Input 
                                         type="text" 
                                         className="bg-white p-2 border border-gray-500 rounded-lg w-full text-sm min-w-0" 
@@ -364,7 +364,7 @@ export default function TravelChatbot() {
                                     >
                                         <Send className="w-4 h-4 text-white" />
                                     </Button>
-                                </form>
+                                </form> */}
                             </div>
                         </div>
                     </div>

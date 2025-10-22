@@ -837,8 +837,8 @@ export default function VanSelection({
                                                     !small
                                                     ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
                                                     : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4",
-                                                    "min-h-[100px] border-1 border-dashed rounded-lg", // ensures area exists even when empty
-                                                    snapshot.isDraggingOver && "bg-blue-50"           // highlight when dragging over
+                                                    "min-h-[100px] border-1 border-dashed rounded-lg",
+                                                    snapshot.isDraggingOver && "bg-blue-50"
                                                 )}
                                             >
                                             {categorizedVans[category.name]?.map((van, vanIndex) => (
@@ -871,7 +871,7 @@ export default function VanSelection({
                         )}
                     </Droppable>
                     
-                    {/* Uncategorized Section - Non-draggable */}
+                    {/* Uncategorized Section - Only show in editing mode */}
                     {categorizedVans['Uncategorized']?.length > 0 && (
                         <div className="mb-6 rounded-lg border-2 border-dashed border-gray-300 p-4 bg-gray-50">
                             <h2 className="text-xl font-bold mb-4">Uncategorized</h2>
@@ -919,36 +919,41 @@ export default function VanSelection({
                 return (
                 <>
                     {Object.entries(categorizedVans).map(([category, vans]) => {
-                    const vansForCategory = vans
-                        .map(van => tempVans.find(v => v.id === van.id) || van)
-                        .filter(Boolean)
-                        .filter(() => {
-                        if (shown < visibleCount) {
-                            shown++;
-                            return true;
-                        }
-                        return false;
-                        });
+                        const vansForCategory = vans
+                            .map(van => tempVans.find(v => v.id === van.id) || van)
+                            .filter(Boolean)
+                            .filter(() => {
+                            if (shown < visibleCount) {
+                                shown++;
+                                return true;
+                            }
+                            return false;
+                            });
 
-                    if (vansForCategory.length === 0) return null;
+                        if (vansForCategory.length === 0) return null;
 
-                    return (
-                        <div key={category} className="mb-6">
-                            <h2 className="text-xl font-bold mt-4 mb-2">{category}</h2>
-                            <div
-                                className={clsx(
-                                !small
-                                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-                                    : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                        return (
+                            <div key={category} className="mb-6">
+                                {/* Show category name or divider based on category type */}
+                                {category !== 'Uncategorized' ? (
+                                    <h2 className="text-xl font-bold mt-4 mb-2">{category}</h2>
+                                ) : (
+                                    <div className="border-t-2 border-gray-300 my-4"></div>
                                 )}
-                            >
-                                {vansForCategory.map((van) => (
-                                    <div key={van.id}>{renderVanCard(van)}</div>
-                                ))}
+                                <div
+                                    className={clsx(
+                                    !small
+                                        ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                                        : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                                    )}
+                                >
+                                    {vansForCategory.map((van) => (
+                                        <div key={van.id}>{renderVanCard(van)}</div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    );
-                    })}
+                        );
+                        })}
                 </>
                 )
             })()}

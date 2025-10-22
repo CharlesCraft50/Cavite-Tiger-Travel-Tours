@@ -41,6 +41,9 @@ return new class extends Migration
             $table->enum('status', ['pending', 'on_process', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])
                 ->default('pending');
 
+            $table->integer('pax_kids')->nullable();
+            $table->integer('pax_adult')->nullable();
+
             $table->text('notes')->nullable();
 
             $table->timestamps();

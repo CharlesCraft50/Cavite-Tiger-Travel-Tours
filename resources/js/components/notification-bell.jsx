@@ -6,14 +6,17 @@ import { Link } from "@inertiajs/react";
 
 export default function NotificationBell() {
   const { notifications, markAllAsRead, fetchNotifications } = useNotifications();
-
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleIsOpen = () => {
-    setIsOpen((prev) => !prev);
-  };
+  // Track which notifications have image errors
+  const [imageErrors, setImageErrors] = useState({});
 
+  const toggleIsOpen = () => setIsOpen((prev) => !prev);
   const unreadLength = notifications.filter((n) => n.read_at == null).length;
+
+  const handleImageError = (idx) => {
+    setImageErrors((prev) => ({ ...prev, [idx]: true }));
+  };
 
   return (
     <div className="relative w-full md:w-auto">
@@ -47,9 +50,7 @@ export default function NotificationBell() {
       <div
         className={clsx(
           "border border-gray-300 bg-gray-50 rounded-lg overflow-hidden z-10",
-          // Desktop: absolute dropdown
           "md:absolute md:top-10 md:right-0 md:w-[250px]",
-          // Mobile: full width, below button
           "w-full mt-2",
           isOpen ? "" : "hidden"
         )}
@@ -58,9 +59,12 @@ export default function NotificationBell() {
           {notifications.length === 0 && (
             <p className="px-4 py-2">No notifications</p>
           )}
+
           {notifications.map((n, idx) => {
             const data = n.data;
             const isLast = idx === notifications.length - 1;
+            const hasError = imageErrors[idx];
+
             return (
               <Link href={`/bookings/${data.booking_id}`} key={idx}>
                 <div
@@ -69,11 +73,19 @@ export default function NotificationBell() {
                     !isLast && "border-b border-gray-200"
                   )}
                 >
-                  <img
-                    src={data.image_overview}
-                    alt="preview"
-                    className="w-12 h-12 object-cover rounded"
-                  />
+                  {!hasError && data.image_overview ? (
+                    <img
+                      src={data.image_overview}
+                      alt="preview"
+                      className="w-12 h-12 object-cover rounded"
+                      onError={() => handleImageError(idx)}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center gap-1 w-12 h-12 bg-gray-100 rounded">
+                      <div className="text-lg">🏞️</div>
+                    </div>
+                  )}
+
                   <div className="flex-1">
                     <p className="text-sm">{data.message}</p>
                     <small className="text-gray-600">

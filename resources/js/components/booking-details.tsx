@@ -1,6 +1,6 @@
 import { Booking, OtherService, OtherServiceTourPackage, PreferredVan, SharedData, TourPackage, VanCategory } from '@/types'
 import { Link, router, useForm, usePage } from '@inertiajs/react';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import {  Mail, Pencil, Phone } from 'lucide-react';
 import { FormEventHandler, useEffect, useMemo, useState } from 'react';
 import DatePicker from 'react-datepicker';
@@ -420,7 +420,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             <p className="text-sm text-gray-600 mt-2">Selected Preferred Preparation</p>
                             <p className="text-base font-medium">{booking.preferred_preparation?.label}</p>
 
-                            {booking.preferred_preparation?.requires_valid_id && (booking.valid_id_paths || []).length > 0 && (
+                            {!!booking.preferred_preparation?.requires_valid_id && (booking.valid_id_paths || []).length > 0 && (
                                 <>
                                     <p className="text-sm text-gray-600 mt-2">Valid ID</p>
                                     <div className="flex flex-wrap gap-2">
@@ -502,8 +502,20 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                         </span>
                                     </div>
                                     <p className="text-sm text-gray-800">({booking.pax_adult} Pax)</p>
-                                    <p className="text-sm text-gray-800">Plate Number</p>
-                                    <span className="text-black font-semibold">{booking.preferred_van?.plate_number}</span>
+                                    {booking.preferred_van?.plate_number != null && (
+                                        <>
+                                            <p className="text-sm text-gray-800">Plate Number</p>
+                                            <span className="text-black font-semibold">{booking.preferred_van?.plate_number}</span>
+                                        </>
+                                    )}
+
+                                    {booking.preferred_van?.driver?.first_name != null || booking.preferred_van?.driver?.last_name != null && (
+                                        <>
+                                            <p className="text-sm text-gray-800">Assigned Driver</p>
+                                            <span className="text-black font-semibold">{booking.preferred_van?.driver?.first_name} {booking.preferred_van?.driver?.last_name}</span>
+                                        </>
+                                    )}
+
                                 </>
                             )}
                         </div>
@@ -530,7 +542,16 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                             }
                                         }}
                                         dateFormat="yyyy-MM-dd"
-                                        minDate={availableDates?.from ? new Date(availableDates.from) : undefined}
+                                        minDate={
+                                            availableDates?.from
+                                                ? new Date(
+                                                    Math.max(
+                                                        new Date(availableDates.from).getTime(),
+                                                        addDays(new Date(), 3).getTime() // 3 days from today
+                                                    )
+                                                )
+                                                : addDays(new Date(), 3) // fallback: 3 days from today
+                                        }
                                         maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
                                         excludeDates={
                                             availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []

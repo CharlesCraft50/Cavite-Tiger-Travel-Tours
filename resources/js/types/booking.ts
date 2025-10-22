@@ -28,7 +28,7 @@ export interface Booking {
     is_confirmed: boolean;
 
     // Admin Status
-    status: 'pending' | 'accepted' | 'declined' | 'past_due' | 'cancelled' | 'completed';
+    status: 'pending' | 'accepted' | 'declined' | 'past_due' | 'cancelled' | 'completed' | 'on_process';
     
     tour_package?: TourPackage;
     preferred_van?: PreferredVan;

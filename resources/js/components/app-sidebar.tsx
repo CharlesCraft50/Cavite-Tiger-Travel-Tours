@@ -15,7 +15,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { BarChart2, Book, BookOpen, Folder, HeartIcon, Home, Info, LayoutGrid, Settings, Settings2 } from 'lucide-react';
 import AppLogo from './app-logo';
 import type { SharedData } from '@/types'; // adjust path if needed
-import { isAdmin, isDriver } from '@/lib/utils';
+import { isAdmin, isDriver, isStaff } from '@/lib/utils';
 
 const footerNavItems: NavItem[] = [
     // {
@@ -36,6 +36,7 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
     const isBookingView = /^\/bookings\/\d+$/.test(url);
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
+    const isStaffs = isStaff(auth.user);
 
     const mainNavItems: NavItem[] = [
     {
@@ -66,31 +67,31 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
             },
         ],
     },
-    {
-        title: 'Custom Trips',
-        href: '/custom-trips',
-        collapsable: true,
-        icon: BookOpen,
-        children: [
-            {
-                title: 'Pending',
-                href: '/custom-trips?status=pending',
-            },
-            {
-                title: 'On Process',
-                href: '/custom-trips?status=on_process',
-            },
-            {
-                title: 'Accepted',
-                href: '/custom-trips?status=accepted',
-            },
-            {
-                title: 'Cancelled',
-                href: '/custom-trips?status=cancelled',
-            },
-        ],
-    },
-    ...(!(isAdmins || isDrivers) ? [
+    // {
+    //     title: 'Custom Trips',
+    //     href: '/custom-trips',
+    //     collapsable: true,
+    //     icon: BookOpen,
+    //     children: [
+    //         {
+    //             title: 'Pending',
+    //             href: '/custom-trips?status=pending',
+    //         },
+    //         {
+    //             title: 'On Process',
+    //             href: '/custom-trips?status=on_process',
+    //         },
+    //         {
+    //             title: 'Accepted',
+    //             href: '/custom-trips?status=accepted',
+    //         },
+    //         {
+    //             title: 'Cancelled',
+    //             href: '/custom-trips?status=cancelled',
+    //         },
+    //     ],
+    // },
+    ...(!(isAdmins || isDrivers || isStaffs) ? [
         {
             title: 'Wishlist',
             href: '/wishlists',
@@ -128,16 +129,18 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
     ] : []),
     ...(isAdmins
             ? [
-                {
-                    title: 'Analytics',
-                    href: '/analytics',
-                    icon: BarChart2,
-                },
-                {
-                    title: 'Users',
-                    href: '/users',
-                    icon: Folder,
-                },
+                ...(!isStaffs ? [
+                    {
+                        title: 'Analytics',
+                        href: '/analytics',
+                        icon: BarChart2,
+                    },
+                    {
+                        title: 'Users',
+                        href: '/users',
+                        icon: Folder,
+                    },
+                ] : []),
                 {
                     title: 'Configurations',
                     href: '#',

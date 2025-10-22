@@ -1584,7 +1584,7 @@ export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
         <img
             src="https://i.ibb.co/Mx8ZTPH7/CTTTC-Logo-Main.png"
             alt="CTTTC Logo"
-            className="w-12 sm:w-12 md:w-12 lg:w-14 h-auto object-contain"
+            className="w-12 sm:w-12 md:w-12 lg:w-14 h-auto object-contain bg-[#fafafa]"
         />
     );
 }

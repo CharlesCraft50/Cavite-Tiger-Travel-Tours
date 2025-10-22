@@ -2,7 +2,8 @@
 import Navbar from '@/components/ui/navbar';
 import PackagHeaderLayout from './packages/package-header-layout';
 import { Auth, TourPackage } from '@/types';
-import BackButton from '@/components/ui/back-button';
+import { Button } from '@headlessui/react';
+import { ArrowLeft } from 'lucide-react';
 
 interface PackageShowLayoutProps {
     id?: number;
@@ -21,10 +22,12 @@ export default function PackageShowLayout({ id, children, packages, editable, au
             {disableNav ? null : (
                 <>
                     <Navbar removeNavItems />
-                    <BackButton 
-                        href="/packages"
-                        className="ms-12 mb-0 mt-2" 
-                    />
+                    <div className="p-4">
+                        <Button onClick={() => window.history.back()} className="text-sm cursor-pointer flex items-center gap-2 btn-primary">
+                            <ArrowLeft className="w-4 h-4" />
+                            Back
+                        </Button>
+                    </div>
                 </>
             )}
             

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Mail\BookingUpdated;
 use App\Models\Booking;
+use App\Models\CustomTrip;
 use App\Models\Notification;
 use App\Models\OtherService;
 use App\Models\PreferredVan;
@@ -28,13 +29,21 @@ class BookingController extends Controller
         $user = Auth::user();
 
         $bookings = null;
+        $customTrips = null;
 
         if ($user->isAdmin()) {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
                 ->orderByDesc('created_at')
                 ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
+                ->orderByDesc('created_at')
+                ->get();
         } elseif ($user->isDriver()) {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
                 ->where('driver_id', $user->id)
                 ->orderByDesc('created_at')
                 ->get();
@@ -43,10 +52,15 @@ class BookingController extends Controller
                 ->where('user_id', $user->id)
                 ->orderByDesc('created_at')
                 ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
         }
 
         return Inertia::render('dashboard/bookings/index', [
             'userBookings' => $bookings,
+            'userCustomTrips' => $customTrips,
         ]);
     }
 
@@ -187,6 +201,7 @@ class BookingController extends Controller
 
         return Inertia::render('dashboard/analytics/index', [
             'bookings' => Booking::with('payment')->get(),
+            'customTrips' => CustomTrip::with('payment')->get(),
             'userCount' => User::count(),
         ]);
     }

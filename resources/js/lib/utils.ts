@@ -25,6 +25,7 @@ export function generateUUID() {
 export const isAdmin = (user: User) => user?.role === 'admin';
 export const isUser = (user: User) => user?.role === 'user';
 export const isDriver = (user: User) => user?.role === 'driver';
+export const isStaff = (user: User) => user?.role === 'staff';
 
 export function normalizePhoneNumber(
     input: string, 
