@@ -363,7 +363,7 @@ export default function Create({
         return number; // fallback
     }
 
-      const [checked, setChecked] = useState({
+    const [checked, setChecked] = useState({
         terms: false,
         privacy: false,
         cancellation: false,
@@ -463,7 +463,7 @@ export default function Create({
                         <option value="">Select Preparation</option>
                         {preferredPreparations?.map((p) => (
                             <option key={p.id} value={p.id}>
-                            {p.label}
+                                {p.label}
                             </option>
                         ))}
                     </select>
@@ -499,6 +499,46 @@ export default function Create({
                             }}
                         />
                     )}
+
+                    {data.preferred_preparation_id != 0 && (
+                        <div className="mt-4">
+                            <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                    stroke="currentColor"
+                                    className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
+                                >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                                />
+                                </svg>
+                                <div className="text-sm leading-relaxed space-y-2">
+                                {data.preferred_preparation_id == 1 && (<p>
+                                    <span className="font-medium">Land Arrangement/Preparation:</span>{' '}
+                                    The cost of the selected tour package is included, while flight tickets are not.
+                                </p>)}
+                                {data.preferred_preparation_id == 2 && (
+                                    <>
+                                        <p>
+                                            <span className="font-medium">All-in Arrangement/Preparation:</span>{' '}
+                                                The cost of the selected tour package and flight tickets are included.
+                                        </p>
+                                        <p>
+                                            <span className="font-medium">Important:</span>{' '}
+                                            Preferred van for drop-off/pick-up at the airport have different costs.
+                                        </p>
+                                    </>
+                                )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                 </div>
 
                 {/* <div className="grid gap-4">
@@ -631,8 +671,7 @@ export default function Create({
                         drivers={drivers ?? []}
                         selectedVanIds={selectedVanIds}
                         onSelect={toggleVanSelection}
-                        textLabel="Select your preferred van"
-                        required={true}
+                        textLabel="Select your preferred van (Optional)"
                         vanCategories={vanCategories}
                         bookedVanIdsToday={bookedVanIdsToday}
                     />
@@ -647,10 +686,10 @@ export default function Create({
                             id="pax_adult"
                             type="number"
                             required
-                            value={selectedVanIds.length === 0 ? '' : data.pax_adult}
-                            disabled={processing || selectedVanIds.length === 0}
+                            value={data.pax_adult}
+                            disabled={processing}
                             placeholder="1"
-                            max={selectedVan?.pax_adult}
+                            max={selectedVan?.pax_adult ?? 20}
                             min={1}
                             onChange={(e) => {
                                 const value = e.target.value;
@@ -692,7 +731,6 @@ export default function Create({
                     <div className="grid gap-2">
                         <Label htmlFor="departure_date">Departure Date</Label>
                         <DatePicker
-                            disabled={selectedVanIds.length === 0}
                             selected={data.departure_date ? new Date(data.departure_date) : null}
                             onChange={(date: Date | null) => {
                                 if (date) {

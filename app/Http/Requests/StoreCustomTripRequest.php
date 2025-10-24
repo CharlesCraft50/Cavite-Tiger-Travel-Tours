@@ -50,7 +50,7 @@ class StoreCustomTripRequest extends FormRequest
             'destination' => ['required', 'string', 'max:255'],
 
             // Van & Driver
-            'preferred_van_id' => ['nullable', 'exists:preferred_vans,id'],
+            'preferred_van_id' => ['required', 'exists:preferred_vans,id'],
             'driver_id' => ['nullable', 'exists:users,id'],
 
             // Booking (optional, handled by admin)

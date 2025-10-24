@@ -36,7 +36,7 @@ class StoreBookNowRequest extends FormRequest
         return [
             'tour_package_id' => ['required', 'exists:tour_packages,id'],
             'package_category_id' => ['nullable', 'integer', 'exists:package_categories,id'],
-            'preferred_van_id' => ['required', 'integer', 'exists:preferred_vans,id'],
+            'preferred_van_id' => ['nullable', 'integer', 'exists:preferred_vans,id'],
             'preferred_preparation_id' => ['required', 'integer', 'exists:preferred_preparations,id'],
 
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
@@ -50,13 +50,13 @@ class StoreBookNowRequest extends FormRequest
                 'required',
                 'integer',
                 'min:0',
-                'max:'.($this->van_pax_adult_max ?? 1000),
+                'max:'.($this->van_pax_adult_max ?? 20),
             ],
             'pax_kids' => [
                 'sometimes',
                 'integer',
                 'min:0',
-                'max:'.($this->van_pax_kids_max ?? 1000),
+                'max:'.($this->van_pax_kids_max ?? 20),
             ],
             'notes' => ['nullable', 'string'],
             'other_services' => ['array'],

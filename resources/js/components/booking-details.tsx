@@ -40,6 +40,10 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
 
+    useEffect(()=>{
+        console.log(`isAdmin ${isAdmins} || ${isDrivers} Editable: ${editable} `);
+    }, []);
+
     useEffect(() => {
         const today = new Date();
         const departureDate = new Date(booking.departure_date);
@@ -483,7 +487,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         <hr />
 
                         <div>
-                            <p className="text-sm text-gray-600">Preferred Van</p>
+                            {booking.preferred_van && (<p className="text-sm text-gray-600">Preferred Van</p>)}
                             {editable && isEditing ? (
                                 <>
                                     <VanSelection 
@@ -517,13 +521,13 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                 </>
                             ) : (
                                 <>
-                                    <div className="flex justify-between border-1 border-t-0 border-r-0 border-l-0 border-b-gray-200">
+                                    {booking.preferred_van && (<div className="flex justify-between border-1 border-t-0 border-r-0 border-l-0 border-b-gray-200">
                                         <p className="text-base font-medium">{booking.preferred_van?.name}</p>
                                         <span className="flex flex-row items-center text-sm text-gray-600">
                                             <PriceSign />
                                             <p>{booking.preferred_van?.additional_fee}</p>
                                         </span>
-                                    </div>
+                                    </div>)}
                                     <p className="text-sm text-gray-800">({booking.pax_adult} Pax)</p>
                                     {booking.preferred_van?.plate_number != null && (
                                         <>

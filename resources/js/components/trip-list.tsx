@@ -195,7 +195,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter }:
                   <td className="px-4 py-2">
                     <span
                       className={clsx(
-                        'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
+                        'inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium',
                         {
                           'bg-blue-100 text-blue-800': absoluteStatus === 'pending',
                           'bg-green-100 text-green-800': absoluteStatus === 'accepted',

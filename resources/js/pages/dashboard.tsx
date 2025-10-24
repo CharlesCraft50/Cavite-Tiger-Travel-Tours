@@ -256,10 +256,12 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                                         <div className="text-right">
                                         <p
                                             className={clsx(
-                                            'text-sm font-medium capitalize',
-                                            trip.status === 'completed' && 'text-green-600',
-                                            trip.status === 'cancelled' && 'text-red-600',
-                                            trip.status === 'pending' && 'text-yellow-600'
+                                                'text-sm font-medium capitalize',
+                                                trip.status === 'completed' && 'text-green-600',
+                                                trip.status === 'cancelled' && 'text-red-600',
+                                                trip.status === 'pending' && 'text-yellow-600',
+                                                trip.status === 'accepted' && 'text-green-600',
+                                                trip.status === 'on_process' && 'text-blue-600',
                                             )}
                                         >
                                             {trip.status.replace(/_/g, ' ')}

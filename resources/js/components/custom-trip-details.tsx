@@ -173,7 +173,7 @@ export default function CustomTripDetails({
               </h3>
             </div>
             <div>
-              <div className="card text-sm p-3">Custom Trip</div>
+              <div className="card text-sm p-3">(admin)</div>
             </div>
           </div>
 
@@ -316,7 +316,15 @@ export default function CustomTripDetails({
                     }
                   />
                 ) : (
-                  <p className="text-base font-medium">{trip.pickup_time}</p>
+                  <p className="text-base font-medium">
+                    {trip.pickup_time
+                      ? new Date(`1970-01-01T${trip.pickup_time}`).toLocaleTimeString([], {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        })
+                      : '-'}
+                  </p>
                 )}
 
                 <p className="text-sm text-gray-600 mt-2">Dropoff Time</p>
@@ -330,7 +338,15 @@ export default function CustomTripDetails({
                     }
                   />
                 ) : (
-                  <p className="text-base font-medium">{trip.dropoff_time}</p>
+                  <p className="text-base font-medium">
+                    {trip.dropoff_time
+                      ? new Date(`1970-01-01T${trip.dropoff_time}`).toLocaleTimeString([], {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        })
+                      : '-'}
+                  </p>
                 )}
               </div>
 
@@ -416,24 +432,32 @@ export default function CustomTripDetails({
                     </div>
                     <p className="text-sm text-gray-800">({trip.pax_adult} Pax)</p>
 
-                    {trip.preferred_van?.plate_number != null && (
+                    {totalAmount != 0 ? (
                       <>
-                        <p className="text-sm text-gray-800 mt-2">Plate Number</p>
-                        <span className="text-black font-semibold">
-                          {trip.preferred_van?.plate_number}
-                        </span>
-                      </>
-                    )}
+                        {trip.preferred_van?.plate_number != null && (
+                          <>
+                            <p className="text-sm text-gray-800 mt-2">Plate Number</p>
+                            <span className="text-black font-semibold">
+                              {trip.preferred_van?.plate_number}
+                            </span>
+                          </>
+                        )}
 
-                    {(trip.preferred_van?.driver?.first_name != null ||
-                      trip.preferred_van?.driver?.last_name != null) && (
-                      <>
-                        <p className="text-sm text-gray-800 mt-2">Assigned Driver</p>
-                        <span className="text-black font-semibold">
-                          {trip.preferred_van?.driver?.first_name}{' '}
-                          {trip.preferred_van?.driver?.last_name}
-                        </span>
+                        {(trip.preferred_van?.driver?.first_name != null ||
+                          trip.preferred_van?.driver?.last_name != null) && (
+                          <>
+                            <p className="text-sm text-gray-800 mt-2">Assigned Driver</p>
+                            <span className="text-black font-semibold">
+                              {trip.preferred_van?.driver?.first_name}{' '}
+                              {trip.preferred_van?.driver?.last_name}
+                            </span>
+                          </>
+                        )}
                       </>
+                    ): (
+                      <div className="mt-2 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-md text-sm">
+                        Please wait for admin approval.
+                      </div>
                     )}
                   </>
                 )}

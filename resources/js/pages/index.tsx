@@ -116,12 +116,12 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
       >
         <div className="bg-black/60 absolute inset-0 z-0" />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">EXPLORE THE NORTHERN LUZON</h2>
+          <h2 className="text-4xl font-bold mb-4">GRAB YOUR BUCKET LIST NOW!</h2>
           <p className="text-lg">
-            Northern Luzon – Looking for beautiful beaches, towering mountains, or endless rice terraces? Wherever you go, the scenery is stunning.
+            Providing seamless access to the country's most cherished wonders.
           </p>
           <p className="mt-4">
-            Nestled among its many landscapes are beautiful mountain villages and beachside towns, while the colonial center of Vigan has many fascinating historical and cultural sights on show.
+            By explicitly structuring itineraries around iconic Filipino bucket list goals—from the adrenaline rush of Canyoneering in Cebu and the serene beauty of the Big Lagoon in El Nido. These companies ensure every journey is a high-value, meaningful achievement. Ultimately, the industry's success lies in transforming the dispersed beauty of the archipelago into a cohesive, must-do experience that travelers can easily check off their list, creating truly unforgettable and wonderful adventures.
           </p>
           {/* <Link href="/packages/north">
             <button className="mt-6 bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-full font-semibold">

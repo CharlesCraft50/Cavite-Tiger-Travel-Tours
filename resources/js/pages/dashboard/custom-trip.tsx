@@ -12,6 +12,11 @@ import VanSelection from "@/components/van-selection";
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from "react-datepicker";
 import InputError from "@/components/input-error";
+import TripRatesInfo from '@/components/trip-rates-info';
+import ModalLarge from '@/components/ui/modal-large';
+import TermsAndConditions from './about/terms-and-conditions';
+import PrivacyPolicy from './about/privacy-policy';
+import CancellationPolicy from './about/cancellation-policy';
 
 type DashboardProps = {
   bookingCount: number;
@@ -76,6 +81,10 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
 
   const handleSubmit: FormEventHandler = (e) => {
     e.preventDefault();
+    if (data.preferred_van_id == null) {
+      setFormError('Van is required.')
+      return;
+    }
     setFormError('');
     setFormSuccess('');
 
@@ -107,6 +116,23 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
     }
   }, [selectedVan]);
 
+  const [checked, setChecked] = useState({
+      terms: false,
+      privacy: false,
+      cancellation: false,
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, checked: isChecked } = e.target;
+      setChecked((prev) => ({ ...prev, [name]: isChecked }));
+  };
+
+  const allChecked = checked.terms && checked.privacy && checked.cancellation;
+
+  const [ activeModal, setActiveModal ] = useState(false);
+
+  const [ agreementIndex, setAgreementIndex ] = useState(0);
+
   return (
     <DashboardLayout title="" href="/dashboard">
       <div className="flex mb-2 gap-2">
@@ -131,6 +157,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                   Choose your desired trips and vehicles.
                 </p>
               )}
+              <TripRatesInfo />
             </div>
           </div>
 
@@ -240,7 +267,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
 
               {/* Preferred Van */}
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold mb-4">Preferred Vans (Optional)</h2>
+                <h2 className="text-xl font-semibold mb-4">Preferred Vans</h2>
                 <VanSelection
                   preferredVans={vanList}
                   drivers={drivers ?? []}
@@ -273,7 +300,70 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                 </div>
               </div>
 
-              <Button type="submit" className="w-full mt-4" disabled={processing}>
+               <div className="flex flex-col gap-2">
+                  <h2>Agreements</h2>
+                  <label>
+                      <input
+                          type="checkbox"
+                          name="terms"
+                          className="cursor-pointer"
+                          checked={checked.terms}
+                          onChange={handleChange}
+                      />{" "}
+                          I have read and agree to the&nbsp;
+                      <strong 
+                          className="underline cursor-pointer text-blue-500"
+                          onClick={() => {
+                              setAgreementIndex(0);
+                              setActiveModal(true);
+                          }}
+                      >
+                          Terms and Conditions
+                      </strong>.
+                  </label>
+
+                  <label>
+                      <input
+                          type="checkbox"
+                          name="privacy"
+                          className="cursor-pointer"
+                          checked={checked.privacy}
+                          onChange={handleChange}
+                      />{" "}
+                          I have read and agree to the&nbsp;
+                          <strong
+                              className="underline cursor-pointer text-blue-500"
+                              onClick={() => {
+                                  setAgreementIndex(1);
+                                  setActiveModal(true);
+                              }}
+                          >
+                              Privacy Policy
+                          </strong>.
+                  </label>
+
+                  <label>
+                      <input
+                          type="checkbox"
+                          name="cancellation"
+                          className="cursor-pointer"
+                          checked={checked.cancellation}
+                          onChange={handleChange}
+                      />{" "}
+                      I have read and agree to the&nbsp;
+                      <strong
+                          className="underline cursor-pointer text-blue-500"
+                          onClick={() => {
+                              setAgreementIndex(2);
+                              setActiveModal(true);
+                          }}
+                      >
+                          Cancellation Policy
+                      </strong>.
+                  </label>
+              </div>
+
+              <Button type="submit" className="w-full mt-4" disabled={!(allChecked) || processing}>
                 {processing ? 'Submitting...' : 'SUBMIT'}
               </Button>
 
@@ -292,6 +382,12 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
           </div>
         </div>
       </div>
+
+      <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
+          {agreementIndex == 0 && <TermsAndConditions disableNav />}
+          {agreementIndex == 1 && <PrivacyPolicy disableNav />}
+          {agreementIndex == 2 && <CancellationPolicy disableNav />}
+      </ModalLarge>
     </DashboardLayout>
   );
 }

@@ -48,7 +48,7 @@ export default function CustomTripList({ trips, limit, statusFilter }: CustomTri
     setTripToCancel(null);
   };
 
-  // ✅ Search & Filter logic
+  // Search & Filter logic
   const filteredTrips = trips
     .filter((trip) => {
       const query = searchQuery.toLowerCase();

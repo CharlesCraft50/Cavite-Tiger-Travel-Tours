@@ -4,23 +4,23 @@ namespace App\Services;
 
 use App\Models\Booking;
 use App\Models\CustomTrip;
-use App\Models\PreferredVanAvailability;
 use Carbon\Carbon;
 
 class VanAvailabilityService
 {
-    public function getAvailableDateRanges(int $vanId)
+    public function getAvailableDateRanges(?int $vanId = null)
     {
-        // $availability = PreferredVanAvailability::where('preferred_van_id', $vanId)->first();
+        // When vanId is provided, filter by it; otherwise, get all bookings
+        $bookingsQuery = Booking::query();
+        $customTripsQuery = CustomTrip::query();
 
-        // if (!$availability) return [];
+        if ($vanId !== null) {
+            $bookingsQuery->where('preferred_van_id', $vanId);
+            $customTripsQuery->where('preferred_van_id', $vanId);
+        }
 
-        // $from = Carbon::parse($availability->available_from);
-        // $until = Carbon::parse($availability->available_until);
-
-        // Get all bookings for the van
-        $bookings = Booking::where('preferred_van_id', $vanId)->get();
-        $customTrips = CustomTrip::where('preferred_van_id', $vanId)->get();
+        $bookings = $bookingsQuery->get();
+        $customTrips = $customTripsQuery->get();
 
         // Build a map of booked date counts
         $bookedDates = [];
@@ -29,7 +29,7 @@ class VanAvailabilityService
             $start = Carbon::parse($booking->departure_date);
             $end = Carbon::parse($booking->return_date);
 
-            for ($date = $start; $date->lte($end); $date->addDay()) {
+            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
                 $bookedDates[$date->toDateString()] = ($bookedDates[$date->toDateString()] ?? 0) + 1;
             }
         }
@@ -38,35 +38,24 @@ class VanAvailabilityService
             $start = Carbon::parse($trip->departure_date);
             $end = Carbon::parse($trip->return_date);
 
-            for ($date = $start; $date->lte($end); $date->addDay()) {
+            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
                 $bookedDates[$date->toDateString()] = ($bookedDates[$date->toDateString()] ?? 0) + 1;
             }
         }
 
         $fullyBookedDates = [];
 
-        // Old logic (commented out)
-        /*
-        foreach ($bookedDates as $date => $count) {
-            if ($count >= $availability->count) {
-                $fullyBookedDates[] = $date;
-            }
-        }
-        */
-
-        // New logic to block the entire range from the first to the last booked date
+        // Block the entire range from first to last booked date
         if (! empty($bookedDates)) {
             $firstBooked = Carbon::parse(min(array_keys($bookedDates)));
             $lastBooked = Carbon::parse(max(array_keys($bookedDates)));
 
-            for ($date = $firstBooked; $date->lte($lastBooked); $date->addDay()) {
+            for ($date = $firstBooked->copy(); $date->lte($lastBooked); $date->addDay()) {
                 $fullyBookedDates[] = $date->toDateString();
             }
         }
 
         return [
-            // 'available_from' => $from->toDateString(),
-            // 'available_until' => $until->toDateString(),
             'fully_booked_dates' => $fullyBookedDates,
         ];
     }

@@ -231,7 +231,7 @@ export default function TravelChatbot() {
                                                 {message.text == "${null}" 
                                                 ? (
                                                     <span>
-                                                        I'd be happy to help you with that! For tour details, bookings, or any questions, feel free to contact us at <strong>𝟬𝟵𝟭𝟬-𝟯𝟰𝟱-𝟲𝟭𝟭𝟵</strong> or{" "}
+                                                        I'd be happy to help you with that! For tour details, bookings, or any questions, feel free to contact us at <strong>𝟎𝟗𝟕𝟔-𝟏𝟑𝟑-𝟔𝟑𝟐𝟐</strong> or{" "}
                                                         <a
                                                             href="https://www.facebook.com/profile.php?id=100093876846720"
                                                             className="underline text-blue-600"

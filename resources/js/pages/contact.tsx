@@ -40,12 +40,12 @@ export default function ContactPage() {
           <ul className="space-y-4">
             <li className="flex items-center gap-4">
               <MapPin className="text-primary" />
-              <span>Salawag, Dasmariñas, Cavite Philippines 4114</span>
+              <span>2nd Floor WLM Bldg., Salawag, Dasmariñas, Cavite</span>
             </li>
             <li className="flex items-center gap-4">
               <Phone className="text-primary" />
               <a href="tel:09754360179" className="hover:underline">
-                0975 436 0179
+                0976-133-6322
               </a>
             </li>
             <li className="flex items-center gap-4">

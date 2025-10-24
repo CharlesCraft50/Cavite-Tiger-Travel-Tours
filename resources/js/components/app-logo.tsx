@@ -10,8 +10,8 @@ export default function AppLogo() {
                     className="w-12 sm:w-12 md:w-12 lg:w-14 h-auto object-contain bg-[#fafafa]"
                 />
             </div>
-            <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-none font-semibold">Cavite Tiger Tours</span>
+            <div className="ml-1 grid flex-1 text-left text-xl">
+                <span className="mb-0.5 truncate leading-none font-semibold">Cavite Tiger</span>
             </div>
         </>
     );

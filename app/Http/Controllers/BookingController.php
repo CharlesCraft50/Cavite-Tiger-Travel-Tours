@@ -101,6 +101,8 @@ class BookingController extends Controller
         ])->findOrFail($id);
 
         $packages = TourPackage::findOrFail($booking->tour_package_id);
+        $isDriver = $user->isDriver();
+
         $vans = PreferredVan::with(['availabilities', 'driver', 'category'])->get();
 
         $packages->load([
@@ -115,7 +117,7 @@ class BookingController extends Controller
 
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
-            'isAdmin' => $user->isAdmin(),
+            'isAdmin' => $user->isAdmin() || $isDriver,
             'otherServices' => $otherServices,
             'packages' => $packages,
             'vans' => $vans,

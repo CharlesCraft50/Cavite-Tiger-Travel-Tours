@@ -54,6 +54,8 @@ class CustomTripController extends Controller
             'payment',
         ])->findOrFail($id);
 
+        $isDriver = $user->isDriver();
+
         if (! $user->isAdmin() && $user->id !== $customTrip->user_id) {
             abort(403, 'Unauthorized action.');
         }
@@ -65,7 +67,7 @@ class CustomTripController extends Controller
 
         return Inertia::render('dashboard/custom-trip/show', [
             'booking' => $customTrip,
-            'isAdmin' => $user->isAdmin(),
+            'isAdmin' => $user->isAdmin() || $isDriver,
             'packages' => $packages,
             'vans' => $vans,
             'vanCategories' => $vanCategories,
