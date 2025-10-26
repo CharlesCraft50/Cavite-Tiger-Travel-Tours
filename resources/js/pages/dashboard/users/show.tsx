@@ -71,7 +71,7 @@ export default function Show({ user, bookings, totalSpent }: Props) {
 
         <Link
           href="/users"
-          className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-50"
+          className="btn-primary inline-flex items-center gap-2 text-xs px-4 py-2"
         >
           <ArrowLeft size={16} />
           Back to List

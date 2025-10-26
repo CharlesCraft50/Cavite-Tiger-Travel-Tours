@@ -13,7 +13,7 @@ import VanSelection from '@/components/van-selection';
 import PriceSign from './price-sign';
 import { Mail, Pencil, Phone } from 'lucide-react';
 import InputError from '@/components/input-error';
-import { formatStatus, isAdmin, isDriver } from '@/lib/utils';
+import { formatStatus, isAdmin, isDriver, isStaff } from '@/lib/utils';
 
 type CustomTripDetailsProps = {
   trip: CustomTrip;
@@ -31,6 +31,7 @@ export default function CustomTripDetails({
   const { auth } = usePage<SharedData>().props;
   const isAdmins = isAdmin(auth.user);
   const isDrivers = isDriver(auth.user);
+  const isStaffs = isStaff(auth.user);
 
   const [isEditing, setIsEditing] = useState(false);
   const [selectedVanIds, setSelectedVanIds] = useState<number[]>(
@@ -173,11 +174,11 @@ export default function CustomTripDetails({
               </h3>
             </div>
             <div>
-              <div className="card text-sm p-3">(admin)</div>
+              {!editable && <div className="card text-sm p-3">Custom Trip</div>}
             </div>
           </div>
 
-          {(isAdmins || isDrivers) && editable && (
+          {(isAdmins || isDrivers || isStaffs) && editable && (
             <Button
               type="button"
               className={clsx(
@@ -387,7 +388,7 @@ export default function CustomTripDetails({
 
               {/* Preferred Van */}
               <div>
-                <p className="text-sm text-gray-600">Preferred Van</p>
+                <p className="text-sm text-gray-600">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({trip.pax_adult} Pax)</span>)}</p> 
                 {editable && isEditing ? (
                   <>
                     <VanSelection
@@ -429,8 +430,7 @@ export default function CustomTripDetails({
                         <PriceSign />
                         <p>{trip.preferred_van?.additional_fee}</p>
                       </span>
-                    </div>
-                    <p className="text-sm text-gray-800">({trip.pax_adult} Pax)</p>
+                    </div>                 
 
                     {totalAmount != 0 ? (
                       <>

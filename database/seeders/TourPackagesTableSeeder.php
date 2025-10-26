@@ -17,7 +17,7 @@ class TourPackagesTableSeeder extends Seeder
         // Create Philippines Country
         $philippines = Country::firstOrCreate(
             ['name' => 'Philippines'],
-            ['image_url' => 'https://upload.imgshare.cc/images/z1ipupg9.webp']
+            ['image_url' => 'https://i.ibb.co/f3R7nx7/abstract-dark-blue-scratch-background.jpg']
         );
 
         // Create Cities

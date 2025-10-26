@@ -12,7 +12,7 @@ import { Input, Textarea } from '@headlessui/react';
 import OtherServiceSelection from './other-service-selection';
 import PriceSign from './price-sign';
 import VanSelection from './van-selection';
-import { formatStatus, isAdmin, isDriver } from '@/lib/utils';
+import { formatStatus, isAdmin, isDriver, isStaff } from '@/lib/utils';
 import { Label } from './ui/label';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -39,6 +39,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     const { auth } = usePage<SharedData>().props;
     const isAdmins = isAdmin(auth.user);
     const isDrivers = isDriver(auth.user);
+    const isStaffs = isStaff(auth.user);
 
     useEffect(()=>{
         console.log(`isAdmin ${isAdmins} || ${isDrivers} Editable: ${editable} `);
@@ -248,11 +249,9 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('pax_kids', data.pax_kids.toString());
         formData.append('pax_adult', data.pax_adult.toString());
         formData.append('total_amount', Math.floor(computedTotal).toString());
-        formData.append('payment_status', data.payment_status);
 
-        if(data.payment_status != null || data.payment_status != '') {
-            const bookingStatus = data.payment_status;
-            formData.append('status', bookingStatus);
+        if (data.payment_status && data.payment_status !== '') {
+            formData.append('payment_status', data.payment_status);
         }
 
         selectedOtherServiceIds.forEach((id) => {
@@ -380,7 +379,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 
                 
 
-                {(isAdmins || isDrivers) ? (
+                {(isAdmins || isDrivers || isStaffs) ? (
                     <div className="flex flex-row gap-2">
                         <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
                             <Pencil className="w-4 h-4" />
@@ -487,7 +486,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         <hr />
 
                         <div>
-                            {booking.preferred_van && (<p className="text-sm text-gray-600">Preferred Van</p>)}
+                            {booking.preferred_van && (<p className="text-sm text-gray-600">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({booking.pax_adult} Pax)</span>)}</p>)}
                             {editable && isEditing ? (
                                 <>
                                     <VanSelection 
@@ -528,7 +527,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                             <p>{booking.preferred_van?.additional_fee}</p>
                                         </span>
                                     </div>)}
-                                    <p className="text-sm text-gray-800">({booking.pax_adult} Pax)</p>
+                                    
                                     {booking.preferred_van?.plate_number != null && (
                                         <>
                                             <p className="text-sm text-gray-800">Plate Number</p>
@@ -689,6 +688,30 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         
                         <hr/>
 
+                        {!(isAdmins || isDrivers || isStaffs) && (
+                            <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                    stroke="currentColor"
+                                    className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
+                                >
+                                    <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                                    />
+                                </svg>
+                                <p className="text-sm leading-relaxed">
+                                    <span className="font-semibold uppercase tracking-wide">Important!</span>{' '}
+                                    Please wait for the admin to finalize your total amount before proceeding with payment.
+                                </p>
+                            </div>
+                        )}
+
+
                         <div className="flex justify-between items-center bg-gray-50 px-4 py-3 rounded-md">
                             <div>
                                 {!booking.payment?.status && (
@@ -733,7 +756,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                     booking.status !== 'past_due' && booking.status !== 'cancelled' && (
                                         <div className="border rounded-lg p-4 mt-4 bg-yellow-50 border-yellow-300">
                                             <p className="text-sm text-yellow-800">
-                                                {isAdmins || isDrivers ? "The user haven't completed the payment yet." : "You haven't completed the payment yet."}
+                                                {isAdmins || isDrivers || isStaffs ? "The user haven't completed the payment yet." : "You haven't completed the payment yet."}
                                             </p>
                                             <Link
                                                 href={route('booking.payment', booking.id)}

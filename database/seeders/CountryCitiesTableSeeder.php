@@ -15,7 +15,7 @@ class CountryCitiesTableSeeder extends Seeder
         // Country
         $philippines = Country::create([
             'name' => 'Philippines',
-            'image_url' => 'https://upload.imgshare.cc/images/z1ipupg9.webp',
+            'image_url' => 'https://i.ibb.co/f3R7nx7/abstract-dark-blue-scratch-background.jpg',
         ]);
     }
 }

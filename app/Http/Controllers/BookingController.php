@@ -31,7 +31,7 @@ class BookingController extends Controller
         $bookings = null;
         $customTrips = null;
 
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() || $user->isStaff()) {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
                 ->orderByDesc('created_at')
                 ->get();
@@ -117,7 +117,7 @@ class BookingController extends Controller
 
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
-            'isAdmin' => $user->isAdmin() || $isDriver,
+            'isAdmin' => $user->isAdmin() || $isDriver || $user->isStaff(),
             'otherServices' => $otherServices,
             'packages' => $packages,
             'vans' => $vans,
@@ -156,6 +156,10 @@ class BookingController extends Controller
             ->filter(fn ($field) => $request->has($field))
             ->mapWithKeys(fn ($field) => [$field => $request->input($field)])
             ->toArray();
+
+        if (empty($fieldsToUpdate['status'])) {
+            $fieldsToUpdate['status'] = $booking->status;
+        }
 
         $oldStatus = $booking->status;
 

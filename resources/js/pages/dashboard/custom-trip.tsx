@@ -267,7 +267,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
 
               {/* Preferred Van */}
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold mb-4">Preferred Vans</h2>
+                <Label className="text-xl font-semibold mb-4" required>Preferred Vans</Label>
                 <VanSelection
                   preferredVans={vanList}
                   drivers={drivers ?? []}

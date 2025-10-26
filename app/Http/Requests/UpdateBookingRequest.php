@@ -17,12 +17,12 @@ class UpdateBookingRequest extends FormRequest
             'preferred_van_id' => ['nullable', 'exists:preferred_vans,id'],
             'departure_date' => ['nullable', 'date'],
             'return_date' => ['nullable', 'date', 'after_or_equal:departure_date'],
-            'status' => ['sometimes', 'required', 'in:pending,on_process,accepted,declined,past_due,cancelled,completed'],
+            'status' => ['sometimes', 'nullable', 'string'],
             'notes' => ['nullable', 'string'],
             'total_amount' => ['nullable', 'numeric'],
             'pax_adult' => ['nullable', 'numeric'],
             'pax_kids' => ['nullable', 'numeric'],
-            'payment_status' => ['nullable', 'in:pending,on_process,accepted,declined'],
+            'payment_status' => ['nullable', 'string'],
             'pickup_address' => ['sometimes', 'string', 'max:255'],
         ];
     }

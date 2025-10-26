@@ -25,7 +25,7 @@ class DashboardController extends Controller
         $bookings = null;
         $customTrips = null;
 
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() || $user->isStaff()) {
             $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
                 ->orderByDesc('created_at')
                 ->get();

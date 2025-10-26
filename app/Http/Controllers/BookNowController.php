@@ -182,6 +182,18 @@ class BookNowController extends Controller
         // Send confirmation
         Mail::to($booking->email)->send(new BookingCreated($booking));
 
+        if (! empty($validated['preferred_preparation_id'])) {
+            $preferredPreparation = PreferredPreparation::findOrFail($validated['preferred_preparation_id']);
+
+            if ($preferredPreparation->name == 'all_in') {
+                return Inertia::render('success-page', [
+                    'title' => 'Booking Submitted!',
+                    'description' => 'Await admin approval and final amount before payment.',
+                    'redirectUrl' => route('bookings.show', $booking->id),
+                ]);
+            }
+        }
+
         return to_route('booking.payment', ['booking_id' => $booking->id]);
     }
 

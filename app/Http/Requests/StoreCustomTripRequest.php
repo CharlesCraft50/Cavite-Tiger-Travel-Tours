@@ -44,8 +44,8 @@ class StoreCustomTripRequest extends FormRequest
 
             // Trip Details
             'date_of_trip' => ['required', 'date', 'after_or_equal:today'],
-            'pickup_time' => ['nullable', 'date_format:H:i'],
-            'dropoff_time' => ['nullable', 'date_format:H:i', 'after_or_equal:pickup_time'],
+            'pickup_time' => ['required', 'date_format:H:i'],
+            'dropoff_time' => ['required', 'date_format:H:i', 'after_or_equal:pickup_time'],
             'pickup_address' => ['required', 'string', 'max:255'],
             'destination' => ['required', 'string', 'max:255'],
 

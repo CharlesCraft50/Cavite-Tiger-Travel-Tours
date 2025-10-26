@@ -104,7 +104,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('/vancategories', VanCategoryController::class);
 });
 
-Route::middleware(['auth', 'admin_or_driver'])->group(function () {
+Route::middleware(['auth', 'admin_or_driver_or_staff'])->group(function () {
     Route::put('/custom-trips/{id}', [CustomTripController::class, 'update'])->name('customTrips.update');
 });
 

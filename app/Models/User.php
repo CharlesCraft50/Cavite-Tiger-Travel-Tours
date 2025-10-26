@@ -66,6 +66,11 @@ class User extends Authenticatable
         return $this->role === 'driver';
     }
 
+    public function isStaff(): bool
+    {
+        return $this->role === 'staff';
+    }
+
     public function bookingsAsDriver()
     {
         return $this->belongsToMany(Booking::class, 'driver_id');

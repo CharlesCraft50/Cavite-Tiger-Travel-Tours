@@ -21,7 +21,7 @@ class CustomTripController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() || $user->isStaff()) {
             $trips = CustomTrip::with(['preferredVan', 'driver', 'payment'])
                 ->orderByDesc('created_at')
                 ->get();
@@ -56,7 +56,7 @@ class CustomTripController extends Controller
 
         $isDriver = $user->isDriver();
 
-        if (! $user->isAdmin() && $user->id !== $customTrip->user_id) {
+        if (! ($user->isAdmin() || $user->isStaff()) && $user->id !== $customTrip->user_id) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -67,7 +67,7 @@ class CustomTripController extends Controller
 
         return Inertia::render('dashboard/custom-trip/show', [
             'booking' => $customTrip,
-            'isAdmin' => $user->isAdmin() || $isDriver,
+            'isAdmin' => $user->isAdmin() || $isDriver || $user->isStaff(),
             'packages' => $packages,
             'vans' => $vans,
             'vanCategories' => $vanCategories,
