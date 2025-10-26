@@ -15,7 +15,6 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\OtherServiceController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PreferredVanController;
-use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\VanCategoryController;
 use App\Http\Controllers\WishlistController;
 use App\Models\TourPackage;
@@ -42,11 +41,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/custom-trip', [DashboardController::class, 'customTrip'])->name('customTrip');
     Route::get('/local-trip', [DashboardController::class, 'localTrip'])->name('localTrip');
-
-    // ✅ Profile routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('bookings', BookingController::class);
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
