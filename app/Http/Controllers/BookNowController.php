@@ -165,6 +165,14 @@ class BookNowController extends Controller
             }
         }
 
+        $preferredPreparation = PreferredPreparation::findOrFail($validated['preferred_preparation_id']);
+
+        if (! empty($validated['preferred_preparation_id'])) {
+            if ($preferredPreparation->name == 'land') {
+                $validated['is_final_total'] = true;
+            }
+        }
+
         // Save booking
         $userId = Auth::id();
         $booking = Booking::create([
@@ -183,8 +191,6 @@ class BookNowController extends Controller
         Mail::to($booking->email)->send(new BookingCreated($booking));
 
         if (! empty($validated['preferred_preparation_id'])) {
-            $preferredPreparation = PreferredPreparation::findOrFail($validated['preferred_preparation_id']);
-
             if ($preferredPreparation->name == 'all_in') {
                 return Inertia::render('success-page', [
                     'title' => 'Booking Submitted!',

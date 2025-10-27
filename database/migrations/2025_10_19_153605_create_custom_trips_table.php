@@ -36,6 +36,7 @@ return new class extends Migration
             $table->boolean('is_confirmed')->default(false);
             $table->string('booking_number')->unique()->nullable();
             $table->decimal('total_amount', 10, 2)->nullable();
+            $table->boolean('is_final_total')->default(false);
 
             // Admin Status
             $table->enum('status', ['pending', 'on_process', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])

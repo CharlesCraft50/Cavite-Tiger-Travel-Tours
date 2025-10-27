@@ -68,7 +68,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
                 formData.append('notes', booking.notes ?? '');
                 formData.append('pickup_address', booking.pickup_address ?? '');
-                formData.append('total_amount', Math.floor(computedTotal).toString());
+                formData.append('total_amount', Math.floor(data.total_amount).toString());
 
                 selectedOtherServiceIds.forEach((id) => {
                     formData.append('other_services[]', id.toString());
@@ -148,6 +148,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         pickup_address: string;
         other_services: number[] | undefined;
         total_amount: number;
+        is_final_total: boolean;
         pax_adult: number;
         pax_kids: number;
         payment_status: string;
@@ -162,6 +163,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         pickup_address: booking.pickup_address ?? '',
         other_services: booking.other_services?.map((s) => s.id),
         total_amount: booking.total_amount,
+        is_final_total: booking.is_final_total,
         pax_adult: booking.pax_adult,
         pax_kids: booking.pax_kids,
         payment_status: booking.payment?.status,
@@ -172,11 +174,43 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             setSelectedVanIds([]);
             setData('preferred_van_id', null);
             setAvailableDates(null);
-            setData('pax_adult', 0);  // reset only when deselecting
-            setData('pax_kids', 0);   // reset only when deselecting
+            setData('pax_adult', 0);
+            setData('pax_kids', 0);
+            // Reset total when van is deselected
+            setData('total_amount', booking.total_amount);
         } else {
             setSelectedVanIds([vanId]);
             setData('preferred_van_id', vanId);
+            // Recalculate total based on the new van selection
+            const selectedVan = vans?.find(v => v.id === vanId);
+            let total = 0;
+            const adults = Number(data.pax_adult) || 1;
+            const kids = Number(data.pax_kids) || 0;
+            const people = adults + kids;
+
+            total += people * (packages?.base_price ?? 0);
+
+            const selectedCategory = packages?.package_categories?.find(cat => cat.id === booking.package_category_id);
+            if (selectedCategory?.use_custom_price && selectedCategory.custom_price) {
+                total += Number(selectedCategory.custom_price);
+            }
+
+            if (selectedVan?.additional_fee) {
+                total += Number(selectedVan.additional_fee);
+            }
+
+            for (const serviceId of selectedOtherServiceIds) {
+                const service = mergedOtherServices.find(s => s.id === serviceId);
+                if (service) {
+                    const price =
+                        service.pivot?.package_specific_price && service.pivot.package_specific_price > 0
+                            ? service.pivot.package_specific_price
+                            : service.price ?? 0;
+                    total += Number(price);
+                }
+            }
+
+            setData('total_amount', total);
         }
     }
 
@@ -211,7 +245,9 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             (data.preferred_van_id || null) !== (booking.preferred_van?.id || null) ||
             (data.payment_status) !== (booking.payment?.status) ||
             (data.pax_adult) !== (booking.pax_adult) ||
-            (data.pax_kids) !== (booking.pax_kids);
+            (data.pax_kids) !== (booking.pax_kids) ||
+            (data.total_amount) !== (booking.total_amount) ||
+            (data.is_final_total) !== (booking.is_final_total);
 
         setHasChanges(changed);
     }, [data, booking]);
@@ -248,7 +284,8 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('pickup_address', data.pickup_address);
         formData.append('pax_kids', data.pax_kids.toString());
         formData.append('pax_adult', data.pax_adult.toString());
-        formData.append('total_amount', Math.floor(computedTotal).toString());
+        formData.append('total_amount', Math.floor(data.total_amount).toString());
+        formData.append('is_final_total', data.is_final_total ? '1' : '0');
 
         if (data.payment_status && data.payment_status !== '') {
             formData.append('payment_status', data.payment_status);
@@ -360,9 +397,9 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         data.pax_kids,
     ]);
 
-    useEffect(() => {
-        setData('total_amount', computedTotal);
-    }, [computedTotal]);
+    // useEffect(() => {
+    //     setData('total_amount', computedTotal);
+    // }, [computedTotal]);
 
     const [openImage, setOpenImage] = useState<string | null>(null);
 
@@ -688,7 +725,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         
                         <hr/>
 
-                        {!(isAdmins || isDrivers || isStaffs) && (
+                        {(!(isAdmins || isDrivers || isStaffs) && !(booking.is_final_total)) && (
                             <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -743,8 +780,32 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                 <p className="text-sm text-gray-600">Total Amount</p>
                                 
                                 <div className="flex flex-row items-center text-primary">
-                                    <PriceSign />
-                                    <p className="text-base font-medium">{Number(computedTotal ?? booking.total_amount).toLocaleString()}</p>
+                                    {editable && isEditing ? (
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <PriceSign />
+                                                <Input
+                                                    type="number"
+                                                    className="w-32 border border-gray-300 rounded-md px-2 py-1"
+                                                    value={data.total_amount ?? ''}
+                                                    min={0}
+                                                    step="0.01"
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        setData('total_amount', Number(value));
+                                                    }}
+                                                    disabled={data.is_final_total}
+                                                />
+                                            </div>
+                                            <Button type="button" onClick={() => setData('is_final_total', !data.is_final_total)}>{data.is_final_total == true ? 'Unset Final' : 'Set as Final'}</Button>
+                                        </div>
+                                    ) 
+                                    : (
+                                        <div className="flex flex-row">
+                                            <PriceSign />
+                                            <p className="text-base font-medium">{Number(booking.total_amount).toLocaleString()}</p>
+                                        </div>
+                                    )}
                                 </div>
                                 
                             </div>
@@ -752,125 +813,131 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                 
                         <div id="booking_payment_area">
 
-                            {!booking.payment ? (
-                                    booking.status !== 'past_due' && booking.status !== 'cancelled' && (
-                                        <div className="border rounded-lg p-4 mt-4 bg-yellow-50 border-yellow-300">
-                                            <p className="text-sm text-yellow-800">
-                                                {isAdmins || isDrivers || isStaffs ? "The user haven't completed the payment yet." : "You haven't completed the payment yet."}
-                                            </p>
-                                            <Link
-                                                href={route('booking.payment', booking.id)}
-                                                className="inline-block mt-2 text-sm font-medium text-yellow-900 underline hover:text-yellow-700"
-                                            >
-                                                Pay Now → {window.location.origin}/book-now/payment/{booking.id}
-                                            </Link>
-                                        </div>
-                                    )
-                                ) : (
-                                    <div>
-                                        {booking.payment && (
-                                            <div
-                                                className={clsx(
-                                                    'rounded-lg p-4 mt-4 border',
-                                                    booking.payment.status === 'accepted' && 'bg-green-50 border-green-300 text-green-800',
-                                                    booking.payment.status === 'pending' && 'bg-yellow-50 border-yellow-300 text-yellow-800',
-                                                    booking.payment.status === 'declined' && 'bg-red-50 border-red-300 text-red-800'
-                                                )}
-                                            >
-                                                {booking.payment.status === 'accepted' && (
-                                                    <>
-                                                        <p className="text-sm">
-                                                            ✅ Payment <strong>accepted</strong> via <strong>{booking.payment.payment_method}</strong>.
-                                                        </p>
-                                                        <p className="text-sm">
-                                                            Reference: <strong>{booking.payment.reference_number}</strong>
-                                                        </p>
-                                                        <p className="text-sm">
-                                                            <a
-                                                                href={booking.payment.payment_proof_path}
-                                                                target="_blank"
-                                                                className="underline hover:text-green-700"
-                                                            >
-                                                                View Payment Proof
-                                                            </a>
-                                                        </p>
-                                                    </>
-                                                )}
-
-                                                {booking.payment.status === 'pending' && (
-                                                    <>
-                                                        <p className="text-sm">
-                                                            ⏳ Payment is <strong>pending review</strong> via <strong>{booking.payment.payment_method}</strong>.
-                                                        </p>
-                                                        <p className="text-sm">
-                                                            Reference: <strong>{booking.payment.reference_number}</strong>
-                                                        </p>
-                                                        <p className="text-sm">
-                                                            <a
-                                                                href={booking.payment.payment_proof_path}
-                                                                target="_blank"
-                                                                className="underline hover:text-yellow-700"
-                                                            >
-                                                                View Submitted Proof
-                                                            </a>
-                                                        </p>
-                                                    </>
-                                                )}
-
-                                                {booking.payment.status === 'declined' && (
-                                                    <>
-                                                        <p className="text-sm">
-                                                            ❌ Payment was <strong>declined</strong>. Please resubmit or contact support.
-                                                        </p>
-                                                        <p className="text-sm">
-                                                            Reference: <strong>{booking.payment.reference_number}</strong>
-                                                        </p>
-                                                        <p className="text-sm">
-                                                            <a
-                                                                href={booking.payment.payment_proof_path}
-                                                                target="_blank"
-                                                                className="underline hover:text-red-700"
-                                                            >
-                                                                View Submitted Proof
-                                                            </a>
-                                                        </p>
-
-                                                        <Link
-                                                            href={route('booking.payment', booking.id)}
-                                                            className="inline-block mt-2 text-sm font-medium text-red-900 underline hover:text-red-700"
-                                                        >
-                                                            Resubmit here → {window.location.origin}/book-now/payment/{booking.id}
-                                                        </Link>
-                                                    </>
-                                                )}
+                            {!!booking.is_final_total && (
+                                <>
+                                    {!booking.payment ? (
+                                        booking.status !== 'past_due' && booking.status !== 'cancelled' && (
+                                            <div className="border rounded-lg p-4 mt-4 bg-yellow-50 border-yellow-300">
+                                                <p className="text-sm text-yellow-800">
+                                                    {isAdmins || isDrivers || isStaffs ? "The user haven't completed the payment yet." : "You haven't completed the payment yet."}
+                                                </p>
+                                                <Link
+                                                    href={route('booking.payment', booking.id)}
+                                                    className="inline-block mt-2 text-sm font-medium text-yellow-900 underline hover:text-yellow-700"
+                                                >
+                                                    Pay Now → {window.location.origin}/book-now/payment/{booking.id}
+                                                </Link>
                                             </div>
-                                        )}
+                                        )
+                                    ) : (
+                                        <div>
+                                            {booking.payment && (
+                                                <div
+                                                    className={clsx(
+                                                        'rounded-lg p-4 mt-4 border',
+                                                        booking.payment.status === 'accepted' && 'bg-green-50 border-green-300 text-green-800',
+                                                        booking.payment.status === 'pending' && 'bg-yellow-50 border-yellow-300 text-yellow-800',
+                                                        booking.payment.status === 'declined' && 'bg-red-50 border-red-300 text-red-800'
+                                                    )}
+                                                >
+                                                    {booking.payment.status === 'accepted' && (
+                                                        <>
+                                                            <p className="text-sm">
+                                                                ✅ Payment <strong>accepted</strong> via <strong>{booking.payment.payment_method}</strong>.
+                                                            </p>
+                                                            <p className="text-sm">
+                                                                Reference: <strong>{booking.payment.reference_number}</strong>
+                                                            </p>
+                                                            <p className="text-sm">
+                                                                <a
+                                                                    href={booking.payment.payment_proof_path}
+                                                                    target="_blank"
+                                                                    className="underline hover:text-green-700"
+                                                                >
+                                                                    View Payment Proof
+                                                                </a>
+                                                            </p>
+                                                        </>
+                                                    )}
 
-                                    </div>
-                                )}
+                                                    {booking.payment.status === 'pending' && (
+                                                        <>
+                                                            <p className="text-sm">
+                                                                ⏳ Payment is <strong>pending review</strong> via <strong>{booking.payment.payment_method}</strong>.
+                                                            </p>
+                                                            <p className="text-sm">
+                                                                Reference: <strong>{booking.payment.reference_number}</strong>
+                                                            </p>
+                                                            <p className="text-sm">
+                                                                <a
+                                                                    href={booking.payment.payment_proof_path}
+                                                                    target="_blank"
+                                                                    className="underline hover:text-yellow-700"
+                                                                >
+                                                                    View Submitted Proof
+                                                                </a>
+                                                            </p>
+                                                        </>
+                                                    )}
 
-                                {editable && isEditing ? (
-                                    <div className="mb-2 mt-2">
-                                        <label className="text-sm text-gray-700 font-medium">Update Payment Status</label>
-                                        <select
-                                            value={data.payment_status}
-                                            onChange={(e) => setData('payment_status', e.target.value)}
-                                            className="w-full p-2 border border-gray-300 rounded-md mt-1"
-                                        >
-                                            <option value="pending">Pending</option>
-                                            <option value="on_process">On Process</option>
-                                            <option value="accepted">Accepted</option>
-                                            <option value="declined">Declined</option>
-                                        </select>
-                                    </div>
-                                ) : (
-                                    booking.payment?.status && (
-                                        <p className="flex flex-col text-md p-2 text-gray-600">
-                                            Payment Status
-                                            <strong className="capitalize text-primary">{booking.payment?.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</strong>
-                                        </p>
-                                    )
-                                )}
+                                                    {booking.payment.status === 'declined' && (
+                                                        <>
+                                                            <p className="text-sm">
+                                                                ❌ Payment was <strong>declined</strong>. Please resubmit or contact support.
+                                                            </p>
+                                                            <p className="text-sm">
+                                                                Reference: <strong>{booking.payment.reference_number}</strong>
+                                                            </p>
+                                                            <p className="text-sm">
+                                                                <a
+                                                                    href={booking.payment.payment_proof_path}
+                                                                    target="_blank"
+                                                                    className="underline hover:text-red-700"
+                                                                >
+                                                                    View Submitted Proof
+                                                                </a>
+                                                            </p>
+
+                                                            <Link
+                                                                href={route('booking.payment', booking.id)}
+                                                                className="inline-block mt-2 text-sm font-medium text-red-900 underline hover:text-red-700"
+                                                            >
+                                                                Resubmit here → {window.location.origin}/book-now/payment/{booking.id}
+                                                            </Link>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                        </div>
+                                    )}
+
+                                    {editable && isEditing ? (
+                                        <div className="mb-2 mt-2">
+                                            <label className="text-sm text-gray-700 font-medium">Update Payment Status</label>
+                                            <select
+                                                value={data.payment_status}
+                                                onChange={(e) => setData('payment_status', e.target.value)}
+                                                className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                                            >
+                                                <option value="pending">Pending</option>
+                                                <option value="on_process">On Process</option>
+                                                <option value="accepted">Accepted</option>
+                                                <option value="declined">Declined</option>
+                                            </select>
+                                        </div>
+                                    ) : (
+                                        booking.payment?.status && (
+                                            <p className="flex flex-col text-md p-2 text-gray-600">
+                                                Payment Status
+                                                <strong className="capitalize text-primary">{booking.payment?.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</strong>
+                                            </p>
+                                        )
+                                    )}
+                                </>
+                            )}
+
+
 
                             </div>
 

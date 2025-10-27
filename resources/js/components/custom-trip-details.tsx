@@ -54,6 +54,7 @@ export default function CustomTripDetails({
     payment_status: trip.payment?.status ?? 'pending',
     payment: trip.payment ?? null,
     total_amount: trip.total_amount,
+    is_final_total: trip.is_final_total,
     pax_adult: trip.pax_adult,
   });
 
@@ -93,6 +94,7 @@ export default function CustomTripDetails({
       ...data,
       pickup_time: data.pickup_time ? data.pickup_time.slice(0, 5) : '',
       dropoff_time: data.dropoff_time ? data.dropoff_time.slice(0, 5) : '',
+      is_final_total: data.is_final_total ? '1' : '0',
     };
 
     const formData = new FormData();
@@ -193,7 +195,7 @@ export default function CustomTripDetails({
         </div>
           
         {/* Admin Review Reminder */}
-        {data.total_amount === null || data.total_amount === undefined || Number(data.total_amount) === 0 && (
+        {!(!!trip.is_final_total) && (
             <div className="mt-4">
                 <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
                     <svg
@@ -432,7 +434,7 @@ export default function CustomTripDetails({
                       </span>
                     </div>                 
 
-                    {totalAmount != 0 ? (
+                    {trip.is_final_total == true ? (
                       <>
                         {trip.preferred_van?.plate_number != null && (
                           <>
@@ -510,22 +512,28 @@ export default function CustomTripDetails({
                 <div className="text-right">
                     <p className="text-sm text-gray-600">Total Amount</p>
                     {editable && isEditing ? (
-                        <div className="flex items-center gap-2">
-                        <PriceSign />
-                        <Input
-                            type="number"
-                            className="w-32 border border-gray-300 rounded-md px-2 py-1"
-                            value={data.total_amount ?? ''}
-                            min={0}
-                            step="0.01"
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                setData({
-                                ...data,
-                                    total_amount: value === '' ? undefined : Number(value),
-                                });
-                            }}
-                        />
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <PriceSign />
+                            <Input
+                                type="number"
+                                className="w-32 border border-gray-300 rounded-md px-2 py-1"
+                                value={data.total_amount ?? ''}
+                                min={0}
+                                step="0.01"
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setData({
+                                    ...data,
+                                        total_amount: value === '' ? undefined : Number(value),
+                                    });
+                                }}
+                                disabled={data.is_final_total}
+                            />
+                          </div>
+                          {!(data.total_amount === null || data.total_amount === undefined || Number(data.total_amount) === 0) && (
+                            <Button type="button" onClick={() => setData({...data, is_final_total: !data.is_final_total})}>{data.is_final_total == true ? 'Unset Final' : 'Set as Final'}</Button>
+                          )}
                         </div>
                     ) : (
                         <div className="flex flex-row items-center text-primary">
@@ -540,115 +548,119 @@ export default function CustomTripDetails({
 
               {/* Payment Status */}
                 <div className="mt-4">
-                    {!data.payment ? (
-                        data.status !== 'past_due' && data.status !== 'cancelled' && (
-                            <div className="border rounded-lg p-4 mt-2 bg-yellow-50 border-yellow-300">
-                            <p className="text-sm text-yellow-800">
-                                {auth.user.is_admin || auth.user.is_driver
-                                ? "The user hasn't completed the payment yet."
-                                : "You haven't completed the payment yet."}
-                            </p>
-                            <Link
-                                href={route('customTrips.payment', trip.id)}
-                                className="inline-block mt-2 text-sm font-medium text-yellow-900 underline hover:text-yellow-700"
-                            >
-                                Pay Now → {window.location.origin}/custom-trips/payment/{trip.id}
-                            </Link>
-                        </div>
-                        )
-                    ) : (
-                        <div
-                            className={clsx(
-                            'rounded-lg p-4 mt-2 border',
-                            data.payment.status === 'accepted' && 'bg-green-50 border-green-300 text-green-800',
-                            data.payment.status === 'pending' && 'bg-yellow-50 border-yellow-300 text-yellow-800',
-                            data.payment.status === 'declined' && 'bg-red-50 border-red-300 text-red-800'
-                            )}
-                        >
-                            {data.payment.status === 'accepted' && (
-                                <>
-                                    <p className="text-sm">
-                                        ✅ Payment <strong>accepted</strong> via <strong>{data.payment.payment_method}</strong>.
-                                    </p>
-                                    <p className="text-sm">
-                                        Reference: <strong>{data.payment.reference_number}</strong>
-                                    </p>
-                                    <p className="text-sm">
-                                    <a
-                                        href={data.payment.payment_proof_path}
-                                        target="_blank"
-                                        className="underline hover:text-green-700"
-                                    >
-                                        View Payment Proof
-                                    </a>
-                                    </p>
-                                </>
-                            )}
+                    {!!trip.is_final_total == true && (
+                      <>
+                        {!data.payment ? (
+                          data.status !== 'past_due' && data.status !== 'cancelled' && (
+                              <div className="border rounded-lg p-4 mt-2 bg-yellow-50 border-yellow-300">
+                              <p className="text-sm text-yellow-800">
+                                  {auth.user.is_admin || auth.user.is_driver
+                                  ? "The user hasn't completed the payment yet."
+                                  : "You haven't completed the payment yet."}
+                              </p>
+                              <Link
+                                  href={route('customTrips.payment', trip.id)}
+                                  className="inline-block mt-2 text-sm font-medium text-yellow-900 underline hover:text-yellow-700"
+                              >
+                                  Pay Now → {window.location.origin}/custom-trips/payment/{trip.id}
+                              </Link>
+                          </div>
+                          )
+                      ) : (
+                          <div
+                              className={clsx(
+                              'rounded-lg p-4 mt-2 border',
+                              data.payment.status === 'accepted' && 'bg-green-50 border-green-300 text-green-800',
+                              data.payment.status === 'pending' && 'bg-yellow-50 border-yellow-300 text-yellow-800',
+                              data.payment.status === 'declined' && 'bg-red-50 border-red-300 text-red-800'
+                              )}
+                          >
+                              {data.payment.status === 'accepted' && (
+                                  <>
+                                      <p className="text-sm">
+                                          ✅ Payment <strong>accepted</strong> via <strong>{data.payment.payment_method}</strong>.
+                                      </p>
+                                      <p className="text-sm">
+                                          Reference: <strong>{data.payment.reference_number}</strong>
+                                      </p>
+                                      <p className="text-sm">
+                                      <a
+                                          href={data.payment.payment_proof_path}
+                                          target="_blank"
+                                          className="underline hover:text-green-700"
+                                      >
+                                          View Payment Proof
+                                      </a>
+                                      </p>
+                                  </>
+                              )}
 
-                            {data.payment.status === 'pending' && (
-                                <>
-                                    <p className="text-sm">
-                                        ⏳ Payment is <strong>pending review</strong> via <strong>{data.payment.payment_method}</strong>.
-                                    </p>
-                                    <p className="text-sm">
-                                        Reference: <strong>{data.payment.reference_number}</strong>
-                                    </p>
-                                    <p className="text-sm">
-                                    <a
-                                        href={data.payment.payment_proof_path}
-                                        target="_blank"
-                                        className="underline hover:text-yellow-700"
-                                    >
-                                        View Submitted Proof
-                                    </a>
-                                    </p>
-                                </>
-                            )}
+                              {data.payment.status === 'pending' && (
+                                  <>
+                                      <p className="text-sm">
+                                          ⏳ Payment is <strong>pending review</strong> via <strong>{data.payment.payment_method}</strong>.
+                                      </p>
+                                      <p className="text-sm">
+                                          Reference: <strong>{data.payment.reference_number}</strong>
+                                      </p>
+                                      <p className="text-sm">
+                                      <a
+                                          href={data.payment.payment_proof_path}
+                                          target="_blank"
+                                          className="underline hover:text-yellow-700"
+                                      >
+                                          View Submitted Proof
+                                      </a>
+                                      </p>
+                                  </>
+                              )}
 
-                            {data.payment.status === 'declined' && (
-                                <>
-                                    <p className="text-sm">
-                                        ❌ Payment was <strong>declined</strong>. Please resubmit or contact support.
-                                    </p>
-                                    <p className="text-sm">
-                                        Reference: <strong>{data.payment.reference_number}</strong>
-                                    </p>
-                                    <p className="text-sm">
-                                    <a
-                                        href={data.payment.payment_proof_path}
-                                        target="_blank"
-                                        className="underline hover:text-red-700"
-                                    >
-                                        View Submitted Proof
-                                    </a>
-                                    </p>
+                              {data.payment.status === 'declined' && (
+                                  <>
+                                      <p className="text-sm">
+                                          ❌ Payment was <strong>declined</strong>. Please resubmit or contact support.
+                                      </p>
+                                      <p className="text-sm">
+                                          Reference: <strong>{data.payment.reference_number}</strong>
+                                      </p>
+                                      <p className="text-sm">
+                                      <a
+                                          href={data.payment.payment_proof_path}
+                                          target="_blank"
+                                          className="underline hover:text-red-700"
+                                      >
+                                          View Submitted Proof
+                                      </a>
+                                      </p>
 
-                                    <Link
-                                        href={route('customTrips.payment', trip.id)}
-                                        className="inline-block mt-2 text-sm font-medium text-red-900 underline hover:text-red-700"
-                                    >
-                                        Resubmit here → {window.location.origin}/custom-trips/payment/{trip.id}
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                    )}
+                                      <Link
+                                          href={route('customTrips.payment', trip.id)}
+                                          className="inline-block mt-2 text-sm font-medium text-red-900 underline hover:text-red-700"
+                                      >
+                                          Resubmit here → {window.location.origin}/custom-trips/payment/{trip.id}
+                                      </Link>
+                                  </>
+                              )}
+                          </div>
+                      )}
 
-                    {/* Editable Payment Status */}
-                    {editable && isEditing && (
-                        <div className="mt-2">
-                            <label className="text-sm text-gray-700 font-medium">Update Payment Status</label>
-                            <select
-                                value={data.payment_status || ''}
-                                onChange={e => setData({ ...data, payment_status: e.target.value })}
-                                className="w-full p-2 border border-gray-300 rounded-md mt-1"
-                            >
-                            <option value="pending">Pending</option>
-                            <option value="on_process">On Process</option>
-                            <option value="accepted">Accepted</option>
-                            <option value="declined">Declined</option>
-                            </select>
-                        </div>
+                      {/* Editable Payment Status */}
+                      {editable && isEditing && (
+                          <div className="mt-2">
+                              <label className="text-sm text-gray-700 font-medium">Update Payment Status</label>
+                              <select
+                                  value={data.payment_status || ''}
+                                  onChange={e => setData({ ...data, payment_status: e.target.value })}
+                                  className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                              >
+                              <option value="pending">Pending</option>
+                              <option value="on_process">On Process</option>
+                              <option value="accepted">Accepted</option>
+                              <option value="declined">Declined</option>
+                              </select>
+                          </div>
+                      )}
+                      </>
                     )}
                 </div>
 

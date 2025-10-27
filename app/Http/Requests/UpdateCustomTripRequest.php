@@ -50,6 +50,7 @@ class UpdateCustomTripRequest extends FormRequest
 
             'is_confirmed' => ['sometimes', 'boolean'],
             'total_amount' => ['nullable', 'numeric', 'min:0'],
+            'is_final_total' => ['sometimes', 'boolean'],
             'status' => ['sometimes', 'in:pending,on_process,accepted,declined,past_due,cancelled,completed'],
             'payment_status' => ['nullable', 'in:pending,on_process,accepted,declined'],
 

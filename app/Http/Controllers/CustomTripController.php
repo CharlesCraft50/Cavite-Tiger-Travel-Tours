@@ -112,6 +112,7 @@ class CustomTripController extends Controller
             'status',
             'notes',
             'total_amount',
+            'is_final_total',
             'booking_number',
         ];
 

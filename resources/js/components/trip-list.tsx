@@ -39,6 +39,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter }:
       destination: b.tour_package?.title ?? '',
       status: b.status,
       type: 'booking' as const,
+      created_at: b.created_at,
     })),
     ...customTrips.map((c) => ({
       id: c.id,
@@ -48,6 +49,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter }:
       destination: c.destination,
       status: c.status,
       type: 'custom' as const,
+      created_at: c.created_at,
     })),
   ];
 
@@ -83,8 +85,8 @@ export default function TripList({ bookings, customTrips, limit, statusFilter }:
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
+      const dateA = a.date ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.date ? new Date(b.created_at).getTime() : 0;
       return sortByDate === 'newest' ? dateB - dateA : dateA - dateB;
     });
 
