@@ -195,9 +195,15 @@ class BookingController extends Controller
             }
         }
 
-        Mail::to($booking->email)->send(new BookingUpdated($booking));
+        try {
+            Mail::to($booking->email)->send(new BookingUpdated($booking));
+            $message = 'Booking updated and email sent successfully.';
+        } catch (\Exception $e) {
+            \Log::error('Email sending failed: '.$e->getMessage());
+            $message = 'Booking updated, but failed to send email.';
+        }
 
-        return redirect()->back()->with('success', 'Booking updated and email sent.');
+        return redirect()->back()->with('success', $message);
     }
 
     /**

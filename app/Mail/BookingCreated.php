@@ -2,25 +2,30 @@
 
 namespace App\Mail;
 
+use App\Models\Booking;
+use App\Models\PreferredPreparation;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Booking;
 
 class BookingCreated extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public Booking $booking;
+
+    public PreferredPreparation $preferredPreparation;
+
     /**
      * Create a new message instance.
      */
-    public function __construct(Booking $booking)
+    public function __construct(Booking $booking, PreferredPreparation $preferredPreparation)
     {
         //
         $this->booking = $booking;
+        $this->preferredPreparation = $preferredPreparation;
     }
 
     /**
@@ -28,9 +33,12 @@ class BookingCreated extends Mailable
      */
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: 'Booking Submitted – Payment Required',
-        );
+        $subject = match ($this->preferredPreparation->name) {
+            'all_in' => 'Booking Submitted – Await for final amount',
+            default => 'Booking Submitted – Payment Required',
+        };
+
+        return new Envelope(subject: $subject);
     }
 
     /**
@@ -42,6 +50,7 @@ class BookingCreated extends Mailable
             view: 'emails.booking-created',
             with: [
                 'booking' => $this->booking,
+                'preferredPreparation' => $this->preferredPreparation,
             ],
         );
     }

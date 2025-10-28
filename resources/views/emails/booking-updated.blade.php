@@ -26,9 +26,9 @@
 
 <p style="font-size: 14px; color: #555;">
   <strong>Cavite Tiger Travel & Tours</strong><br>
-  Daang Amaya 3, Tanza, Philippines<br>
-  📞 0910 345 6119<br>
-  📧 <a href="mailto:gilbertarasan8@gmail.com">gilbertarasan8@gmail.com</a><br>
+  2nd Floor WLM Bldg., Salawag, Dasmariñas, Cavite<br>
+  📞 0956-375-9291<br>
+  📧 <a href="mailto:cavitetigers2021@gmail.com">cavitetigers2021@gmail.com</a><br>
   👍 <a href="https://www.facebook.com/profile.php?id=100093876846720" target="_blank">
     Facebook Page
   </a>

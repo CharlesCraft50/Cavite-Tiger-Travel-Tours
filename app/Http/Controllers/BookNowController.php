@@ -187,8 +187,23 @@ class BookNowController extends Controller
             $booking->otherServices()->sync($request->input('other_services'));
         }
 
-        // Send confirmation
-        Mail::to($booking->email)->send(new BookingCreated($booking));
+        // Send confirmation email (with error handling)
+        try {
+            Mail::to($booking->email)->send(new BookingCreated($booking, $preferredPreparation));
+        } catch (\Exception $e) {
+            \Log::error('Booking email failed: '.$e->getMessage());
+            if (! empty($validated['preferred_preparation_id'])) {
+                if ($preferredPreparation->name == 'all_in') {
+                    return Inertia::render('success-page', [
+                        'title' => 'Booking Submitted!',
+                        'description' => 'Await admin approval and final amount before payment. Your booking has been saved, but the confirmation email could not be sent. Please contact support if you need details.',
+                        'redirectUrl' => route('bookings.show', $booking->id),
+                    ]);
+                } else {
+                    return to_route('booking.payment', ['booking_id' => $booking->id]);
+                }
+            }
+        }
 
         if (! empty($validated['preferred_preparation_id'])) {
             if ($preferredPreparation->name == 'all_in') {

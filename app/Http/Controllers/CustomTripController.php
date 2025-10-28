@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCustomTripRequest;
 use App\Http\Requests\UpdateCustomTripRequest;
+use App\Mail\CustomTripCreated;
+use App\Mail\CustomTripUpdated;
 use App\Models\CustomTrip;
 use App\Models\Notification;
 use App\Models\PreferredVan;
@@ -84,6 +86,18 @@ class CustomTripController extends Controller
 
         $trip = CustomTrip::create($data);
 
+        try {
+            if ($trip->user && $trip->user->email) {
+                Mail::to($trip->user->email)->send(new CustomTripCreated($trip));
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send CustomTripCreated email: '.$e->getMessage());
+
+            return redirect()
+                ->route('customTrips.show', ['id' => $trip->id])
+                ->with('warning', 'Trip created, but failed to send confirmation email.');
+        }
+
         return to_route('customTrips.show', ['id' => $trip->id]);
     }
 
@@ -143,7 +157,19 @@ class CustomTripController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Custom trip updated successfully.');
+        try {
+            if ($customTrip->user && $customTrip->user->email) {
+                Mail::to($customTrip->user->email)->send(new CustomTripUpdated($customTrip));
+            }
+            $flashMessage = 'Custom trip updated and email sent successfully.';
+        } catch (\Exception $e) {
+            Log::error('Failed to send CustomTripUpdated email: '.$e->getMessage());
+            $flashMessage = 'Custom trip updated, but failed to send email.';
+        }
+
+        return redirect()->back()->with('success', $flashMessage);
+
+        return redirect()->back()->with('success', $flashMessage);
     }
 
     /**
