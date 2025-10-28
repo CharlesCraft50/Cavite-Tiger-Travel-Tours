@@ -40,7 +40,7 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
 
     const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Home',
         href: '/dashboard',
         icon: Home,
     },
