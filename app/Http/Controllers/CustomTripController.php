@@ -56,7 +56,7 @@ class CustomTripController extends Controller
 
         $isDriver = $user->isDriver();
 
-        if (! ($user->isAdmin() || $user->isStaff()) && $user->id !== $customTrip->user_id) {
+        if (! ($user->isAdmin() || $user->isStaff()) && $user->id !== $customTrip->user_id && $user->id !== $customTrip->driver_id) {
             abort(403, 'Unauthorized action.');
         }
 
