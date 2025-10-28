@@ -25,8 +25,8 @@ return new class extends Migration
             $table->date('departure_date');
             $table->time('departure_time')->nullable();
             $table->date('return_date');
-            $table->integer('pax_adult');
-            $table->integer('pax_kids');
+            $table->integer('pax_adult')->nullable();
+            $table->integer('pax_kids')->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('preferred_van_id')->nullable()->constrained('preferred_vans')->onDelete('set null');
             $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('set null');
