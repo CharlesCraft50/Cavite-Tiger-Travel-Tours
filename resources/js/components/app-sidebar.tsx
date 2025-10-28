@@ -62,6 +62,10 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
                 href: '/bookings?status=accepted',
             },
             {
+                title: 'Completed',
+                href: '/bookings?status=completed',
+            },
+            {
                 title: 'Cancelled',
                 href: '/bookings?status=cancelled',
             },
