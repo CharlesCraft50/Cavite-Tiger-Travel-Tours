@@ -189,7 +189,7 @@ class CustomTripController extends Controller
         return redirect()->back()->with('success', 'Custom trip has been cancelled.');
     }
 
-    public function completed(string $id)
+    public function complete(string $id)
     {
         $customTrip = CustomTrip::findOrFail($id);
 
