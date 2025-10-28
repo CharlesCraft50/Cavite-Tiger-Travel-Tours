@@ -127,7 +127,7 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
             ],
         },
     ] : []),
-    ...(isAdmins
+    ...(isAdmins || isStaffs
             ? [
                 ...(!isStaffs ? [
                     {

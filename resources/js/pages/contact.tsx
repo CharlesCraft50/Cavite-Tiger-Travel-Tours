@@ -44,8 +44,8 @@ export default function ContactPage() {
             </li>
             <li className="flex items-center gap-4">
               <Phone className="text-primary" />
-              <a href="tel:09754360179" className="hover:underline">
-                0976-133-6322
+              <a href="tel:09563759291" className="hover:underline">
+                0956-375-9291
               </a>
             </li>
             <li className="flex items-center gap-4">
@@ -59,7 +59,9 @@ export default function ContactPage() {
 
         <div>
           <h2 className="text-3xl font-semibold mb-4">Business Hours</h2>
-          <p>We are open daily from <strong>8:00 AM to 6:00 PM</strong>.</p>
+          <p>We are open daily from <strong>Monday - Friday 8:00Am - 5:00 pm</strong>.</p>
+          <p><strong>Saturday 9:00am - 4:00pm</strong></p>
+          <p><strong>Sunday closed</strong></p>
         </div>
 
         <div>

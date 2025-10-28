@@ -37,7 +37,7 @@ export default function ShowPage({
   preferredVans,
   otherServices,
   isWishlisted,
-  disableNav,
+  disableNav = false,
 }: ShowPageProps) {
 
   useEffect(() => {
