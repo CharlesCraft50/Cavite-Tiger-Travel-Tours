@@ -137,7 +137,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
     <DashboardLayout title="" href="/dashboard">
       <div className="flex mb-2 gap-2">
         <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
-          <LayoutDashboard /> Dashboard
+          <LayoutDashboard /> Home
         </Link>
         <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]">
           <Truck className="fill-black" /> Custom Trip
