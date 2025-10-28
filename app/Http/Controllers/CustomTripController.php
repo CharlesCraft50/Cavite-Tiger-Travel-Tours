@@ -12,6 +12,7 @@ use App\Models\PreferredVan;
 use App\Models\TourPackage;
 use App\Models\VanCategory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class CustomTripController extends Controller
