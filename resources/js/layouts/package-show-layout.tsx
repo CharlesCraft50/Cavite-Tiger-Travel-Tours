@@ -21,7 +21,7 @@ export default function PackageShowLayout({ id, children, packages, editable, au
         <>
             {disableNav ? null : (
                 <>
-                    <Navbar removeNavItems />
+                    <Navbar />
                     <div className="p-4">
                         <Button onClick={() => window.history.back()} className="text-sm cursor-pointer flex items-center gap-2 btn-primary">
                             <ArrowLeft className="w-4 h-4" />
