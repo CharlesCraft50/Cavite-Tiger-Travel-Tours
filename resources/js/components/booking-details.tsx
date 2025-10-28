@@ -766,6 +766,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                                     <option value="declined">Declined</option>
                                                     <option value="past_due">Past Due</option>
                                                     <option value="cancelled">Cancelled</option>
+                                                    <option value="completed">Completed</option>
                                                 </select>
                                             </>
                                         ) : (
