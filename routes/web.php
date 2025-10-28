@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\ConfigurationController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BookingPaymentController;
 use App\Http\Controllers\BookNowController;
@@ -75,6 +76,11 @@ Route::get('/packages/{packageSlug}/category/{categorySlug}', [PackageController
 Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
 
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/analytics', [BookingController::class, 'analytics'])->name('bookings.analytics');
+    Route::resource('users', UserController::class);
+});
+
+Route::middleware(['auth', 'admin_or_staff'])->group(function () {
     Route::get('/packages/create', [PackageController::class, 'create'])->name('packages.create');
     Route::get('/packages/{package}/edit', [PackageController::class, 'edit'])->name('packages.edit');
     Route::put('/packages/{package}', [PackageController::class, 'update'])->name('packages.update');
@@ -87,17 +93,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('countries', CountryController::class);
     Route::put('/preferredvan/update', [PreferredVanController::class, 'update'])->name('preferredvan.update');
     Route::put('/otherservice/update', [OtherServiceController::class, 'update'])->name('otherservice.update');
-    Route::get('/analytics', [BookingController::class, 'analytics'])->name('bookings.analytics');
-
     Route::resource('/vancategories', VanCategoryController::class);
-});
 
-Route::middleware(['auth', 'admin_or_driver_or_staff'])->group(function () {
-    Route::put('/custom-trips/{id}', [CustomTripController::class, 'update'])->name('customTrips.update');
     Route::get('/configurations/packages', [ConfigurationController::class, 'packages'])->name('configurations.packages');
     Route::get('/configurations/vehicles', [ConfigurationController::class, 'vehicles'])->name('configurations.vehicles');
     Route::get('/configurations/cities', [ConfigurationController::class, 'cities'])->name('configurations.cities');
     Route::get('/configurations/other-services', [ConfigurationController::class, 'otherServices'])->name('configurations.otherServices');
+});
+
+Route::middleware(['auth', 'admin_or_driver_or_staff'])->group(function () {
+    Route::put('/custom-trips/{id}', [CustomTripController::class, 'update'])->name('customTrips.update');
 });
 
 Route::get('/packages/{slug}', [PackageController::class, 'show'])->name('packages.show');

@@ -7,7 +7,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { Search, ChevronDownIcon, X } from 'lucide-react';
 import CardImageBackground from '@/components/ui/card-image-bg';
 import clsx from 'clsx';
-import { isAdmin } from '@/lib/utils';
+import { isAdmin, isStaff } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTitle, DialogClose, DialogContent, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import PackageModal from '@/components/ui/package-modal';
@@ -22,6 +22,7 @@ const ITEMS_PER_LOAD = 8;
 export default function Packages({ packages: initialPackages }: PackagesIndexProps) {
   const { auth } = usePage<SharedData>().props;
   const isAdmins = isAdmin(auth.user);
+  const isStaffs = isStaff(auth.user);
 
   const [toggleEdit, setToggleEdit] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -226,7 +227,7 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
                 </div>
               </Listbox>
 
-              {isAdmins && (
+              {(isAdmins || isStaffs) && (
                 <div className="flex gap-2">
                   <Button
                     onClick={() => setToggleEdit(!toggleEdit)}
