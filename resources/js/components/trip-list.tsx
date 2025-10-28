@@ -1,4 +1,4 @@
-import { formatStatus } from '@/lib/utils';
+import { formatStatus, isDriver } from '@/lib/utils';
 import { Booking, CustomTrip } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import clsx from 'clsx';
@@ -18,9 +18,10 @@ type TripListProps = {
   customTrips: CustomTrip[];
   limit?: number;
   statusFilter?: string;
+  isDriver?: boolean;
 };
 
-export default function TripList({ bookings, customTrips, limit, statusFilter }: TripListProps) {
+export default function TripList({ bookings, customTrips, limit, statusFilter, isDriver }: TripListProps) {
   const [tripType, setTripType] = useState<'all' | 'bookings' | 'custom'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchBy, setSearchBy] = useState<'name' | 'destination' | 'package' | 'booking_number'>('name');
@@ -98,6 +99,11 @@ export default function TripList({ bookings, customTrips, limit, statusFilter }:
     else router.post(route('customTrips.cancel', trip.id));
     setCancelTarget(null);
   };
+
+  const handleCompleteTarget = (trip: any) => {
+    if (trip.type === 'booking') router.post(route('bookings.complete', trip.id));
+    else router.post(route('customTrips.complete', trip.id));
+  }
 
   // Sync URL filter
   useEffect(() => {
@@ -220,10 +226,16 @@ export default function TripList({ bookings, customTrips, limit, statusFilter }:
                     </Link>
                     <Button
                       type="button"
-                      onClick={() => setCancelTarget(trip)}
+                      onClick={() => {
+                        if (isDriver) {
+                          handleCompleteTarget(trip);
+                        } else {
+                          setCancelTarget(trip);
+                        }
+                      }}
                       className="btn-primary cursor-pointer text-xs py-5"
                     >
-                      Cancel
+                      {isDriver ? 'Complete' : 'Cancel'}
                     </Button>
                   </td>
                 </tr>

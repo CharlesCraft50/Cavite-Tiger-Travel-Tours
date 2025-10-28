@@ -221,16 +221,16 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                                 allTrips
                                 .filter(t => t.date > new Date()) // upcoming only
                                 .sort((a, b) => a.date.getTime() - b.date.getTime()) // soonest first
-                                .slice(0, 3)
+                                .slice(0, 5)
                                 .map((trip) => (
                                     <Link
-                                    key={`${trip.type}-${trip.id}`}
-                                    href={
-                                        trip.type === 'custom'
-                                        ? route('customTrips.show', trip.id)
-                                        : route('bookings.show', trip.id)
-                                    }
-                                    className="block border rounded-lg p-4 hover:bg-gray-50 transition-all duration-200"
+                                        key={`${trip.type}-${trip.id}`}
+                                        href={
+                                            trip.type === 'custom'
+                                            ? route('customTrips.show', trip.id)
+                                            : route('bookings.show', trip.id)
+                                        }
+                                        className="block border rounded-lg p-4 hover:bg-gray-50 transition-all duration-200"
                                     >
                                     <div className="flex justify-between items-center">
                                         <div>

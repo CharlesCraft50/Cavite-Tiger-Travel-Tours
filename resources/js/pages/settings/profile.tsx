@@ -38,7 +38,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     const [imagePreview, setImagePreview] = useState(auth.user.profile_photo);
     const [profilePhotoError, setProfilePhotoError] = useState('');
 
-    const [rawPhone, setRawPhone] = useState(''); // full +63...
+    const [rawPhone, setRawPhone] = useState(auth.user.contact_number || '');
     const [phoneNumber, setPhoneNumber] = useState(''); // stripped number
     const [currentCountryCode, setCurrentCountryCode] = useState('');
     const [contactNumberError, setContactNumberError] = useState('');
@@ -196,7 +196,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             <Label htmlFor="contact_number">Contact Number</Label>
                             <PhoneInput
                                 country={'ph'}
-                                value={auth.user.contact_number}
+                                value={data.contact_number}
                                 disabled={processing}
                                 placeholder="Ex. +639123456789"
                                 onChange={(fullValue: string, data: any) => {

@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('bookings', BookingController::class);
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+    Route::post('/bookings/{id}/complete', [BookingController::class, 'complete'])->name('bookings.complete');
     Route::resource('wishlists', WishlistController::class);
     Route::get('/dashboard/about', [AboutController::class, 'index'])->name('dasboard.about');
     Route::get('/certifications', [AboutController::class, 'certifications'])->name('certifications');
@@ -55,6 +56,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/custom-trips', [CustomTripController::class, 'index'])->name('customTrips.index');
     Route::get('/custom-trips/{id}', [CustomTripController::class, 'show'])->name('customTrips.show');
     Route::post('/custom-trips/{id}/cancel', [CustomTripController::class, 'cancel'])->name('customTrips.cancel');
+    Route::post('/custom-trips/{id}/complete', [CustomTripController::class, 'complete'])->name('customTrips.complete');
 
     Route::get('/book-now/{slug}', [BookNowController::class, 'create'])->name('booking.create');
     Route::get('/book-now/{slug}/category/{categorySlug?}', [BookNowController::class, 'create'])->name('booking.create.category');
