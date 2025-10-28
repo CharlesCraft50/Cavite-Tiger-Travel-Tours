@@ -87,9 +87,9 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
     }, [allTrips]);
 
     return (
-        <DashboardLayout title="" href="/dashboard">
+        <DashboardLayout title="Home" href="/dashboard">
             <div className="flex mb-2 gap-2">
-                <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><LayoutDashboard /> Home</Link>
+                <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><LayoutDashboard /> Dashboard</Link>
                 {!isDrivers && (
                     <>
                         <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
