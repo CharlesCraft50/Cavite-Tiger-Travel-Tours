@@ -185,7 +185,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border">
                         <div className="text-center">
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                            {!(isAdmins || isDrivers) ? "Total Spent" : "Revenue"}
+                            {!(isAdmins || isDrivers) ? "Total Spent" : "Completed"}
                         </h3>
                         <div className="flex items-center justify-center text-4xl font-bold text-yellow-600 mb-2">
                             <PriceSign />

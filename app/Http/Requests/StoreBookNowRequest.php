@@ -53,7 +53,7 @@ class StoreBookNowRequest extends FormRequest
                 'max:'.($this->van_pax_adult_max ?? 20),
             ],
             'pax_kids' => [
-                'sometimes',
+                'nullable',
                 'integer',
                 'min:0',
                 'max:'.($this->van_pax_kids_max ?? 20),
