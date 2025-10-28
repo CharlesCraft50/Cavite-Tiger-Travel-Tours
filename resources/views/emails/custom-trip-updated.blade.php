@@ -1,5 +1,5 @@
 @component('mail::message')
-# Hello {{ $customTrip->user->name }},
+# Hello {{ $customTrip->user->first_name ?? 'Traveler' }},
 
 Your custom trip **#{{ $customTrip->id }}** has been updated.
 
@@ -16,9 +16,13 @@ Your custom trip **#{{ $customTrip->id }}** has been updated.
 **Notes:** {{ $customTrip->notes }}
 @endif
 
+@component('mail::button', ['url' => url('/custom-trips/'.$customTrip->id)])
+View Custom Trip
+@endcomponent
+
 <p>Thank you for choosing <strong>Cavite Tiger Travel & Tours</strong> for your custom travel experience!</p>
 
-<hr>
+---
 
 <p style="font-size: 14px; color: #555;">
   <strong>Cavite Tiger Travel & Tours</strong><br>

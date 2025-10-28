@@ -1,51 +1,43 @@
-<h2>Hello {{ $booking->first_name }},</h2>
+@component('mail::message')
+# Hello {{ $booking->first_name ?? 'Traveler' }},
 
-<p>Your booking <strong>#{{ $booking->booking_number }}</strong> has been <strong>submitted</strong>.</p>
+Your booking **#{{ $booking->booking_number }}** has been **submitted**.
 
-<p>
-  <strong>Departure:</strong> {{ \Carbon\Carbon::parse($booking->departure_date)->toFormattedDateString() }}<br>
-  <strong>Return:</strong> {{ \Carbon\Carbon::parse($booking->return_date)->toFormattedDateString() }}
-</p>
+**Status:** {{ ucfirst($booking->status) }}  
+**Departure:** {{ \Carbon\Carbon::parse($booking->departure_date)->toFormattedDateString() }}  
+**Return:** {{ \Carbon\Carbon::parse($booking->return_date)->toFormattedDateString() }}
 
 @if($booking->preferredVan)
-  <p><strong>Preferred Van:</strong> {{ $booking->preferredVan->name }}</p>
+**Preferred Van:** {{ $booking->preferredVan->name }}
 @endif
-
-<p><strong>Status:</strong> {{ ucfirst($booking->status) }}</p>
 
 @if($booking->notes)
-  <p><strong>Notes:</strong> {{ $booking->notes }}</p>
+**Notes:** {{ $booking->notes }}
 @endif
 
-<hr>
-
-{{-- Dynamic message based on preferred preparation --}}
 @if($preferredPreparation->name === 'all_in')
-  <p><strong>🕒 Next Step:</strong> Please wait for our confirmation and the final amount of your all-in package.</p>
+**🕒 Next Step:** Please wait for our confirmation and the final amount of your all-in package.
 
-  <p>Our team will contact you shortly with the total cost and details for payment confirmation.</p>
+Our team will contact you shortly with the total cost and details for payment confirmation.
 
 @else
-  <p><strong>✅ Next Step:</strong> To confirm your booking, please pay using GCash and submit your reference number and proof of payment.</p>
+**✅ Next Step:** To confirm your booking, please pay using GCash and submit your reference number and proof of payment.
 
-  <ul>
-    <li>Gcash payment method only</li>
-    <li>Upload a clear screenshot of your transaction</li>
-    <li>Enter your 12-digit reference number</li>
-  </ul>
+@component('mail::panel')
+- Gcash payment method only  
+- Upload a clear screenshot of your transaction  
+- Enter your 12-digit reference number
+@endcomponent
 
-  <p>You can complete your payment at the link below:</p>
+@component('mail::button', ['url' => 'http://72.61.149.79/book-now/payment/'.$booking->id])
+Complete Payment
+@endcomponent
 
-  <p>
-    <a href="{{ url('/book-now/payment/'.$booking->id) }}">
-      {{ url('/book-now/payment/'.$booking->id) }}
-    </a>
-  </p>
 @endif
 
-<p>Thank you for choosing us!</p>
+Thank you for choosing us!
 
-<hr>
+---
 
 <p style="font-size: 14px; color: #555;">
   <strong>Cavite Tiger Travel & Tours</strong><br>
@@ -60,3 +52,4 @@
 <p style="font-size: 12px; color: #888;">
   This is an automated message. Please do not reply directly to this email.
 </p>
+@endcomponent

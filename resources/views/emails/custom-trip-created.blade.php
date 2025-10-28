@@ -1,31 +1,35 @@
-<h2>Hello {{ $trip->user->first_name ?? 'Traveler' }},</h2>
+@component('mail::message')
+# Hello {{ $trip->user->first_name ?? 'Traveler' }},
 
-<p>Your <strong>Custom Trip Request (ID #{{ $trip->id }})</strong> has been submitted successfully.</p>
+Your custom trip request **#{{ $trip->id }}** has been submitted successfully.
 
-<p><strong>Date of Trip:</strong> {{ \Carbon\Carbon::parse($trip->date_of_trip)->toFormattedDateString() }}<br>
-<strong>Pickup Time:</strong> {{ $trip->pickup_time ?? '—' }}<br>
-<strong>Pickup Address:</strong> {{ $trip->pickup_address ?? '—' }}<br>
-<strong>Destination:</strong> {{ $trip->destination ?? '—' }}</p>
+**Status:** {{ ucfirst($trip->status) }}  
+**Date of Trip:** {{ \Carbon\Carbon::parse($trip->date_of_trip)->toFormattedDateString() }}  
+**Pickup Time:** {{ $trip->pickup_time ?? '—' }}  
+**Pickup Address:** {{ $trip->pickup_address ?? '—' }}  
+**Destination:** {{ $trip->destination ?? '—' }}
 
 @if($trip->preferredVan)
-  <p><strong>Preferred Van:</strong> {{ $trip->preferredVan->name }}</p>
+**Preferred Van:** {{ $trip->preferredVan->name }}
 @endif
-
-<p><strong>Status:</strong> {{ ucfirst($trip->status) }}</p>
 
 @if($trip->notes)
-  <p><strong>Notes:</strong> {{ $trip->notes }}</p>
+**Notes:** {{ $trip->notes }}
 @endif
 
-<hr>
+---
 
-<p><strong>🕒 Next Step:</strong> Our staff will review your custom trip details and send the final quotation soon.</p>
+**🕒 Next Step:** Our staff will review your custom trip details and send the final quotation soon.
 
-<p>Once approved, you’ll receive another email with the final amount and payment instructions.</p>
+Once approved, you’ll receive another email with the final amount and payment instructions.
 
-<p>Thank you for choosing <strong>Cavite Tiger Travel & Tours</strong> for your custom travel experience!</p>
+@component('mail::button', ['url' => url('/custom-trips/'.$trip->id)])
+View Trip
+@endcomponent
 
-<hr>
+Thank you for choosing **Cavite Tiger Travel & Tours** for your custom travel experience!
+
+---
 
 <p style="font-size: 14px; color: #555;">
   <strong>Cavite Tiger Travel & Tours</strong><br>
@@ -40,3 +44,4 @@
 <p style="font-size: 12px; color: #888;">
   This is an automated message. Please do not reply directly to this email.
 </p>
+@endcomponent

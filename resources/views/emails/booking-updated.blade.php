@@ -1,28 +1,28 @@
-<h2>Hello {{ $booking->first_name }},</h2>
+@component('mail::message')
+# Hello {{ $booking->first_name ?? 'Traveler' }},
 
-<p>Your booking <strong>#{{ $booking->booking_number }}</strong> has been updated.</p>
+Your booking **#{{ $booking->booking_number }}** has been updated.
 
-<p><strong>Departure:</strong> {{ \Carbon\Carbon::parse($booking->departure_date)->toFormattedDateString() }}<br>
-<strong>Return:</strong> {{ \Carbon\Carbon::parse($booking->return_date)->toFormattedDateString() }}</p>
+**Status:** {{ ucfirst($booking->status) }}  
+**Departure:** {{ \Carbon\Carbon::parse($booking->departure_date)->toFormattedDateString() }}  
+**Return:** {{ \Carbon\Carbon::parse($booking->return_date)->toFormattedDateString() }}
 
 @if($booking->preferredVan)
-<p><strong>Preferred Van:</strong> {{ $booking->preferredVan->name }}</p>
+**Preferred Van:** {{ $booking->preferredVan->name }}
 @endif
-
-<p><strong>Status:</strong> {{ ucfirst($booking->status) }}</p>
 
 @if($booking->notes)
-<p><strong>Notes:</strong> {{ $booking->notes }}</p>
+**Notes:** {{ $booking->notes }}
 @endif
 
-<p>You can review your booking at:  
-<a href="{{ url('/book-now/payment/'.$booking->id) }}">
-    View Booking
-</a></p>
+You can review your booking at:  
+@component('mail::button', ['url' => 'http://72.61.149.79/bookings/'.$booking->id])
+View Booking
+@endcomponent
 
-<p>Thank you!</p>
+Thank you for choosing **Cavite Tiger Travel & Tours**!
 
-<hr>
+---
 
 <p style="font-size: 14px; color: #555;">
   <strong>Cavite Tiger Travel & Tours</strong><br>
@@ -37,3 +37,4 @@
 <p style="font-size: 12px; color: #888;">
   This is an automated message. Please do not reply directly to this email.
 </p>
+@endcomponent
