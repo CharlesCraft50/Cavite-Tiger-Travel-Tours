@@ -6,8 +6,6 @@ use App\Models\Booking;
 use App\Models\PreferredPreparation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class BookingCreated extends Mailable
@@ -23,45 +21,25 @@ class BookingCreated extends Mailable
      */
     public function __construct(Booking $booking, PreferredPreparation $preferredPreparation)
     {
-        //
         $this->booking = $booking;
         $this->preferredPreparation = $preferredPreparation;
     }
 
     /**
-     * Get the message envelope.
+     * Build the message.
      */
-    public function envelope(): Envelope
+    public function build()
     {
         $subject = match ($this->preferredPreparation->name) {
-            'all_in' => 'Booking Submitted – Await for final amount',
-            default => 'Booking Submitted – Payment Required',
+            'all_in' => "Booking #{$this->booking->booking_number} Submitted – Await for final amount",
+            default => "Booking #{$this->booking->booking_number} Submitted – Payment Required",
         };
 
-        return new Envelope(subject: $subject);
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.booking-created',
-            with: [
+        return $this->subject($subject)
+            ->markdown('emails.booking-created')
+            ->with([
                 'booking' => $this->booking,
                 'preferredPreparation' => $this->preferredPreparation,
-            ],
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
+            ]);
     }
 }

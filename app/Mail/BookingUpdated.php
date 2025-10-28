@@ -2,17 +2,15 @@
 
 namespace App\Mail;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 use App\Models\Booking;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 
 class BookingUpdated extends Mailable
 {
     use Queueable, SerializesModels;
+
     public Booking $booking;
 
     /**
@@ -20,40 +18,20 @@ class BookingUpdated extends Mailable
      */
     public function __construct(Booking $booking)
     {
-        //
         $this->booking = $booking;
     }
 
     /**
-     * Get the message envelope.
+     * Build the message.
      */
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: 'Your Booking Has Been Updated',
-        );
-    }
+        $subject = "Booking #{$this->booking->booking_number} Updated";
 
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.booking-updated',
-            with: [
+        return $this->subject($subject)
+            ->markdown('emails.booking-updated')
+            ->with([
                 'booking' => $this->booking,
-            ],
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
+            ]);
     }
 }
