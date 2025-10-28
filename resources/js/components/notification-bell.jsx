@@ -66,7 +66,7 @@ export default function NotificationBell() {
             const hasError = imageErrors[idx];
 
             return (
-              <Link href={`/bookings/${data.booking_id}`} key={idx}>
+              <Link href={data.custom_booking_id != null ? `/bookings/${data.custom_booking_id}` : `/bookings/${data.booking_id}`} key={idx}>
                 <div
                   className={clsx(
                     "flex items-start gap-2 w-full px-4 py-2 transition duration-300 hover:bg-gray-200",

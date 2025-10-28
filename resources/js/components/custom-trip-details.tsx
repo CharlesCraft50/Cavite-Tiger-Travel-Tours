@@ -104,9 +104,9 @@ export default function CustomTripDetails({
       }
     });
 
-    if (data.payment_status && data.payment_status !== '') {
-      formData.append('status', data.payment_status);
-    }
+    // if (data.payment_status && data.payment_status !== '') {
+    //   formData.append('status', data.payment_status);
+    // }
 
     formData.append('_method', 'PUT');
 
