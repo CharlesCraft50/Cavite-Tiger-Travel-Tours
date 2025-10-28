@@ -215,7 +215,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
 
                         <div className="space-y-4">
                             {(isAdmins || isDrivers) ? (
-                            <TripList customTrips={userCustomTrips} bookings={userBookings} limit={3} />
+                            <TripList customTrips={userCustomTrips} bookings={userBookings} limit={3} isDriver={isDrivers} />
                             ) : (
                             allTrips.length > 0 ? (
                                 allTrips

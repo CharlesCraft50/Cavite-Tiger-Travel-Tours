@@ -28,6 +28,7 @@ export default function Bookings({ userBookings, userCustomTrips }: DashboardPro
                 customTrips={userCustomTrips}
                 bookings={userBookings}
                 statusFilter={statusFilter}
+                isDriver={isDrivers}
             />
         </DashboardLayout>
     );
