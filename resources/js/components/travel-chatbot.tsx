@@ -99,6 +99,18 @@ export default function TravelChatbot() {
             };
         }
 
+        if (messageIncludes(message, ['check', 'availability', 'time', 'open', 'close'])) {
+            return {
+                text: `We’re happy to help you plan your trip!
+                For 𝐭𝐨𝐮𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬, 𝐛𝐨𝐨𝐤𝐢𝐧𝐠𝐬, or 𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐢𝐥𝐢𝐭𝐲 𝐢𝐧𝐪𝐮𝐢𝐫𝐢𝐞𝐬, please contact us at 𝟎𝟗𝟓𝟔-𝟑𝟕𝟓-𝟗𝟐𝟗𝟏 or message us on Facebook.
+
+                Business Hours:
+                • 𝐌𝐨𝐧𝐝𝐚𝐲 – 𝐅𝐫𝐢𝐝𝐚𝐲: 8:00 AM – 5:00 PM
+                • 𝐒𝐚𝐭𝐮𝐫𝐝𝐚𝐲: 9:00 AM – 4:00 PM   
+                • 𝐒𝐮𝐧𝐝𝐚𝐲: Closed`
+            }
+        }
+
         return {
             text: "${null}",
         };
@@ -115,10 +127,10 @@ export default function TravelChatbot() {
 
         setTimeout(() => {
             const response = getReponseBot(inputText);
-            addMessage(response.text, 'bot');
+            addMessage(response?.text ?? '', 'bot');
             setIsTyping(false);
 
-            if (response.showTime) {
+            if (response?.showTime) {
                 setTimeout(() => {
                     addMessage('', 'bot');
                 }, 500);
@@ -132,10 +144,10 @@ export default function TravelChatbot() {
 
         setTimeout(() => {
             const response = getReponseBot(replyText);
-            addMessage(response.text, 'bot');
+            addMessage(response?.text ?? '', 'bot');
             setIsTyping(false);
 
-            if (response.showTime) {
+            if (response?.showTime) {
                 setTimeout(() => {
                     addMessage('', 'bot');
                 }, 500);
@@ -245,8 +257,7 @@ export default function TravelChatbot() {
                                                 ) : message.text == "${contact}" ? (
                                                     <span>
                                                         You can reach us at:
-                                                        {"\n"}📞 0976-133-6322
-                                                        {"\n"}📞 0976-292-6382
+                                                        {"\n"}📞 0956-375-9291
                                                         {"\n"}📧 cavitetigers2021@gmail.com
                                                         {"\n"}📍 2nd Floor WLM Bldg., Salawag,
                                                         {"\n"}&nbsp; &nbsp; &nbsp; &nbsp;Dasmariñas, Cavite

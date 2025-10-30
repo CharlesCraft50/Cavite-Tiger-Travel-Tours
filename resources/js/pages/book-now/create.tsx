@@ -433,6 +433,28 @@ export default function Create({
                         </div>
                     </div>
                 )}
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
+                    <div className="flex items-start gap-3 text-sm leading-relaxed space-y-2">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
+                        >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                        />
+                        </svg>
+                        <p>
+                            <span className="font-medium">Important:</span>{' '}
+                            Preferred van for drop-off/pick-up at the airport has different costs, and it's optional if you have your own vehicle for transportation.
+                        </p>
+                    </div>
+                </div>
 
                 <div className="grid gap-4">
                     <p className="font-semibold">Required Fields <span className="text-red-500">*</span></p>
@@ -518,22 +540,22 @@ export default function Create({
                                 />
                                 </svg>
                                 <div className="text-sm leading-relaxed space-y-2">
-                                {data.preferred_preparation_id == 1 && (<p>
-                                    <span className="font-medium">Land Arrangement/Preparation:</span>{' '}
-                                    The cost of the selected tour package is included, while flight tickets are not.
-                                </p>)}
-                                {data.preferred_preparation_id == 2 && (
-                                    <>
-                                        <p>
-                                            <span className="font-medium">All-in Arrangement/Preparation:</span>{' '}
-                                                The cost of the selected tour package and flight tickets are included.
-                                        </p>
-                                        <p>
-                                            <span className="font-medium">Important:</span>{' '}
-                                            Preferred van for drop-off/pick-up at the airport have different costs.
-                                        </p>
-                                    </>
-                                )}
+                                    {data.preferred_preparation_id == 1 && (<p>
+                                        <span className="font-medium">Land Arrangement/Preparation:</span>{' '}
+                                        The cost of the selected tour package is included, while flight tickets are not.
+                                    </p>)}
+                                    {data.preferred_preparation_id == 2 && (
+                                        <>
+                                            <p>
+                                                <span className="font-medium">All-in Arrangement/Preparation:</span>{' '}
+                                                    The cost of the selected tour package and flight tickets are included.
+                                            </p>
+                                            <p>
+                                                <span className="font-medium">Important:</span>{' '}
+                                                Preferred van for drop-off/pick-up at the airport have different costs.
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>

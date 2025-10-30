@@ -44,8 +44,8 @@ export default function Payment({
     const { auth } = usePage<SharedData>().props;
 
     const qrImages = [
-        "https://i.ibb.co/1Yyrzxfv/IMG-3230.jpg", // GCash
-        "https://i.ibb.co/p6vd0PRt/IMG-3229.jpg", // BPI
+        `${import.meta.env.BASE_URL}images/payment_methods/IMG-3230.jpg`, // GCash
+        `${import.meta.env.BASE_URL}images/payment_methods/IMG-3229.jpg`, // BPI
     ];
 
     const selectedQR = data.payment_method === "gcash" ? qrImages[0] : qrImages[1];
@@ -79,6 +79,7 @@ export default function Payment({
             title={booking_payment?.status === 'declined' ? '❌ Payment Declined – Resubmit Required' : 'Booking Pending'}
             description="To confirm your booking, please pay using GCash or BPI and provide a screenshot of your payment."
             hasBackButton
+            removeNavItems
         >
             <Head title="Payment" />
             <form onSubmit={submit} className="flex flex-col gap-6">

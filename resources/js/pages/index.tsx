@@ -22,7 +22,7 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
       <div className="absolute inset-0">
         {/* Background image with blur */}
         <img
-          src="https://i.ibb.co/HfGz7MW5/Untitled-16.png"
+          src="images/bg/Untitled-16.png"
           alt="Van on tour"
           className="w-full h-full object-cover blur-xs"
         />

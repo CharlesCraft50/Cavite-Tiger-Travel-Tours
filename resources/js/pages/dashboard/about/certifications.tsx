@@ -9,19 +9,19 @@ export default function Certifications({disableNav} : {disableNav?: boolean;}) {
                 <h1 className="mb-8 text-3xl font-semibold">Certifications</h1>
                 <div className="grid grid-cols-2 gap-12">
                     <img 
-                        src="https://i.ibb.co/S4ZrBwGN/CAITO.jpg"
+                        src="images/certificates/CAITO.jpg"
                         className="max-w-sm max-h-sm object-contain border-4" 
                     />
                     <img 
-                        src="https://i.ibb.co/gZtMR6VQ/DOT-Accreditation-Cert.png"
+                        src="images/certificates/DOT Accreditation Cert.png"
                         className="max-w-sm max-h-sm object-contain border-4" 
                     />
                     <img 
-                        src="https://i.ibb.co/W4Sc48nN/Gemini-Generated-Image-b7qngeb7qngeb7qn.png"
+                    src="images/certificates/COT 2.png"
                         className="max-w-sm max-h-sm object-contain border-4" 
                     />
                     <img 
-                        src="https://i.ibb.co/d0jmmVXR/PHILTOA.png"
+                        src="images/certificates/PHILTOA.png"
                         className="max-w-sm max-h-sm object-contain border-4" 
                     />
                 </div>

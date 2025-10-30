@@ -152,7 +152,7 @@ export default function Index({ packages, cities, countries, selectedCountry }: 
                 </div>
             </div>
 
-            <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
+            <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal} wrapContent>
                 <div className="mt-4">
                     <PackagesOverview
                         currentPackages={allPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}

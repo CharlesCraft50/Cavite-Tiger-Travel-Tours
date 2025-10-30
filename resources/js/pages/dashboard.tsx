@@ -128,18 +128,18 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                                         className="rounded-xl overflow-hidden shadow-md"
                                         >
                                         {[
-                                            "https://i.ibb.co/cXRrgPNs/ctt-c-6.jpg",
-                                            "https://i.ibb.co/Wv4F3SfC/ctt-c-5.jpg",
-                                            "https://i.ibb.co/BWwC1cp/ctt-c-4.jpg",
-                                            "https://i.ibb.co/tpShGxt7/Untitled-12.png",
-                                            "https://i.ibb.co/hxrDk4Nh/Untitled-11.png",
-                                            "https://i.ibb.co/d0qVY7XK/Untitled-10.png",
-                                            "https://i.ibb.co/jv8DKxtY/Untitled-8.png",
-                                            "https://i.ibb.co/3m8LTGv6/Untitled-6.png",
-                                            "https://i.ibb.co/Kzfvf4CR/Untitled-5.png",
-                                            "https://i.ibb.co/Qv4tmbnC/Untitled-4.png",
-                                            "https://i.ibb.co/BHrkpD6T/Untitled-3.png",
-                                            "https://i.ibb.co/23MbNhKj/Untitled-1.png",
+                                            "images/bg/Untitled-9.png",
+                                            "images/bg/Untitled-7.png",
+                                            "images/bg/Untitled-2.png",
+                                            "images/bg/Untitled-12.png",
+                                            "images/bg/Untitled-11.png",
+                                            "images/bg/Untitled-10.png",
+                                            "images/bg/Untitled-8.png",
+                                            "images/bg/Untitled-6.png",
+                                            "images/bg/Untitled-5.png",
+                                            "images/bg/Untitled-4.png",
+                                            "images/bg/Untitled-3.png",
+                                            "images/bg/Untitled-1.png",
                                         ].map((url, index) => (
                                             <SwiperSlide key={index}>
                                             <img

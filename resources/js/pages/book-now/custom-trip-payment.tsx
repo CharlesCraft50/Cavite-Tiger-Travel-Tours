@@ -44,8 +44,8 @@ export default function Payment({
     const { auth } = usePage<SharedData>().props;
 
     const qrImages = [
-        "https://i.ibb.co/1Yyrzxfv/IMG-3230.jpg", // GCash
-        "https://i.ibb.co/p6vd0PRt/IMG-3229.jpg", // BPI
+        `${import.meta.env.BASE_URL}images/payment_methods/IMG-3230.jpg`, // GCash
+        `${import.meta.env.BASE_URL}images/payment_methods/IMG-3229.jpg`, // BPI
     ];
 
     const selectedQR = data.payment_method === "gcash" ? qrImages[0] : qrImages[1];
