@@ -550,10 +550,6 @@ export default function Create({
                                                 <span className="font-medium">All-in Arrangement/Preparation:</span>{' '}
                                                     The cost of the selected tour package and flight tickets are included.
                                             </p>
-                                            <p>
-                                                <span className="font-medium">Important:</span>{' '}
-                                                Preferred van for drop-off/pick-up at the airport have different costs.
-                                            </p>
                                         </>
                                     )}
                                 </div>

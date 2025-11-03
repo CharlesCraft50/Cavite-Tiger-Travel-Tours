@@ -178,6 +178,9 @@ export default function CustomTripDetails({
             <div>
               {!editable && <div className="card text-sm p-3">Custom Trip</div>}
             </div>
+            <div>
+              {trip.status == 'completed' && <div className="card text-sm p-3 bg-green-100 border-green-400">Completed</div>}
+            </div>
           </div>
 
           {(isAdmins || isDrivers || isStaffs) && editable && (

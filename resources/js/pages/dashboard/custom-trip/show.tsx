@@ -25,7 +25,7 @@ export default function Show({ booking, vans, isAdmin, vanCategories }: CustomTr
                 </div>
         
                 <Link
-                    href="/custom-trips"
+                    href="/bookings"
                     className="btn-primary inline-flex items-center gap-2 text-xs px-4 py-2"
                 >
                     <ArrowLeft size={16} />

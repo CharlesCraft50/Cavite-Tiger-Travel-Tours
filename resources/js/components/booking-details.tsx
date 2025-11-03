@@ -414,8 +414,6 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                     </h3>
                 </div>
                 
-                
-
                 {(isAdmins || isDrivers || isStaffs) ? (
                     <div className="flex flex-row gap-2">
                         <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
@@ -433,6 +431,32 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                     </div>
                 )}
             </div>
+
+            {!(!!booking.is_final_total) && (
+                <div className="mt-4">
+                    <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
+                        >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                        />
+                        </svg>
+                        <p className="text-sm leading-relaxed">
+                        <span className="font-medium">Admin review pending:</span>{' '}
+                            Your booking request is being reviewed by our team. Please wait for the
+                            confirmation and total amount of your trip.
+                        </p>
+                    </div>
+                </div>
+            )}
 
             
 
