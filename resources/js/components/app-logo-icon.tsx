@@ -1582,7 +1582,7 @@ export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
 //             </g>
 //         </svg>
         <img
-            src={`http://72.61.149.79/images/logo.png`}
+            src={`https://cavitetigertours.servehttp.com/images/logo.png`}
             alt="CTTTC Logo"
             className="w-12 sm:w-12 md:w-12 lg:w-14 h-auto object-contain"
         />

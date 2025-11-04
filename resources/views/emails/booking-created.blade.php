@@ -29,7 +29,7 @@ Our team will contact you shortly with the total cost and details for payment co
 - Enter your 12-digit reference number
 @endcomponent
 
-@component('mail::button', ['url' => 'http://72.61.149.79/book-now/payment/'.$booking->id])
+@component('mail::button', ['url' => 'https://cavitetigertours.servehttp.com/book-now/payment/'.$booking->id])
 Complete Payment
 @endcomponent
 

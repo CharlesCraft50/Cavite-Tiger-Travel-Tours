@@ -44,8 +44,8 @@ export default function Payment({
     const { auth } = usePage<SharedData>().props;
 
     const qrImages = [
-        `http://72.61.149.79/images/payment_methods/IMG-3230.jpg`, // GCash
-        `http://72.61.149.79/images/payment_methods/IMG-3229.jpg`, // BPI
+        `https://cavitetigertours.servehttp.com/images/payment_methods/IMG-3230.jpg`, // GCash
+        `https://cavitetigertours.servehttp.com/images/payment_methods/IMG-3229.jpg`, // BPI
     ];
 
     const selectedQR = data.payment_method === "gcash" ? qrImages[0] : qrImages[1];

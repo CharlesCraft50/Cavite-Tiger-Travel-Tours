@@ -16,7 +16,7 @@ Your booking **#{{ $booking->booking_number }}** has been updated.
 @endif
 
 You can review your booking at:  
-@component('mail::button', ['url' => 'http://72.61.149.79/bookings/'.$booking->id])
+@component('mail::button', ['url' => 'https://cavitetigertours.servehttp.com/bookings/'.$booking->id])
 View Booking
 @endcomponent
 
