@@ -33,5 +33,9 @@ class DatabaseSeeder extends Seeder
             PreferredPreparationSeeder::class,
         ]);
 
+        $this->call([
+            EventPackagesSeeder::class,
+        ]);
+
     }
 }

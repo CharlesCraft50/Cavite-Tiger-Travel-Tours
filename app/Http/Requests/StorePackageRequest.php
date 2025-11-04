@@ -26,7 +26,7 @@ class StorePackageRequest extends FormRequest
             'subtitle' => ['nullable', 'string', 'max:50'],
             'overview' => ['nullable', 'string', 'max:262'],
             'location' => ['nullable', 'string', 'max:255'],
-            'city_id' => ['required', 'integer', 'exists:cities,id'],
+            'city_id' => ['nullable', 'integer', 'exists:cities,id', 'required_if:package_type,normal'],
             'content' => ['required', 'string'],
             'duration' => ['nullable', 'string', 'max:255'],
             'available_from' => ['nullable', 'date', 'required_if:activeExpiry,true'],
@@ -52,6 +52,13 @@ class StorePackageRequest extends FormRequest
             'other_service_ids.*' => ['integer', 'exists:other_service_ids,id'],
 
             'from' => ['nullable', 'string'],
+
+            'package_type' => ['required', 'in:normal,event'],
+            'event_type' => [
+                'nullable',
+                'in:limited_time,popular,seasonal,festival,exclusive,new_arrival,flash_sale',
+                'required_if:package_type,event',
+            ],
         ];
 
     }

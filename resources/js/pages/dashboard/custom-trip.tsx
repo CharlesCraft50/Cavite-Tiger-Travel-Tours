@@ -1,10 +1,10 @@
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { isAdmin, isDriver } from '@/lib/utils';
-import { Booking, SharedData, User, PreferredVan, VanCategory } from '@/types';
-import { Link, usePage, useForm } from '@inertiajs/react';
+import { Booking, SharedData, User, PreferredVan, VanCategory, TourPackage } from '@/types';
+import { Link, usePage, useForm, router } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useState } from 'react';
 import '../../../css/dashboard.css';
-import { LayoutDashboard, Plane, Truck } from 'lucide-react';
+import { LayoutDashboard, Loader2Icon, Plane, Truck } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,14 @@ import ModalLarge from '@/components/ui/modal-large';
 import TermsAndConditions from './about/terms-and-conditions';
 import PrivacyPolicy from './about/privacy-policy';
 import CancellationPolicy from './about/cancellation-policy';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Autoplay, EffectFade, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/effect-fade';
+import CardImageBackground from '@/components/ui/card-image-bg';
+import PackagesOverview from '@/components/packages-overview';
+
 
 type DashboardProps = {
   bookingCount: number;
@@ -32,13 +40,15 @@ type CustomTripForm = {
   email: string;
   date_of_trip: string;
   pickup_time: string;
-  dropoff_time: string;
   pickup_address: string;
   destination: string;
   preferred_van_id: number | null;
   notes: string;
   driver_id: number | null;
   pax_adult: string | number;
+  trip_type: string;
+  costing_type: string;
+  duration: string;
 };
 
 export default function CustomTrip({ bookingCount, userBookings, preferredVans, vanCategories }: DashboardProps) {
@@ -52,6 +62,32 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
   const [vanCategoryList, setVanCategoryList] = useState<VanCategory[]>(vanCategories);
   const [formError, setFormError] = useState<string>('');
   const [formSuccess, setFormSuccess] = useState<string>('');
+  const [packages, setPackages] = useState<TourPackage[]>([]);
+  
+  // View All modal states
+  const [viewAllModal, setViewAllModal] = useState(false);
+  const [viewAllPackages, setViewAllPackages] = useState<TourPackage[]>([]);
+  const [viewAllTitle, setViewAllTitle] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
+  const ITEMS_PER_PAGE = 2;
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+      const fetchPackages = async () => {
+          try {
+              setIsLoading(true);
+              const response = await fetch('/api/events/latest');
+              const packages = response.json();
+              setPackages(await packages);
+          } catch (error) {
+              console.error('Error fetching packages: ', error);
+          } finally {
+            setIsLoading(false);
+          }
+      }
+
+      fetchPackages();
+  }, []);
 
   const { data, setData, post, processing, reset, errors } = useForm<CustomTripForm>({
     first_name: auth.user.first_name || '',
@@ -60,13 +96,15 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
     email: auth.user.email || '',
     date_of_trip: '',
     pickup_time: '',
-    dropoff_time: '',
     pickup_address: auth.user.address || '',
     destination: '',
     preferred_van_id: null,
     notes: '',
     driver_id: null,
     pax_adult: '',
+    trip_type: '',
+    costing_type: '',
+    duration: '',
   });
 
   const toggleVanSelection = (vanId: number) => {
@@ -95,14 +133,18 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
         reset(
           'date_of_trip',
           'pickup_time',
-          'dropoff_time',
           'pickup_address',
           'destination',
           'preferred_van_id',
           'notes',
-          'pax_adult'
+          'pax_adult',
+          'trip_type',
+          'costing_type',
+          'duration',
         );
         setSelectedVanIds([]);
+        setActiveModal(false);
+        setActiveAgreementModal(false);
       },
       onError: () => setFormError('Please check the required fields.'),
     });
@@ -117,9 +159,9 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
   }, [selectedVan]);
 
   const [checked, setChecked] = useState({
-      terms: false,
-      privacy: false,
-      cancellation: false,
+    terms: false,
+    privacy: false,
+    cancellation: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,9 +171,36 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
 
   const allChecked = checked.terms && checked.privacy && checked.cancellation;
 
+  const [ activeAgreementModal, setActiveAgreementModal ] = useState(false);
   const [ activeModal, setActiveModal ] = useState(false);
 
   const [ agreementIndex, setAgreementIndex ] = useState(0);
+
+  const tripOptions = [
+    { value: "single_trip", label: "Single Trip" },
+    { value: "round_trip", label: "Round Trip" },
+  ];
+
+  const costingOptions = [
+    { value: "all_in", label: "All-In" },
+    { value: "all_out", label: "All-Out" },
+  ];
+
+  // Handle View All click
+  const handleViewAll = (eventType: string, allPackages: TourPackage[]) => {
+    setViewAllTitle(eventType.replace(/_/g, " "));
+    setViewAllPackages(allPackages);
+    setCurrentPage(0);
+    setViewAllModal(true);
+  };
+
+  // Group packages by event type
+  const groupedPackages = packages.reduce((groups: Record<string, TourPackage[]>, pkg) => {
+    const type = pkg.event_type || "other";
+    if (!groups[type]) groups[type] = [];
+    groups[type].push(pkg);
+    return groups;
+  }, {});
 
   return (
     <DashboardLayout title="" href="/dashboard">
@@ -147,8 +216,118 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
         </Link>
       </div>
 
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-8">
+      <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">
+        <div className="flex flex-row mb-8 justify-between">
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-semibold">Customized Trip!</h1>
+            <h1 className="text-1xl">Now is the time to gather, travel, ad savor favorite places and new destinations!</h1>
+          </div>
+          <div className="flex flex-col justify-center">
+            <Button
+              className="bg-[#5c1f1d] cursor-pointer hover:bg-[#3d1514]"
+              onClick={() => setActiveModal(true)}
+            >
+              Create Own
+            </Button>
+          </div>
+        </div>
+        <div className="flex justify-center mt-4 px-4">
+          <div className="container mx-auto px-4 mt-4 max-w-4xl">
+              <Swiper
+                  modules={[Autoplay, Pagination]}
+                  spaceBetween={20}
+                  slidesPerView={1}
+                  loop={true}
+                  autoplay={{
+                      delay: 3000,
+                      disableOnInteraction: false,
+                  }}
+                  pagination={{
+                      clickable: true,
+                      dynamicBullets: true,
+                  }}
+                  className="rounded-xl overflow-hidden shadow-md"
+                  >
+                  {[
+                      "images/bg/Untitled-9.png",
+                      "images/bg/Untitled-7.png",
+                      "images/bg/Untitled-2.png",
+                      "images/bg/Untitled-12.png",
+                      "images/bg/Untitled-11.png",
+                      "images/bg/Untitled-10.png",
+                      "images/bg/Untitled-8.png",
+                      "images/bg/Untitled-6.png",
+                      "images/bg/Untitled-5.png",
+                      "images/bg/Untitled-4.png",
+                      "images/bg/Untitled-3.png",
+                      "images/bg/Untitled-1.png",
+                  ].map((url, index) => (
+                      <SwiperSlide key={index}>
+                      <img
+                          src={url}
+                          alt={`Image ${index + 1}`}
+                          className="w-full h-64 sm:h-64 md:h-72 lg:h-120 object-cover"
+                      />
+                      </SwiperSlide>
+                  ))}
+              </Swiper>
+          </div>
+      </div>
+
+      <section className="mt-8 rounded-3xl text-center">
+        <h2 className="text-3xl font-bold mb-8">Events</h2>
+
+        {isLoading && (
+          <div className="flex items-center justify-center">
+              <Loader2Icon className="w-18 h-18 animate-spin text-primary" />
+          </div>
+        )}
+
+        <div className="max-w-6xl mx-auto space-y-12">
+          {Object.entries(groupedPackages).map(([type, group]) => (
+            <div key={type} className="text-left">
+              <div className="flex justify-between items-center mb-6 border-b pb-2">
+                <h3 className="text-2xl font-semibold capitalize">
+                  {type.replace(/_/g, " ")}
+                </h3>
+                <Button
+                  variant="link"
+                  className="btn-primary cursor-pointer text-white"
+                  onClick={() => handleViewAll(type, group)}
+                >
+                  View All
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {group.slice(0, 3).map((pkg) => (
+                  <div key={pkg.id} className="relative">
+                    <CardImageBackground
+                      id={pkg.id}
+                      inputId="image-overview-edit"
+                      title={pkg.title}
+                      src={pkg.image_overview ?? ""}
+                      size="smallWide"
+                      editable={false}
+                      onClick={() =>
+                        router.get(route("localTrip", { package: pkg.slug }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      </div>
+
+      {/* Custom Trip Form Modal */}
+      <ModalLarge
+        activeModal={activeModal}
+        setActiveModal={setActiveModal}
+      >
+        <div className="container mx-auto px-24 py-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
             <div>
               <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">Custom Trip!</h1>
@@ -163,6 +342,71 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
 
           <div className="p-4">
             <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+              {/* Trip type */}
+              <div className="grid gap-4">
+                <Label htmlFor="trip_type">
+                  Trip Type <span className="text-red-500">*</span>
+                </Label>
+                <select
+                  id="trip_type"
+                  className="border p-2 rounded cursor-pointer"
+                  value={data.trip_type ?? tripOptions[0].value}
+                  onChange={(e) => setData('trip_type', e.target.value)}
+                >
+                  <option value="">Select Trip Type</option>
+                  {tripOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Costing Type */}
+              <div className="grid gap-4">
+                <Label htmlFor="costing_type">
+                  Costing Type <span className="text-red-500">*</span>
+                </Label>
+                <select
+                  id="costing_type"
+                  className="border p-2 rounded cursor-pointer"
+                  value={data.costing_type ?? costingOptions[0].value}
+                  onChange={(e) => setData('costing_type', e.target.value)}
+                >
+                  <option value="">Select Costing Type</option>
+                  {costingOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Duration */}
+              {data.trip_type == 'round_trip' && (
+                <div className="grid gap-2">
+                  <Label htmlFor="duration" required>Duration</Label>
+                  <select
+                      id="duration"
+                      name="duration"
+                      value={data.duration}
+                      onChange={(e) => setData('duration', e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                  >
+                      <option value="">[ Select duration ]</option>
+                      <option value="2 Day 1 Night">2 Day 1 Night</option>
+                      <option value="3 Days 2 Nights">3 Days 2 Nights</option>
+                      <option value="4 Days 3 Nights">4 Days 3 Nights</option>
+                      <option value="5 Day 4 Nights">5 Day 4 Nights</option>
+                      <option value="6 Day 5 Nights">6 Day 5 Nights</option>
+                      <option value="7 Day 6 Nights">7 Day 6 Nights</option>
+                      <option value="8 Day 7 Nights">8 Day 7 Nights</option>
+                      <option value="9 Day 8 Nights">9 Day 8 Nights</option>
+                      <option value="10 Day 9 Nights">10 Day 9 Nights</option>
+                  </select>
+                </div>
+              )}
+
               {/* First & Last Name */}
               <div className="grid grid-cols-2 gap-6">
                 <div className="grid gap-2">
@@ -203,7 +447,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                 <InputError message={errors.date_of_trip} className="mt-2" />
               </div>
 
-              {/* Pick-up & Drop-off Time */}
+              {/* Pick-up */}
               <div className="grid grid-cols-2 gap-6">
                 <div className="grid gap-2">
                   <Label required>Pick-up Time</Label>
@@ -214,16 +458,6 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                     disabled={processing}
                   />
                   <InputError message={errors.pickup_time} className="mt-2" />
-                </div>
-                <div className="grid gap-2">
-                  <Label required>Drop-off Time</Label>
-                  <Input
-                    type="time"
-                    value={data.dropoff_time}
-                    onChange={(e) => setData('dropoff_time', e.target.value)}
-                    disabled={processing}
-                  />
-                  <InputError message={errors.dropoff_time} className="mt-2" />
                 </div>
               </div>
 
@@ -315,7 +549,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                           className="underline cursor-pointer text-blue-500"
                           onClick={() => {
                               setAgreementIndex(0);
-                              setActiveModal(true);
+                              setActiveAgreementModal(true);
                           }}
                       >
                           Terms and Conditions
@@ -335,7 +569,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                               className="underline cursor-pointer text-blue-500"
                               onClick={() => {
                                   setAgreementIndex(1);
-                                  setActiveModal(true);
+                                  setActiveAgreementModal(true);
                               }}
                           >
                               Privacy Policy
@@ -355,7 +589,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                           className="underline cursor-pointer text-blue-500"
                           onClick={() => {
                               setAgreementIndex(2);
-                              setActiveModal(true);
+                              setActiveAgreementModal(true);
                           }}
                       >
                           Cancellation Policy
@@ -381,9 +615,30 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
             </form>
           </div>
         </div>
-      </div>
+      </ModalLarge>
 
-      <ModalLarge activeModal={activeModal} setActiveModal={setActiveModal}>
+      {/* View All Modal */}
+      <ModalLarge activeModal={viewAllModal} setActiveModal={setViewAllModal} wrapContent>
+        <h2 className="text-3xl font-bold mb-6 capitalize">{viewAllTitle}</h2>
+
+        {viewAllPackages.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            No events found for this category.
+          </p>
+        ) : (
+          <PackagesOverview
+            currentPackages={viewAllPackages.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}
+            totalPages={Math.ceil(viewAllPackages.length / ITEMS_PER_PAGE)}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            onLocalTrip
+            isAdmin={!!isAdmins}
+          />
+        )}
+      </ModalLarge>
+
+      {/* Agreement Modal */}
+      <ModalLarge activeModal={activeAgreementModal} setActiveModal={setActiveAgreementModal}>
           {agreementIndex == 0 && <TermsAndConditions disableNav />}
           {agreementIndex == 1 && <PrivacyPolicy disableNav />}
           {agreementIndex == 2 && <CancellationPolicy disableNav />}

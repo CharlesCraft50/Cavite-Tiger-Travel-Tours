@@ -14,6 +14,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\OtherServiceController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\PackageReviewController;
 use App\Http\Controllers\PreferredVanController;
 use App\Http\Controllers\VanCategoryController;
 use App\Http\Controllers\WishlistController;
@@ -66,6 +67,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/custom-trips/payment/{trip_id}', [CustomTripPaymentController::class, 'index'])->name('customTrips.payment');
     Route::post('/custom-trips/payment/create', [CustomTripPaymentController::class, 'store'])->name('customTrip.payment.store');
+
+    Route::post('/package-reviews', [PackageReviewController::class, 'store'])->name('packageReviews.store');
+    Route::get('/package-reviews/{tourPackageId}', [PackageReviewController::class, 'index'])->name('packageReviews.index');
+    Route::delete('/package-reviews/{packageReview}', [PackageReviewController::class, 'destroy'])->name('packageReviews.destroy');
 
 });
 

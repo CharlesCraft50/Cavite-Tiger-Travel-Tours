@@ -18,7 +18,6 @@ class CustomTrip extends Model
         'email',
         'date_of_trip',
         'pickup_time',
-        'dropoff_time',
         'pickup_address',
         'destination',
         'preferred_van_id',
@@ -31,6 +30,9 @@ class CustomTrip extends Model
         'pax_adult',
         'pax_kids',
         'notes',
+        'trip_type',
+        'costing_type',
+        'duration',
     ];
 
     protected static function booted()
@@ -62,5 +64,18 @@ class CustomTrip extends Model
     public function payment()
     {
         return $this->hasOne(CustomTripPayment::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(PackageReview::class);
+    }
+
+    public function reviewByUser($userId = null)
+    {
+        $userId = $userId ?? auth()->id();
+
+        return $this->hasOne(PackageReview::class)
+            ->where('user_id', $userId);
     }
 }

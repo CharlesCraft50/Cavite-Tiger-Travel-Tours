@@ -24,9 +24,13 @@ return new class extends Migration
             // Trip Details
             $table->date('date_of_trip');
             $table->time('pickup_time')->nullable();
-            $table->time('dropoff_time')->nullable();
             $table->string('pickup_address');
             $table->string('destination');
+
+            // Trip Type & Costing Type
+            $table->enum('trip_type', ['single_trip', 'round_trip'])->default('single_trip');
+            $table->enum('costing_type', ['all_in', 'all_out'])->default('all_in');
+            $table->string('duration')->nullable();
 
             // Van & Driver
             $table->foreignId('preferred_van_id')->nullable()->constrained('preferred_vans')->onDelete('set null');

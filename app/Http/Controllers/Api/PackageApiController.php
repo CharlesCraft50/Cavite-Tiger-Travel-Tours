@@ -77,4 +77,15 @@ class PackageApiController extends Controller
             'total' => $packages->total(),
         ]);
     }
+
+    public function getLatestEvents()
+    {
+        $events = TourPackage::with('categories')
+            ->select('id', 'title', 'subtitle', 'overview', 'base_price', 'slug', 'image_overview', 'event_type')
+            ->where('package_type', 'event')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($events);
+    }
 }

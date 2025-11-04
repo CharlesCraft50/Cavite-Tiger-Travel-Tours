@@ -29,7 +29,7 @@ export type PackageForm = {
     subtitle: string;
     overview: string;
     location: string;
-    city_id: number;
+    city_id?: number | null;
     content: string;
     duration: string;
     image_overview: string;
@@ -37,6 +37,8 @@ export type PackageForm = {
     available_from: Date | null;
     available_until: Date | null;
     base_price: number | null;
+    package_type: string;
+    event_type?: string | null;
 };
 
 type PackagesCreateProps = {
@@ -77,13 +79,13 @@ export default function Index({
         return params.get('disableNav');
     }, [url]);
 
-    const [disableNav, setDisableNav] = useState(false);
+    
+    const packageTypeQuery = useMemo(() => {
+        const params = new URLSearchParams(url.split('?')[1]);
+        return params.get('package_type');
+    }, [url]);
 
-    useEffect(() => {
-        if (disableNavQuery) {
-            setDisableNav(disableNavQuery === 'true' || disableNavQuery.toString() == '1');
-        }
-    }, [disableNavQuery]);
+    const [disableNav, setDisableNav] = useState(false);
 
     const [contentError, setContentError] = useState('');
       
@@ -98,7 +100,7 @@ export default function Index({
         subtitle: '',
         overview: '',
         location: '',
-        city_id: 0,
+        city_id: null,
         content: '',
         duration: '',
         image_overview: '',
@@ -106,8 +108,19 @@ export default function Index({
         available_from: null,
         available_until: null,
         base_price: null,
-
+        package_type: 'normal',
+        event_type: null,
     });
+
+    useEffect(() => {
+        if (disableNavQuery) {
+            setDisableNav(disableNavQuery === 'true' || disableNavQuery.toString() == '1');
+        }
+
+        if (packageTypeQuery) {
+            setData('package_type', packageTypeQuery.toString());
+        }
+    }, [disableNavQuery, packageTypeQuery]);
     
 
     const contentRef = useRef<HTMLDivElement>(null);
@@ -406,6 +419,21 @@ export default function Index({
         });
     };
 
+    const packageTypeOptions = [
+        { value: 'normal', label: 'Normal' },
+        { value: 'event', label: 'Event' },
+    ];
+
+    const eventTypeOptions = [
+        { value: 'limited_time', label: 'Limited Time' },
+        { value: 'popular', label: 'Popular' },
+        { value: 'seasonal', label: 'Seasonal' },
+        { value: 'festival', label: 'Festival' },
+        { value: 'exclusive', label: 'Exclusive' },
+        { value: 'new_arrival', label: 'New Arrival' },
+        { value: 'flash_sale', label: 'Flash Sale' },
+    ];
+
     return (
         <FormLayout title="Create a Package" description="Enter the package details below to create a new package" disableNav={disableNav}>
             <Head title="Create a Package" />
@@ -414,6 +442,45 @@ export default function Index({
                     <span className="text-red-500 ml-1">*</span>
                     <p className="text-sm ml-2">Required Fields</p>
                 </div>
+                {/* Package Type Select */}
+                <div className="grid gap-2">
+                    <Label htmlFor="package_type" required>Package Type</Label>
+                    <select
+                        id="package_type"
+                        className="border p-2 rounded cursor-pointer"
+                        value={data.package_type}
+                        onChange={(e) => setData('package_type', e.target.value)}
+                    >
+                        {packageTypeOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                        ))}
+                    </select>
+                    <InputError message={errors.package_type} />
+                </div>
+
+                {/* Event Type Select (only show if package_type = 'event') */}
+                {data.package_type === 'event' && (
+                    <div className="grid gap-2">
+                        <Label htmlFor="event_type" required>Event Type</Label>
+                        <select
+                        id="event_type"
+                        className="border p-2 rounded cursor-pointer"
+                        value={data.event_type ?? ''}
+                        onChange={(e) => setData('event_type', e.target.value)}
+                        >
+                        <option value="">Select Event Type</option>
+                        {eventTypeOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                            {option.label}
+                            </option>
+                        ))}
+                        </select>
+                        <InputError message={errors.event_type} />
+                    </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-6">
                     {/* Title */}
                     <div className="grid gap-2">
@@ -485,40 +552,42 @@ export default function Index({
                     { contentError && (<InputError message={contentError} className="mt-2" />) }
                 </div>
 
-                <div className="grid gap-2">
-                    <Label htmlFor="cities" required>City</Label>
-                    <CityList 
-                        cities={cities}
-                        data={data}
-                        setData={setData}
-                        showNewCityInput={showNewCityInput}
-                        setShowNewCityInput={setShowNewCityInput}
-                        newCityName={newCityName}
-                        setNewCityName={setNewCityName}
-                        handleAddCity={handleAddCity}
-                        processing={processing}
-                        handleDeletionCity={handleDeletionCity}
-                        editable={false}
-                        selectedCityId={selectedCityId}
-                    />
-
-                    <div className="flex flex-wrap gap-4 p-4">
-                        {displayedCities.map((city => (
-                        <CardImageBackground
-                            id={city.id}
-                            inputId="image-overview-edit"
-                            key={city.id}
-                            size="smallWide"
-                            title={city.name}
-                            src={city.image_url}
+                {data.package_type == 'normal' && (
+                    <div className="grid gap-2">
+                        <Label htmlFor="cities" required>City</Label>
+                        <CityList 
+                            cities={cities}
+                            data={data}
+                            setData={setData}
+                            showNewCityInput={showNewCityInput}
+                            setShowNewCityInput={setShowNewCityInput}
+                            newCityName={newCityName}
+                            setNewCityName={setNewCityName}
+                            handleAddCity={handleAddCity}
+                            processing={processing}
+                            handleDeletionCity={handleDeletionCity}
+                            editable={false}
+                            selectedCityId={selectedCityId}
                         />
-                        )))}
+
+                        <div className="flex flex-wrap gap-4 p-4">
+                            {displayedCities.map((city => (
+                            <CardImageBackground
+                                id={city.id}
+                                inputId="image-overview-edit"
+                                key={city.id}
+                                size="smallWide"
+                                title={city.name}
+                                src={city.image_url}
+                            />
+                            )))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Duration */}
                 <div className="grid gap-2">
-                    <Label htmlFor="duration">Duration</Label>
+                    <Label htmlFor="duration">Duration (Optional)</Label>
                     
                     {/* <InputSuggestions
                         type="text"
@@ -614,9 +683,9 @@ export default function Index({
                         selectedVanIds={selectedVanIds}
                         onSelect={toggleVanSelection}
                         onChange={handleSelectAllVan}
-                        textLabel="Select vans users can book"
+                        textLabel={`Select vans users can book${data.package_type != 'normal' ? ' (Optional)' : ''}`}
+                        required={data.package_type == 'normal'}
                         onSave={(newVans) => addPreferredVans(newVans)}
-                        required={true}
                         vanCategories={vanCategories}
                     />
                 </div>

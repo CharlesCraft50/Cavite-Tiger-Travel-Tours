@@ -12,9 +12,9 @@ return new class extends Migration
             $table->id();
 
             $table->string('title');
-            $table->foreignId('city_id')->constrained()->onDelete('cascade');
+            $table->foreignId('city_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('subtitle')->nullable();
-            $table->string('location');
+            $table->string('location')->nullable();
             $table->string('duration')->nullable(); // e.g. 3D2N
             $table->string('overview')->nullable();
             $table->longText('content')->nullable();
@@ -26,6 +26,17 @@ return new class extends Migration
             $table->json('image_banner')->nullable(); // path to image_banner in /storage
             $table->string('slug', 100)->unique();
             $table->decimal('base_price', 10, 2)->default(0);
+
+            $table->enum('package_type', ['normal', 'event'])->default('normal');
+            $table->enum('event_type', [
+                'limited_time',
+                'popular',
+                'seasonal',
+                'festival',
+                'exclusive',
+                'new_arrival',
+                'flash_sale',
+            ])->nullable();
 
             $table->timestamps();
         });

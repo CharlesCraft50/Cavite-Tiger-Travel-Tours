@@ -41,9 +41,12 @@ class UpdateCustomTripRequest extends FormRequest
 
             'date_of_trip' => ['sometimes', 'date', 'after_or_equal:today'],
             'pickup_time' => ['nullable', 'date_format:H:i'],
-            'dropoff_time' => ['nullable', 'date_format:H:i', 'after_or_equal:pickup_time'],
             'pickup_address' => ['sometimes', 'string', 'max:255'],
             'destination' => ['sometimes', 'string', 'max:255'],
+
+            'trip_type' => ['required', 'in:single_trip,round_trip'],
+            'costing_type' => ['required', 'in:all_in,all_out'],
+            'duration' => ['nullable', 'string', 'max:255', 'required_if:trip_type,round_trip'],
 
             'preferred_van_id' => ['nullable', 'exists:preferred_vans,id'],
             'driver_id' => ['nullable', 'exists:users,id'],
@@ -75,7 +78,8 @@ class UpdateCustomTripRequest extends FormRequest
     {
         return [
             'date_of_trip.after_or_equal' => 'The date of trip must be today or a future date.',
-            'dropoff_time.after_or_equal' => 'Drop-off time must be after or equal to pick-up time.',
+            'trip_type.in' => 'The selected trip type is invalid.',
+            'costing_type.in' => 'The selected costing type is invalid.',
         ];
     }
 }

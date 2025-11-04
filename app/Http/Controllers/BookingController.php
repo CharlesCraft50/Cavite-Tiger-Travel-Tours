@@ -89,6 +89,8 @@ class BookingController extends Controller
         //
         $user = Auth::user();
 
+        $userId = $user?->id;
+
         $otherServices = OtherService::all();
 
         $booking = Booking::with([
@@ -100,6 +102,10 @@ class BookingController extends Controller
             'preferredPreparation',
         ])->findOrFail($id);
 
+        if ($user->isAdmin()) {
+            $userId = $booking->user_id;
+        }
+
         $packages = TourPackage::findOrFail($booking->tour_package_id);
         $isDriver = $user->isDriver();
 
@@ -110,6 +116,12 @@ class BookingController extends Controller
             'preferredVans.availabilities',
             'otherServices' => function ($query) {
                 $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
+            },
+            'reviews' => function ($query) use ($userId) {
+                if ($userId) {
+                    $query->where('user_id', $userId);
+                }
+                $query->with('user');
             },
         ]);
 

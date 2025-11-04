@@ -15,6 +15,10 @@ import VanSelection from './van-selection';
 import { formatStatus, isAdmin, isDriver, isStaff } from '@/lib/utils';
 import { Label } from './ui/label';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import StarRating from './star-rating';
+import FadePopup from './ui/fade-popup';
+import { AnimatePresence } from 'framer-motion';
+import UserReview from './user-review';
 
 type BookingDetailsProp = {
     booking: Booking;
@@ -28,12 +32,17 @@ type BookingDetailsProp = {
 export default function BookingDetails({ booking, otherServices, packages, vans, vanCategories, editable }: BookingDetailsProp) {
     const [hasChanges, setHasChanges] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [ rating, setRating ] = useState<number | null>(null);
+    const [ errorRating, setErrorRating ] = useState<string>('');
+    const [ comment, setComment ] = useState<string | null>(null);
+    const userReview = packages?.reviews?.[0] ?? null;
+    const [hasReview, setHasReview] = useState<boolean>(!!userReview?.id);
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>(
         booking.other_services?.map((s) => s.id) ?? []
     );
 
     useEffect(() => {
-        console.log(booking.preferred_van);
+        console.log(packages);
     }, []);
 
     const { auth } = usePage<SharedData>().props;
@@ -301,6 +310,31 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             preserveScroll: true,
             preserveState: true,
             onFinish: toggleIsEditing,
+        });
+    }
+
+    const [popupMessage, setPopupMessage] = useState('');
+    const [popupDuration, setPopupDuration] = useState(2000);
+
+    const submitReview = () => {
+        if (rating == null) {
+            setErrorRating('You must give at least one star.');
+            return;
+        }
+
+        router.post(route('packageReviews.store', booking.id), {
+            tour_package_id: booking.tour_package_id,
+            rating: rating,
+            comment: comment ?? '',
+        }, {
+            forceFormData: true,
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                setPopupMessage('Thank you!');
+                setPopupDuration(2000);
+                setHasReview(true);
+            }
         });
     }
 
@@ -988,6 +1022,59 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                     </Button>
                 </div>
             )}
+
+            {(booking.user_id === auth.user.id || isAdmins) && (
+                <>
+                    {(!hasReview && booking.status )=== 'completed' ? (
+                        <div className="mt-10 p-6 bg-white shadow rounded-2xl border">
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                            Share your experience
+                            </h3>
+
+                            <StarRating
+                                onChange={(rating, comment) => {
+                                    setRating(rating);
+                                    setComment(comment);
+                                }}
+                            />
+
+                            <div className="mt-4 flex items-center justify-between">
+                                <p className="text-sm text-gray-500">
+                                    Your feedback helps us improve future tours.
+                                </p>
+                                <Button
+                                    type="button"
+                                    className="btn-primary cursor-pointer"
+                                    onClick={submitReview}
+                                >
+                                    Submit Review
+                                </Button>
+                            </div>
+
+                            <InputError message={errorRating} className="mt-2" />
+                        </div>
+                    ) : (
+                        <div className="mt-10 p-6 bg-white shadow rounded-2xl border">
+                            <UserReview
+                                userName={userReview?.user?.first_name ?? ''}
+                                rating={userReview?.rating ?? 0}
+                                comment={userReview?.comment}
+                                isCompleted={booking.status == 'completed' ? true : false}
+                            />
+                        </div>
+                    )}
+                </>
+            )}
+
+            <AnimatePresence>
+                {popupMessage && (
+                    <FadePopup 
+                        message={popupMessage} 
+                        duration={popupDuration} 
+                        onClose={() => setPopupMessage('')} 
+                    />
+                )}
+            </AnimatePresence>
 
         </div>
         

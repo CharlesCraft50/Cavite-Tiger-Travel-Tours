@@ -18,6 +18,7 @@ export * from './notification';
 export * from './preferred-preparation';
 export * from './custom-trip';
 export * from './custom-trip-payment';
+export * from './package-review';
 
 export interface Auth {
     user: User;

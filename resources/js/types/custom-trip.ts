@@ -1,4 +1,4 @@
-import { PreferredVan, User } from '.';
+import { PackageReview, PreferredVan, User } from '.';
 import { CustomTripPayment } from './custom-trip-payment';
 
 export interface CustomTrip {
@@ -14,7 +14,6 @@ export interface CustomTrip {
   // Trip Details
   date_of_trip: string; // corresponds to `date_of_trip` in migration
   pickup_time?: string | null;
-  dropoff_time?: string | null;
   pickup_address: string;
   destination: string;
 
@@ -38,6 +37,10 @@ export interface CustomTrip {
   // Payment
   payment?: CustomTripPayment;
 
+  trip_type?: string,
+  costing_type?: string,
+  duration?: string;
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -46,4 +49,5 @@ export interface CustomTrip {
   user?: User;
   preferred_van?: PreferredVan;
   driver?: User;
+  reviewByUser?: PackageReview;
 }

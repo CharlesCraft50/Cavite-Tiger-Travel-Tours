@@ -121,7 +121,6 @@ class CustomTripController extends Controller
             'preferred_van_id',
             'date_of_trip',
             'pickup_time',
-            'dropoff_time',
             'pickup_address',
             'destination',
             'status',
@@ -129,6 +128,9 @@ class CustomTripController extends Controller
             'total_amount',
             'is_final_total',
             'booking_number',
+            'trip_type',
+            'costing_type',
+            'duration',
         ];
 
         $fieldsToUpdate = [];

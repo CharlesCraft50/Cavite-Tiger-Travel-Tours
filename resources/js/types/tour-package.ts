@@ -1,6 +1,7 @@
 import { City } from "./city";
 import { OtherService } from "./other-service";
 import { PackageCategory } from "./package-category";
+import { PackageReview } from "./package-review";
 import { PreferredVan } from "./preferred-van";
 import { Wishlist } from "./wishlist";
 
@@ -15,7 +16,7 @@ export interface TourPackage {
     location: string;
     slug: string;
 
-    city_id: number;
+    city_id?: number | null;
 
     duration?: string | null; // e.g. "3D2N"
     pax_kids?: number | null;
@@ -26,11 +27,27 @@ export interface TourPackage {
     image_banner?: string | null;
 
     base_price: number;
+
+    package_type: string;
+    event_type?: string | null;
+
     other_services: OtherService[];
     package_categories: PackageCategory[];
     wishlist: Wishlist;
     preferred_vans: PreferredVan[];
     city?: City;
+    reviews?: PackageReview[];
+    reviewByUser?: PackageReview;
+
+    reviews_paginated?: {
+        data: PackageReview[];
+        meta: {
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+        };
+    };
 
     created_at: string;
     updated_at: string;

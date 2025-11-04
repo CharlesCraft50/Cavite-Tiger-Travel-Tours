@@ -12,6 +12,7 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/van/{vanId}/availability', [VanApiController::class, 'availability']);
 Route::get('/packages/latest', [PackageApiController::class, 'getLatestPackages']);
+Route::get('/events/latest', [PackageApiController::class, 'getLatestEvents']);
 Route::get('/packages', [PackageApiController::class, 'index'])->name('api.packages.index');
 
 Route::get('/notifications/{userId}', [NotificationApiController::class, 'index']);

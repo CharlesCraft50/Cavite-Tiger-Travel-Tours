@@ -1,4 +1,4 @@
-import { Head, router, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FormLayout from "@/layouts/form-layout";
@@ -74,6 +74,8 @@ export default function Payment({
         });
     }
 
+    const tripUrl = route('customTrips.show', trip_id);
+
     return (
         <FormLayout
             title={trip_payment?.status === 'declined' ? '❌ Payment Declined – Resubmit Required' : 'Booking Pending'}
@@ -99,6 +101,15 @@ export default function Payment({
                         <>
                             <p className="font-semibold text-base">✅ Booking Created! Payment Needed to Confirm</p>
                             <p>Your booking has been successfully created, but it's <strong>not confirmed yet</strong>.</p>
+                            <p>
+                                You can also view it here:{" "}
+                                <Link
+                                    href={tripUrl}
+                                    className="text-blue-600 hover:underline break-all"
+                                >
+                                    {tripUrl}
+                                </Link>
+                            </p>
                         </>
                     )}
                 </div>

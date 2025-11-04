@@ -45,7 +45,6 @@ export default function CustomTripDetails({
     email: trip.email ?? '',
     date_of_trip: trip.date_of_trip ?? '',
     pickup_time: trip.pickup_time ?? '',
-    dropoff_time: trip.dropoff_time ?? '',
     pickup_address: trip.pickup_address ?? '',
     destination: trip.destination ?? '',
     preferred_van_id: trip.preferred_van_id ?? null,
@@ -56,6 +55,9 @@ export default function CustomTripDetails({
     total_amount: trip.total_amount,
     is_final_total: trip.is_final_total,
     pax_adult: trip.pax_adult,
+    trip_type: trip.trip_type,
+    costing_type: trip.costing_type,
+    duration: trip.duration,
   });
 
   const toggleVanSelection = (vanId: number) => {
@@ -93,7 +95,6 @@ export default function CustomTripDetails({
     const formDataObj = {
       ...data,
       pickup_time: data.pickup_time ? data.pickup_time.slice(0, 5) : '',
-      dropoff_time: data.dropoff_time ? data.dropoff_time.slice(0, 5) : '',
       is_final_total: data.is_final_total ? '1' : '0',
     };
 
@@ -156,6 +157,15 @@ export default function CustomTripDetails({
     }).format(date);
   };
 
+  const tripOptions = [
+    { value: "single_trip", label: "Single Trip" },
+    { value: "round_trip", label: "Round Trip" },
+  ];
+
+  const costingOptions = [
+    { value: "all_in", label: "All-In" },
+    { value: "all_out", label: "All-Out" },
+  ];
   return (
     <form
       onSubmit={handleSubmit}
@@ -262,6 +272,76 @@ export default function CustomTripDetails({
             </div>
 
             <div className="bg-white p-4 space-y-4">
+              <div>
+                <p className="text-sm text-gray-600">Trip Type</p>
+                {editable && isEditing ? (
+                  <select
+                    id="trip_type"
+                    className="border p-2 rounded cursor-pointer"
+                    value={data.trip_type ?? tripOptions[0].value}
+                    onChange={(e) => setData({ ...data, trip_type: e.target.value })}
+                  >
+                    <option value="">Select Trip Type</option>
+                    {tripOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-base font-medium">{trip.trip_type === 'single_trip' ? 'Single Trip' : 'Round Trip'}</p>
+                )}
+
+                <p className="text-sm text-gray-600 mt-2">Costing Type</p>
+                {editable && isEditing ? (
+                  <select
+                    id="costing_type"
+                    className="border p-2 rounded cursor-pointer"
+                    value={data.costing_type ?? costingOptions[0].value}
+                    onChange={(e) => setData({ ...data, costing_type: e.target.value })}
+                  >
+                    <option value="">Select Costing Type</option>
+                    {costingOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                    <p className="text-base font-medium">{trip.costing_type === 'all_in' ? 'All-In' : 'All-Out'}</p>
+                )}
+
+                {data.trip_type == 'round_trip' && (
+                  <div>
+                    <p className="text-sm text-gray-600 mt-2">Duration</p>
+                      {editable && isEditing ? (
+                        <select
+                            id="duration"
+                            name="duration"
+                            value={data.duration}
+                            onChange={(e) => setData({ ...data, duration: e.target.value })}
+                            className="w-full border rounded px-3 py-2"
+                        >
+                            <option value="">[ Select duration ]</option>
+                            <option value="2 Day 1 Night">2 Day 1 Night</option>
+                            <option value="3 Days 2 Nights">3 Days 2 Nights</option>
+                            <option value="4 Days 3 Nights">4 Days 3 Nights</option>
+                            <option value="5 Day 4 Nights">5 Day 4 Nights</option>
+                            <option value="6 Day 5 Nights">6 Day 5 Nights</option>
+                            <option value="7 Day 6 Nights">7 Day 6 Nights</option>
+                            <option value="8 Day 7 Nights">8 Day 7 Nights</option>
+                            <option value="9 Day 8 Nights">9 Day 8 Nights</option>
+                            <option value="10 Day 9 Nights">10 Day 9 Nights</option>
+                        </select>
+                      ) : (
+                        <p className="text-base font-medium">{trip.duration}</p>
+                      )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white p-4 space-y-4">
               {/* Date of Trip */}
               <div>
                 <p className="text-sm text-gray-600">Date of Trip</p>
@@ -325,28 +405,6 @@ export default function CustomTripDetails({
                   <p className="text-base font-medium">
                     {trip.pickup_time
                       ? new Date(`1970-01-01T${trip.pickup_time}`).toLocaleTimeString([], {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                        })
-                      : '-'}
-                  </p>
-                )}
-
-                <p className="text-sm text-gray-600 mt-2">Dropoff Time</p>
-                {editable && isEditing ? (
-                  <Input
-                    type="time"
-                    className="w-full p-2 border-1 border-gray-200 rounded-lg"
-                    value={data.dropoff_time}
-                    onChange={(e) =>
-                      setData({ ...data, dropoff_time: e.target.value })
-                    }
-                  />
-                ) : (
-                  <p className="text-base font-medium">
-                    {trip.dropoff_time
-                      ? new Date(`1970-01-01T${trip.dropoff_time}`).toLocaleTimeString([], {
                           hour: 'numeric',
                           minute: '2-digit',
                           hour12: true,

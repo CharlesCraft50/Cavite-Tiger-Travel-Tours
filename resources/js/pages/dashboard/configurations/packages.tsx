@@ -28,6 +28,7 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<'newest' | 'oldest'>('newest');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddEventModal, setShowAddEventModal] = useState(false);
   const [editModalPackage, setEditModalPackage] = useState<TourPackage | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TourPackage | null>(null);
   const [iframeLoading, setIframeLoading] = useState(true);
@@ -40,6 +41,7 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
 
       if (event.data === 'PACKAGE_CREATED' || event.data === 'PACKAGE_EDITED') {
         setShowAddModal(false);
+        setShowAddEventModal(false);
         setEditModalPackage(null);
         setIframeLoading(true);
 
@@ -247,6 +249,15 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
                   >
                     Add Packages
                   </Button>
+                  <Button
+                    onClick={() => {
+                      setIframeLoading(true);
+                      setShowAddEventModal(true);
+                    }}
+                    className="btn-primary text-sm cursor-pointer"
+                  >
+                    Add Events
+                  </Button>
                 </div>
               )}
             </div>
@@ -304,16 +315,19 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
       </div>
 
       <PackageModal
-        isOpen={showAddModal || !!editModalPackage}
+        isOpen={showAddModal || !!editModalPackage || showAddEventModal}
         onClose={() => {
           setShowAddModal(false);
           setEditModalPackage(null);
+          setShowAddEventModal(false);
         }}
         route={
           showAddModal
             ? route('packages.create', { from: 'packages', disableNav: true }) as string
             : editModalPackage
             ? route('packages.edit', { package: editModalPackage.id, from: 'packages', disableNav: true }) as string
+            : showAddEventModal
+            ? route('packages.create', { from: 'packages', disableNav: true, package_type: 'event' }) as string
             : ''
         }
       />

@@ -12,6 +12,7 @@ import Index from '../packages';
 import CityList from '@/components/city-list';
 import { useLoading } from '@/components/ui/loading-provider';
 import PackagesOverview from '@/components/packages-overview';
+import clsx from 'clsx';
 
 type PackagesIndexProps = {
   packages: TourPackage[];
@@ -258,28 +259,55 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
               </Listbox>
             </div>
 
-            {Object.entries(groupedPackages).map(([duration, pkgs]) => (
-              <div key={duration} className="mb-12">
-                <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
-                  Duration - {duration}
-                </h2>
+            {Object.entries(groupedPackages).map(([duration, pkgs]) => {
+              const allAreEvents = pkgs.every(pkg => pkg.package_type === 'event');
+              if (allAreEvents) return null;
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pkgs.map((pkg) => (
-                    <div key={pkg.id} className="relative">
-                      <CardImageBackground
-                        id={pkg.id}
-                        title={pkg.title}
-                        src={pkg.image_overview ?? ''}
-                        size="smallWide"
-                        editable={false}
-                        onClick={() => setSelectedPackage(pkg)}
-                      />
-                    </div>
-                  ))}
+              return (
+                <div key={duration} className="mb-12">
+                  <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
+                    Duration - {duration}
+                  </h2>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {pkgs.map(pkg => {
+                      // Compute average rating for this package
+                      const avgRating =
+                        pkg.reviews && pkg.reviews.length > 0
+                          ? pkg.reviews.reduce((sum, review) => sum + review.rating, 0) /
+                            pkg.reviews.length
+                          : 0;
+                      const roundedAvg = Math.round(avgRating * 10) / 10;
+
+                      return (
+                        <div key={pkg.id} className="relative">
+                          <CardImageBackground
+                            id={pkg.id}
+                            title={pkg.title}
+                            src={pkg.image_overview ?? ''}
+                            size="smallWide"
+                            editable={false}
+                            onClick={() => setSelectedPackage(pkg)}
+                          />
+
+                          {/* Display average rating */}
+                          {pkg.reviews && pkg.reviews.length > 0 && (
+                            <div className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 rounded-md flex items-center text-sm font-medium shadow">
+                              <span className="text-yellow-400 mr-1">★</span>
+                              <span>{roundedAvg} / 5</span>
+                              <span className="ml-2 text-gray-500">({pkg.reviews.length})</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
+
+
 
             {loadingMore && <p className="text-center mt-4 text-gray-500">Loading more...</p>}
           </>

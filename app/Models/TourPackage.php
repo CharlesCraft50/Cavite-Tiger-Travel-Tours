@@ -26,6 +26,8 @@ class TourPackage extends Model
         'image_banner',
         'slug',
         'base_price',
+        'package_type',
+        'event_type',
     ];
 
     protected $casts = [
@@ -73,5 +75,16 @@ class TourPackage extends Model
     public function wishlist()
     {
         return $this->hasOne(Wishlist::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(PackageReview::class);
+    }
+
+    public function reviewByUser($userId = null)
+    {
+        return $this->hasOne(PackageReview::class)
+            ->where('user_id', auth()->id());
     }
 }

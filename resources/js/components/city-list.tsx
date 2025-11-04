@@ -17,7 +17,7 @@ import { Button } from "./ui/button";
 type CityListProps = {
   cities: City[];
   data: {
-    city_id: number;
+    city_id?: number | null;
     location: string;
   };
   setData: (key: string, value: any) => void;
@@ -104,7 +104,7 @@ export default function CityList({
         ) : (<select
           id="cities"
           name="cities"
-          value={data.city_id}
+          value={data.city_id ?? 0}
           onChange={(e) => {
             const selectedValue = e.target.value;
             

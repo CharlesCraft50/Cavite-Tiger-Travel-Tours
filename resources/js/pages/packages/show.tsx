@@ -1,6 +1,6 @@
 import { TourPackage, PackageCategory, SharedData, PreferredVan, OtherService } from '@/types'
 import PackageShowLayout from '@/layouts/package-show-layout'
-import { Head, usePage } from '@inertiajs/react'
+import { Head, router, usePage } from '@inertiajs/react'
 import DOMPurify from 'dompurify';
 import { useEffect } from 'react';
 
@@ -18,6 +18,7 @@ import VanSelection from '@/components/van-selection';
 import { isAdmin } from '@/lib/utils';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import PackageReviewList from '@/components/package-review-list';
 
 type ShowPageProps = {
   packages: TourPackage;
@@ -46,6 +47,14 @@ export default function ShowPage({
 
   const { auth } = usePage<SharedData>().props;
   const isAdmins = isAdmin(auth.user);
+
+  const averageRating =
+    packages.reviews && packages.reviews.length > 0
+      ? packages.reviews.reduce((sum, review) => sum + review.rating, 0) /
+        packages.reviews.length
+      : 0;
+
+  const roundedAverageRating = Math.round(averageRating * 10) / 10;
 
   return (
       <PackageShowLayout
@@ -83,6 +92,26 @@ export default function ShowPage({
             </section>
           )}
         </div>
+
+        <div className="mt-16">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Reviews</h2>
+          {packages.reviews && packages.reviews.length > 0 ? (
+            <p className="text-gray-600 mb-4">
+              Average Rating: {roundedAverageRating} / 5 ({packages.reviews.length} review
+              {packages.reviews.length > 1 ? "s" : ""})
+            </p>
+          ) : (
+            <p className="text-gray-500 mb-4">No reviews yet.</p>
+          )}
+
+          <PackageReviewList
+            reviews={packages.reviews_paginated ?? { data: [], meta: { current_page: 1, last_page: 1, per_page: 5, total: 0 } }}
+            onPageChange={(page) => {
+              router.get(route('localTrip.show', { page }), {}, { preserveState: true });
+            }}
+          />
+        </div>
+
       </PackageShowLayout>
   )
 }

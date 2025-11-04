@@ -121,7 +121,15 @@ class DashboardController extends Controller
             'otherServices' => function ($query) {
                 $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
             },
+            'reviews',
         ]);
+
+        foreach ($packages as $package) {
+            $package->reviews_paginated = $package->reviews()
+                ->with('user')
+                ->latest()
+                ->paginate(5);
+        }
 
         return Inertia::render('dashboard/local-trip', [
             'packages' => $packages,
