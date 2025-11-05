@@ -385,7 +385,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
               {/* Duration */}
               {data.trip_type == 'round_trip' && (
                 <div className="grid gap-2">
-                  <Label htmlFor="duration">Duration</Label>
+                  <Label htmlFor="duration">Duration (Optional)</Label>
                   <select
                       id="duration"
                       name="duration"
