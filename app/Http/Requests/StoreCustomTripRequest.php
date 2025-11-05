@@ -50,7 +50,7 @@ class StoreCustomTripRequest extends FormRequest
 
             'trip_type' => ['required', 'in:single_trip,round_trip'],
             'costing_type' => ['required', 'in:all_in,all_out'],
-            'duration' => ['nullable', 'string', 'max:255', 'required_if:trip_type,round_trip'],
+            'duration' => ['nullable', 'string', 'max:255'],
 
             // Van & Driver
             'preferred_van_id' => ['required', 'exists:preferred_vans,id'],
