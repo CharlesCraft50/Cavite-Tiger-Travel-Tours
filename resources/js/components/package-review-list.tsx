@@ -15,9 +15,6 @@ interface PackageReviewListProps {
 }
 
 export default function PackageReviewList({ reviews, onPageChange }: PackageReviewListProps) {
-  if (!reviews?.data || reviews.data.length === 0) {
-    return <p className="text-gray-500">No reviews yet.</p>;
-  }
 
   return (
     <div className="flex flex-col gap-4 w-full">
