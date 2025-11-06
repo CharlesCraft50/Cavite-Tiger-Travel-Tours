@@ -38,6 +38,7 @@ export interface Booking {
     booking_number: string;
     total_amount: number;
     is_final_total: boolean;
+    is_completed: boolean;
     preferred_preparation_id: number;
     
     preferred_preparation: PreferredPreparation;

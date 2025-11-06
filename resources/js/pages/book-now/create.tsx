@@ -26,6 +26,7 @@ import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
+import NoteMessage from "@/components/ui/note-message";
 
 type BookNowCreateProps = {
     packages: TourPackage;
@@ -336,7 +337,7 @@ export default function Create({
     }, [selectedVan]);
     
     const handleReturnDate = (): string => {
-        const durationDays = parseInt(packages.duration?.split(' ')[0] || "0", 10);
+        const durationDays = parseInt(packages.duration?.split(' ')[0] || "1", 10);
 
         if (!data.departure_date) return "";
 
@@ -433,27 +434,12 @@ export default function Create({
                         </div>
                     </div>
                 )}
-                <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
-                    <div className="flex items-start gap-3 text-sm leading-relaxed space-y-2">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
-                        >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-                        />
-                        </svg>
-                        <p>
-                            <span className="font-medium">Important:</span>{' '}
-                            Preferred van for drop-off/pick-up at the airport has different costs, and it's optional if you have your own vehicle for transportation.
-                        </p>
-                    </div>
+
+                <div>
+                    <NoteMessage
+                        type="important"
+                        message="Preferred van for drop-off/pick-up at the airport has different costs, and it's optional if you have your own vehicle for transportation."
+                    />
                 </div>
 
                 <div className="grid gap-4">
@@ -524,36 +510,11 @@ export default function Create({
 
                     {data.preferred_preparation_id != 0 && (
                         <div className="mt-4">
-                            <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={2}
-                                    stroke="currentColor"
-                                    className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
-                                >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-                                />
-                                </svg>
-                                <div className="text-sm leading-relaxed space-y-2">
-                                    {data.preferred_preparation_id == 1 && (<p>
-                                        <span className="font-medium">Land Arrangement/Preparation:</span>{' '}
-                                        The cost of the selected tour package is included, while flight tickets are not.
-                                    </p>)}
-                                    {data.preferred_preparation_id == 2 && (
-                                        <>
-                                            <p>
-                                                <span className="font-medium">All-in Arrangement/Preparation:</span>{' '}
-                                                    The cost of the selected tour package and flight tickets are included.
-                                            </p>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
+                            <NoteMessage
+                                type="note"
+                                message={data.preferred_preparation_id == 1 ? "The cost of the selected tour package is included, while flight tickets are not." : data.preferred_preparation_id == 2 ? "The cost of the selected tour package and flight tickets are included." : ""}
+                                leading={data.preferred_preparation_id == 1 ? "Land Arrangement/Preparation" : data.preferred_preparation_id == 2 ? "All-in Arrangement/Preparation" : ""}
+                            />
                         </div>
                     )}
 

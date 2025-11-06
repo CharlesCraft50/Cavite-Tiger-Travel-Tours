@@ -267,4 +267,20 @@ class BookingController extends Controller
 
         return redirect()->back()->with('success', 'Booking has been completed.');
     }
+
+    public function markCompletion(string $id)
+    {
+        $booking = Booking::findOrFail($id);
+
+        // Optional: Only allow cancel if not already cancelled
+        if ($booking->is_completed === true) {
+            return redirect()->back()->with('info', 'Booking is already confirmed as completed.');
+        }
+
+        $booking->update([
+            'is_completed' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Booking has been confirmed as completed.');
+    }
 }

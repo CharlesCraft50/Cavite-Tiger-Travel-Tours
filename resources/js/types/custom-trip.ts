@@ -26,6 +26,7 @@ export interface CustomTrip {
   booking_number?: string | null;
   total_amount?: number;
   is_final_total: boolean;
+  is_completed: boolean;
 
   // Admin Status
   status: string;

@@ -41,6 +41,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
       status: b.status,
       type: 'booking' as const,
       created_at: b.created_at,
+      is_completed: b.is_completed,
     })),
     ...customTrips.map((c) => ({
       id: c.id,
@@ -51,6 +52,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
       status: c.status,
       type: 'custom' as const,
       created_at: c.created_at,
+      is_completed: c.is_completed,
     })),
   ];
 
@@ -224,19 +226,21 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
                     >
                       View
                     </Link>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        if (isDriver) {
-                          handleCompleteTarget(trip);
-                        } else {
-                          setCancelTarget(trip);
-                        }
-                      }}
-                      className="btn-primary cursor-pointer text-xs py-5"
-                    >
-                      {isDriver ? 'Complete' : 'Cancel'}
-                    </Button>
+                    {trip.status != 'completed' && (
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (isDriver) {
+                            handleCompleteTarget(trip);
+                          } else {
+                            setCancelTarget(trip);
+                          }
+                        }}
+                        className="btn-primary cursor-pointer text-xs py-5"
+                      >
+                        {isDriver ? 'Complete' : 'Cancel'}
+                      </Button>
+                    )}
                   </td>
                 </tr>
               );

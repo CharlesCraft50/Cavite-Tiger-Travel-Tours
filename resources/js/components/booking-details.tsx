@@ -19,6 +19,7 @@ import StarRating from './star-rating';
 import FadePopup from './ui/fade-popup';
 import { AnimatePresence } from 'framer-motion';
 import UserReview from './user-review';
+import NoteMessage from './ui/note-message';
 
 type BookingDetailsProp = {
     booking: Booking;
@@ -66,7 +67,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 const formData = new FormData();
                 formData.append('preferred_van_id', String(booking.preferred_van?.id ?? ''));
                 formData.append('departure_date', booking.departure_date);
-                formData.append('pax_kids', data.pax_kids.toString());
+                // formData.append('pax_kids', data.pax_kids.toString());
                 formData.append('pax_adult', data.pax_adult.toString());
                 formData.append('return_date', booking.return_date);
                 if (booking.payment == null || booking.payment?.status == 'pending' || booking.payment?.status == 'declined') {
@@ -291,7 +292,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('status', data.status);
         formData.append('notes', data.notes);
         formData.append('pickup_address', data.pickup_address);
-        formData.append('pax_kids', data.pax_kids.toString());
+        // formData.append('pax_kids', data.pax_kids.toString());
         formData.append('pax_adult', data.pax_adult.toString());
         formData.append('total_amount', Math.floor(data.total_amount).toString());
         formData.append('is_final_total', data.is_final_total ? '1' : '0');
@@ -437,18 +438,36 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
     const [openImage, setOpenImage] = useState<string | null>(null);
 
+    const handleMarkCompletion = () => {
+        try {
+            router.post(route('bookings.markCompletion', booking.id));
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
   return (
     <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200", booking.status == 'completed' && "bg-green-200")} onSubmit={submit}>
         <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
             <div className="flex justify-between top-0 right-0 items-center">
-                <div className="grid gap-2">
-                    <p className="text-sm text-gray-500">Booking Number</p>
-                    <h3 className="text-2xl font-semibold text-gray-900">
-                        {booking.booking_number}
-                    </h3>
+                <div className="flex flex-row gap-4 items-center">
+                    <div className="grid gap-2">
+                        <p className="text-sm text-gray-500">Booking Number</p>
+                        <h3 className="text-2xl font-semibold text-gray-900">
+                            {booking.booking_number}
+                        </h3>
+                    </div>
+                    <div>
+                        {booking.status == 'completed' && <div className="card text-sm p-3 bg-green-100 border-green-400">{booking.is_completed ? 'Confirmed Completed' : 'Completed'}</div>}
+                    </div>
+                    {booking.is_completed == false && booking.status == 'completed' && isAdmins && (
+                        <Button className="btn-primary cursor-pointer" onClick={handleMarkCompletion}>
+                            Mark Completion
+                        </Button>
+                    )}
                 </div>
                 
-                {(isAdmins || isDrivers || isStaffs) ? (
+                {(isAdmins || isStaffs) ? (
                     <div className="flex flex-row gap-2">
                         <Button type="button" className={clsx("btn-primary cursor-pointer", isEditing && "bg-gray-100 text-black")} onClick={toggleIsEditing}>
                             <Pencil className="w-4 h-4" />
@@ -468,27 +487,11 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
             {!(!!booking.is_final_total) && (
                 <div className="mt-4">
-                    <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
-                        >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-                        />
-                        </svg>
-                        <p className="text-sm leading-relaxed">
-                        <span className="font-medium">Admin review pending:</span>{' '}
-                            Your booking request is being reviewed by our team. Please wait for the
-                            confirmation and total amount of your trip.
-                        </p>
-                    </div>
+                    <NoteMessage
+                        type="important"
+                        message="Your booking request is being reviewed by our team. Please wait for the confirmation and total amount of your trip."
+                        leading="Admin review pending"
+                    />
                 </div>
             )}
 
@@ -784,25 +787,11 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         <hr/>
 
                         {(!(isAdmins || isDrivers || isStaffs) && !(booking.is_final_total)) && (
-                            <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 text-blue-800">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={2}
-                                    stroke="currentColor"
-                                    className="w-5 h-5 mt-[2px] flex-shrink-0 text-blue-600"
-                                >
-                                    <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-                                    />
-                                </svg>
-                                <p className="text-sm leading-relaxed">
-                                    <span className="font-semibold uppercase tracking-wide">Important!</span>{' '}
-                                    Please wait for the admin to finalize your total amount before proceeding with payment.
-                                </p>
+                            <div className="mt-4">
+                                <NoteMessage
+                                    type="important"
+                                    message="Please wait for the admin to finalize your total amount before proceeding with payment."
+                                />
                             </div>
                         )}
 
@@ -870,7 +859,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             </div>
                         </div>
                                 
-                        <div id="booking_payment_area">
+                        <div id="booking_payment_area" className={clsx(isDrivers && "hidden")}>
 
                             {!!booking.is_final_total && (
                                 <>

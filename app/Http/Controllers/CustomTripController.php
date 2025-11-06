@@ -203,4 +203,20 @@ class CustomTripController extends Controller
 
         return redirect()->back()->with('success', 'Custom trip has been completed.');
     }
+
+    public function markCompletion(string $id)
+    {
+        $customTrip = CustomTrip::findOrFail($id);
+
+        // Optional: Only allow cancel if not already cancelled
+        if ($customTrip->is_completed === true) {
+            return redirect()->back()->with('info', 'Custom Trip is already confirmed as completed.');
+        }
+
+        $customTrip->update([
+            'is_completed' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Custom Trip has been confirmed as completed.');
+    }
 }

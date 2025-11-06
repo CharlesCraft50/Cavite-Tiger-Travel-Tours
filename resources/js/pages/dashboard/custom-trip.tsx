@@ -24,6 +24,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 import CardImageBackground from '@/components/ui/card-image-bg';
 import PackagesOverview from '@/components/packages-overview';
+import NoteMessage from '@/components/ui/note-message';
 
 
 type DashboardProps = {
@@ -63,6 +64,8 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
   const [formError, setFormError] = useState<string>('');
   const [formSuccess, setFormSuccess] = useState<string>('');
   const [packages, setPackages] = useState<TourPackage[]>([]);
+  const [ tripTypeNotes, setTripTypeNotes ] = useState<string | null>(null);
+  const [ costingTypeNotes, setCostingTypeNotes ] = useState<string | null>(null);
   
   // View All modal states
   const [viewAllModal, setViewAllModal] = useState(false);
@@ -337,6 +340,12 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                 </p>
               )}
               <TripRatesInfo />
+
+              <NoteMessage
+                type="important"
+                message="Regular Vans already have fixed price based on Distance (KM) acquired by the Customer. Add ₱1000 to upgrade your Van into Premium Van (Optional). 12 hours is the Maximum Hours for all the trips. Trips exceeding 12 hours will be charged by ₱350/hour. Trip time will start when Customers are picked-up on their address. Duration's cost under Round Trip is set by Cavite Tiger depends on the day/s and night/s selected."
+              />
+              
             </div>
           </div>
 
@@ -344,14 +353,24 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
             <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
               {/* Trip type */}
               <div className="grid gap-4">
-                <Label htmlFor="trip_type">
-                  Trip Type <span className="text-red-500">*</span>
+                <Label htmlFor="trip_type" required>
+                  Trip Type
                 </Label>
                 <select
                   id="trip_type"
                   className="border p-2 rounded cursor-pointer"
                   value={data.trip_type ?? tripOptions[0].value}
-                  onChange={(e) => setData('trip_type', e.target.value)}
+                  onChange={(e) =>{
+                    setData('trip_type', e.target.value);
+                    if (e.target.value == 'single_trip') {
+                      setTripTypeNotes('Only Pick-up at preferred address until Drop-off at preferred destination.');
+                    } else if (e.target.value  == 'round_trip') {
+                      setTripTypeNotes('Pick-up at preferred address until Drop-off at preferred destination and Vice Versa.');
+                    } else {
+                      setTripTypeNotes(null);
+                    }
+                  }}
+                  required
                 >
                   <option value="">Select Trip Type</option>
                   {tripOptions.map((option) => (
@@ -362,16 +381,33 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                 </select>
               </div>
 
+              {tripTypeNotes && (
+                <NoteMessage
+                  type="note"
+                  message={tripTypeNotes}
+                />
+              )}
+
               {/* Costing Type */}
               <div className="grid gap-4">
-                <Label htmlFor="costing_type">
-                  Costing Type <span className="text-red-500">*</span>
+                <Label htmlFor="costing_type" required>
+                  Costing Type
                 </Label>
                 <select
                   id="costing_type"
                   className="border p-2 rounded cursor-pointer"
                   value={data.costing_type ?? costingOptions[0].value}
-                  onChange={(e) => setData('costing_type', e.target.value)}
+                  onChange={(e) => {
+                    setData('costing_type', e.target.value);
+                    if (e.target.value == 'all_in') {
+                      setCostingTypeNotes('Customer must pay the overall amount provided by Cavite Tiger. It includes other charges (Fuel/Toll/Driver\'s Meal).');
+                    } else if (e.target.value == 'all_out') {
+                      setCostingTypeNotes('Down payment is Required. Customer will shoulder other charges (Fuel/Toll/Driver\'s Meal). Customer must pay the overall amount to the driver after their trip.');
+                    } else {
+                      setCostingTypeNotes(null);
+                    }
+                  }}
+                  required
                 >
                   <option value="">Select Costing Type</option>
                   {costingOptions.map((option) => (
@@ -381,6 +417,13 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                   ))}
                 </select>
               </div>
+
+              {costingTypeNotes && (
+                <NoteMessage
+                  type="important"
+                  message={costingTypeNotes}
+                />
+              )}
 
               {/* Duration */}
               {data.trip_type == 'round_trip' && (

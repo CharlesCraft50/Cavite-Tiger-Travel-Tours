@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('booking_number')->unique();
             $table->decimal('total_amount')->nullable();
             $table->boolean('is_final_total')->default(false);
+            $table->boolean('is_completed')->default(false);
             $table->string('pickup_address');
             $table->foreignId('preferred_preparation_id')
                 ->nullable()

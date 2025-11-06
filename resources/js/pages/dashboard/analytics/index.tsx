@@ -12,6 +12,7 @@ import {
 import {
   BarChart3,
   CalendarCheck,
+  CheckCircle,
   CircleSlash2Icon,
   Clock,
   DollarSign,
@@ -114,6 +115,12 @@ export default function Analytics({
       label: 'Total Income',
       value: `₱ ${totalIncome.toLocaleString()}`,
       onClick: () => setActiveStatus('income'),
+    },
+    {
+      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
+      label: 'Completed',
+      value: allTrips.filter((t) => t.is_completed == true).length,
+      onClick: () => setActiveStatus('completed'),
     },
   ];
 

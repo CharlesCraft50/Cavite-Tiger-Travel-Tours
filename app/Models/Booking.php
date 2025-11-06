@@ -30,6 +30,7 @@ class Booking extends Model
         'status',
         'total_amount',
         'is_final_total',
+        'is_completed',
         'driver_id',
         'preferred_preparation_id',
         'valid_id_paths',

@@ -53,6 +53,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
             status: b.status,
             total_amount: b.total_amount ?? 0,
             paymentStatus: b.payment?.status ?? '',
+            is_completed: b.is_completed,
         })),
         ...userCustomTrips.map(t => ({
             type: 'custom' as const,
@@ -61,6 +62,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
             status: t.status,
             total_amount: t.total_amount ?? 0,
             paymentStatus: t.payment?.status ?? '',
+            is_completed: t.is_completed,
         })),
     ];
 
@@ -185,11 +187,13 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border">
                         <div className="text-center">
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                            {!(isAdmins || isDrivers) ? "Total Spent" : "Completed"}
+                            {/* {!(isAdmins || isDrivers) ? "Total Spent" : "Completed"} */}
+                            Completed
                         </h3>
-                        <div className="flex items-center justify-center text-4xl font-bold text-yellow-600 mb-2">
-                            <PriceSign />
-                            <span>{totalSpent.toLocaleString()}</span>
+                        <div className="flex items-center justify-center text-4xl font-bold text-emerald-600 mb-2">
+                            {/* <PriceSign />
+                            <span>{totalSpent.toLocaleString()}</span> */}
+                            <span>{allTrips.filter((t) => t.is_completed == true).length}</span>
                         </div>
                         </div>
                     </div>
