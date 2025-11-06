@@ -152,7 +152,7 @@ export default function Payment({
                             id="reference_number"
                             value={data.reference_number}
                             onChange={(e) => setData('reference_number', e.target.value)}
-                            placeholder="Enter the 12-digit reference number"
+                            placeholder="Enter the reference number of your payment receipt"
                             required
                         />
                         <InputError message={errors.reference_number} className="mt-2" />
