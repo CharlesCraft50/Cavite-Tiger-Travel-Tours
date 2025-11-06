@@ -597,15 +597,15 @@ export default function Index({
                         value={data.duration}
                         onChange={(e) => setData('duration', e.target.value)}
                         >
-                        <option value="2 Day 1 Night" />
+                        <option value="2 Days 1 Night" />
                         <option value="3 Days 2 Nights" />
                         <option value="4 Days 3 Nights" />
-                        <option value="5 Day 4 Nights" />
-                        <option value="6 Day 5 Nights" />
-                        <option value="7 Day 6 Nights" />
-                        <option value="8 Day 7 Nights" />
-                        <option value="9 Day 8 Nights" />
-                        <option value="10 Day 9 Nights" />
+                        <option value="5 Days 4 Nights" />
+                        <option value="6 Days 5 Nights" />
+                        <option value="7 Days 6 Nights" />
+                        <option value="8 Days 7 Nights" />
+                        <option value="9 Days 8 Nights" />
+                        <option value="10 Days 9 Nights" />
                     </InputSuggestions> */}
                     <select
                         id="duration"
@@ -618,12 +618,12 @@ export default function Index({
                         <option value="2 Day 1 Night">2 Day 1 Night</option>
                         <option value="3 Days 2 Nights">3 Days 2 Nights</option>
                         <option value="4 Days 3 Nights">4 Days 3 Nights</option>
-                        <option value="5 Day 4 Nights">5 Day 4 Nights</option>
-                        <option value="6 Day 5 Nights">6 Day 5 Nights</option>
-                        <option value="7 Day 6 Nights">7 Day 6 Nights</option>
-                        <option value="8 Day 7 Nights">8 Day 7 Nights</option>
-                        <option value="9 Day 8 Nights">9 Day 8 Nights</option>
-                        <option value="10 Day 9 Nights">10 Day 9 Nights</option>
+                        <option value="5 Days 4 Nights">5 Day 4 Nights</option>
+                        <option value="6 Days 5 Nights">6 Day 5 Nights</option>
+                        <option value="7 Days 6 Nights">7 Day 6 Nights</option>
+                        <option value="8 Days 7 Nights">8 Day 7 Nights</option>
+                        <option value="9 Days 8 Nights">9 Day 8 Nights</option>
+                        <option value="10 Days 9 Nights">10 Day 9 Nights</option>
                     </select>
                 </div>
 

@@ -513,6 +513,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                     value={data.pickup_address}
                     onChange={(e) => setData('pickup_address', e.target.value)}
                     disabled={processing}
+                    required
                   />
                   <InputError message={errors.pickup_address} className="mt-2" />
                 </div>
