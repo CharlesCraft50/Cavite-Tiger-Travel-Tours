@@ -30,6 +30,7 @@ const chartColors: Record<string, string> = {
   income: '#10b981',
   cancelled: '#7f1d1d',
   on_process: '#f59e0b',
+  completed: '#00c84f',
 };
 
 type AnalyticsProps = {
@@ -126,7 +127,9 @@ export default function Analytics({
 
   // Filter trips based on selected status
   const filteredTrips = activeStatus
-    ? allTrips.filter((t) => t.status === activeStatus)
+    ? activeStatus == 'completed'
+      ? allTrips.filter((t) => t.is_completed == true)
+      : allTrips.filter((t) => t.status === activeStatus)
     : allTrips;
 
   // Build chart data
