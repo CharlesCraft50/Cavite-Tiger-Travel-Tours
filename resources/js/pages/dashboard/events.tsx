@@ -182,7 +182,7 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
             <div className="flex flex-row mb-8 justify-between">
               <div className="flex flex-col">
                 <h1 className="text-2xl font-semibold">Events</h1>
-                <h1 className="text-1xl">Are you ready for excitement?</h1>
+                <h1 className="text-1xl">Don't miss the memories!</h1>
               </div>
               <div className="flex flex-col justify-center">
                 {/* <Button

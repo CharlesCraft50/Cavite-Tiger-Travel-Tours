@@ -644,18 +644,20 @@ export default function Create({
                 </div>
 
                 {/* Preferred Vans */}
-                <div className="grid gap-2">
-                    <VanSelection
-                        preferredVans={preferredVans}
-                        drivers={drivers ?? []}
-                        selectedVanIds={selectedVanIds}
-                        onSelect={toggleVanSelection}
-                        textLabel="Select your preferred van (Optional)"
-                        vanCategories={vanCategories}
-                        bookedVanIdsToday={bookedVanIdsToday}
-                    />
-                    <InputError message={errors.preferred_van_id} className="mt-2" />
-                </div>
+                {packages.preferred_vans.length > 0 && (
+                    <div className="grid gap-2">
+                        <VanSelection
+                            preferredVans={preferredVans}
+                            drivers={drivers ?? []}
+                            selectedVanIds={selectedVanIds}
+                            onSelect={toggleVanSelection}
+                            textLabel="Select your preferred van (Optional)"
+                            vanCategories={vanCategories}
+                            bookedVanIdsToday={bookedVanIdsToday}
+                        />
+                        <InputError message={errors.preferred_van_id} className="mt-2" />
+                    </div>
+                )}
 
                 {/* Pax (Adults and Kids) */}
                 <div className="grid grid-cols-1 gap-6">

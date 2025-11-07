@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Booking, User } from '@/types';
-import { ArrowLeft, Check, Pencil, ShieldCheck, User2, X } from 'lucide-react';
+import { ArrowLeft, Check, Pencil, ShieldCheck, User2, X, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import {
   BarChart,
@@ -17,6 +17,14 @@ import BookingList from '@/components/booking-list';
 import { isAdmin, isDriver } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useLoading } from '@/components/ui/loading-provider';
+import {
+  Dialog,
+  DialogTitle,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface Props {
   user: User;
@@ -39,6 +47,7 @@ export default function Show({ user, bookings, totalSpent }: Props) {
 
   const [isEditing, setIsEditing] = useState(false);
   const [userRole, setUserRole] = useState<string>(user.role);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { start, stop } = useLoading();
 
@@ -59,6 +68,21 @@ export default function Show({ user, bookings, totalSpent }: Props) {
     });
   }
 
+  const handleDelete = () => {
+    start();
+    router.delete(route('users.destroy', user.id), {
+      preserveScroll: true,
+      onSuccess: () => {
+        stop();
+        setShowDeleteDialog(false);
+        // The redirect will happen from the controller
+      },
+      onError: () => {
+        stop();
+      }
+    });
+  };
+
   return (
     <DashboardLayout title="Users" href="/users">
       <Head title={`User: ${user.first_name}`} />
@@ -69,13 +93,25 @@ export default function Show({ user, bookings, totalSpent }: Props) {
           <p className="text-sm text-gray-500">Manage access and account info</p>
         </div>
 
-        <Link
-          href="/users"
-          className="btn-primary inline-flex items-center gap-2 text-xs px-4 py-2"
-        >
-          <ArrowLeft size={16} />
-          Back to List
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/users"
+            className="btn-primary inline-flex items-center gap-2 text-xs px-4 py-2"
+          >
+            <ArrowLeft size={16} />
+            Back to List
+          </Link>
+          {user.first_name.toLowerCase() !== 'admin' && (
+            <Button
+              variant="destructive"
+              onClick={() => setShowDeleteDialog(true)}
+              className="inline-flex items-center gap-2 text-xs px-4 py-2 cursor-pointer"
+            >
+              <Trash2 size={16} />
+              Delete User
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="rounded-lg border bg-white p-6 shadow-sm mb-6">
@@ -206,6 +242,33 @@ export default function Show({ user, bookings, totalSpent }: Props) {
         <h2 className="text-lg font-semibold mb-4">All Bookings</h2>
         <BookingList bookings={bookings} searchByUserId={user.id.toString()} />
       </div>
+
+      <Dialog open={showDeleteDialog} onOpenChange={(open) => !open && setShowDeleteDialog(false)}>
+        <DialogContent className="p-4 max-w-md bg-white rounded shadow-xl">
+          <DialogTitle className="text-lg font-semibold text-center mb-2">
+            Delete User "{user.first_name}"?
+          </DialogTitle>
+
+          <DialogDescription className="text-sm text-gray-500 text-center mb-4">
+            Are you sure you want to delete this user? This will also delete all their bookings ({bookings.length}) and related data. This action cannot be undone.
+          </DialogDescription>
+
+          <DialogFooter className="flex justify-end gap-2">
+            <DialogClose asChild>
+              <Button variant="outline" className="cursor-pointer">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              className="cursor-pointer"
+              onClick={handleDelete}
+            >
+              Confirm Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

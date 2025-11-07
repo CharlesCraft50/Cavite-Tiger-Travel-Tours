@@ -42,6 +42,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
       type: 'booking' as const,
       created_at: b.created_at,
       is_completed: b.is_completed,
+      package: b.tour_package,
     })),
     ...customTrips.map((c) => ({
       id: c.id,
@@ -53,6 +54,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
       type: 'custom' as const,
       created_at: c.created_at,
       is_completed: c.is_completed,
+      package: null,
     })),
   ];
 
@@ -201,7 +203,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
                   <td className="px-4 py-2">{trip.date}</td>
                   <td className="px-4 py-2">{trip.name}</td>
                   <td className="px-4 py-2">{trip.destination}</td>
-                  <td className="px-4 py-2 capitalize">{trip.type == 'booking' ? 'Local' : trip.type}</td>
+                  <td className="px-4 py-2 capitalize">{trip.type == 'booking' ? trip.package?.package_type == 'event' ? 'Event' : 'Local' : trip.type}</td>
                   <td className="px-4 py-2">
                     <span
                       className={clsx(

@@ -1,8 +1,17 @@
 import { isAdmin, isDriver } from '@/lib/utils';
 import { User } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import clsx from 'clsx';
 import React, { useState } from 'react';
+import { Button } from './ui/button';
+import {
+  Dialog,
+  DialogTitle,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface UserListProps {
   users: User[];
@@ -10,16 +19,29 @@ interface UserListProps {
 
 export default function UserList({ users }: UserListProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'rank'>('newest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const itemsPerPage = 10;
+
+  // Define rank order for sorting
+  const rankOrder = {
+    admin: 1,
+    staff: 2,
+    driver: 3,
+    user: 4
+  };
 
   const filteredUsers = users
     .filter((user) => user.first_name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
-      return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+      if (sortBy === 'rank') {
+        return rankOrder[a.role] - rankOrder[b.role];
+      } else {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+      }
     });
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -27,6 +49,11 @@ export default function UserList({ users }: UserListProps) {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const handleDelete = (user: User) => {
+    router.delete(route('users.destroy', user.id));
+    setUserToDelete(null);
+  };
 
   return (
     <div className="rounded-lg border overflow-x-auto overflow-y-hidden">
@@ -46,6 +73,7 @@ export default function UserList({ users }: UserListProps) {
         >
           <option value="newest">Sort by Newest</option>
           <option value="oldest">Sort by Oldest</option>
+          <option value="rank">Sort by Rank</option>
         </select>
       </div>
 
@@ -58,7 +86,7 @@ export default function UserList({ users }: UserListProps) {
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Created At</th>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Bookings</th>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Total Spent</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Action</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
@@ -72,9 +100,11 @@ export default function UserList({ users }: UserListProps) {
                     'inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize',
                     isAdmin(user) 
                       ? 'bg-purple-100 text-purple-800' 
-                      : isDriver(user) 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
+                      : user.role === 'staff'
+                        ? 'bg-blue-100 text-blue-800'
+                        : isDriver(user) 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
                   )}>
                     {user.role}
                   </span>
@@ -83,12 +113,23 @@ export default function UserList({ users }: UserListProps) {
                 <td className="px-4 py-2">{user.bookings_count ?? 0}</td>
                 <td className="px-4 py-2">₱{(user.total_spent ?? 0).toLocaleString()}</td>
                 <td className="px-4 py-2">
-                  <Link
-                    href={route('users.show', user.id)}
-                    className="btn-primary text-xs"
-                  >
-                    View
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link
+                      href={route('users.show', user.id)}
+                      className="btn-primary text-xs cursor-pointer"
+                    >
+                      View
+                    </Link>
+                    {user.first_name.toLowerCase() != 'admin' && (
+                      <Button
+                        type="button"
+                        onClick={() => setUserToDelete(user)}
+                        className="btn-primary text-xs cursor-pointer py-5"
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))
@@ -136,6 +177,33 @@ export default function UserList({ users }: UserListProps) {
           </button>
         </div>
       )}
+
+      <Dialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+        <DialogContent className="p-4 max-w-md bg-white rounded shadow-xl">
+          <DialogTitle className="text-lg font-semibold text-center mb-2">
+            Delete User "{userToDelete?.first_name}"?
+          </DialogTitle>
+
+          <DialogDescription className="text-sm text-gray-500 text-center mb-4">
+            Are you sure you want to delete this user? This will also delete all their bookings and related data. This action cannot be undone.
+          </DialogDescription>
+
+          <DialogFooter className="flex justify-end gap-2">
+            <DialogClose asChild>
+              <Button variant="outline" className="cursor-pointer">
+                Close
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              className="cursor-pointer"
+              onClick={() => userToDelete && handleDelete(userToDelete)}
+            >
+              Confirm Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

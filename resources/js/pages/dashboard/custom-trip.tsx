@@ -226,7 +226,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
         <div className="flex flex-row mb-8 justify-between">
           <div className="flex flex-col">
             <h1 className="text-2xl font-semibold">Customized Trip!</h1>
-            <h1 className="text-1xl">Now is the time to gather, travel, ad savor favorite places and new destinations!</h1>
+            <h1 className="text-1xl">Now is the time to gather, travel, and savor favorite places and new destinations!</h1>
           </div>
           <div className="flex flex-col justify-center">
             <Button
@@ -237,7 +237,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
             </Button>
           </div>
         </div>
-        <div className="flex justify-center mt-4 px-4">
+        <div className="flex flex-col justify-center mt-4 px-4">
           <div className="container mx-auto px-4 mt-4 max-w-4xl">
               <Swiper
                   modules={[Autoplay, Pagination]}
@@ -278,7 +278,14 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                   ))}
               </Swiper>
           </div>
-      </div>
+
+          <div className="text-center mt-6 mb-0 px-6">
+            <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+              Here, you can create your very own <span className="font-semibold text-blue-600">custom trip</span> — simply click the <span className="font-semibold">“Create Own”</span> button at the top left to start planning your adventure!
+            </p>
+          </div>
+        </div>
+
 
       {/* <section className="mt-8 rounded-3xl text-center">
         <h2 className="text-3xl font-bold mb-8">Events</h2>

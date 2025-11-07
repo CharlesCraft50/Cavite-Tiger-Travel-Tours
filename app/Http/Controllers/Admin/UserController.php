@@ -55,4 +55,25 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'User role updated successfully.');
     }
+
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Delete user's bookings and related records first
+        $user->bookings()->each(function ($booking) {
+            // Delete related payments if they exist
+            if ($booking->payment) {
+                $booking->payment()->delete();
+            }
+
+            // Delete the booking
+            $booking->delete();
+        });
+
+        // Delete user
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User and all associated bookings deleted successfully.');
+    }
 }
