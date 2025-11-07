@@ -452,6 +452,7 @@ export default function Index({
                         className="border p-2 rounded cursor-pointer"
                         value={data.package_type}
                         onChange={(e) => setData('package_type', e.target.value)}
+                        disabled={true}
                     >
                         {packageTypeOptions.map((option) => (
                         <option key={option.value} value={option.value}>

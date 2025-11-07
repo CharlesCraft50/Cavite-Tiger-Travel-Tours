@@ -117,7 +117,7 @@ export default function Cities({
                 onSearch={setSearchQuery}
             />
 
-            <div className="flex flex-wrap gap-4 p-4">
+            <div className="flex flex-wrap justify-center gap-4 p-4">
               {displayedCities.map((city => (
                 <CardImageBackground
                     id={city.id}
