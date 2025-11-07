@@ -474,14 +474,16 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         </Button>
                     </div>
                 ) : (
-                    <div className="flex flex-row gap-2">
-                        <Link 
-                            href={route('localTrip', { package: packages?.slug })}
-                            className="btn-primary cursor-pointer text-xs py-2 flex items-center justify-center"
-                        >
-                            Visit Package
-                        </Link>
-                    </div>
+                    !isDrivers && (
+                        <div className="flex flex-row gap-2">
+                            <Link 
+                                href={route('localTrip', { package: packages?.slug })}
+                                className="btn-primary cursor-pointer text-xs py-2 flex items-center justify-center"
+                            >
+                                Visit Package
+                            </Link>
+                        </div>
+                    )
                 )}
             </div>
 
