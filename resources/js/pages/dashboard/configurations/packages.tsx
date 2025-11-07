@@ -19,6 +19,17 @@ type PackagesIndexProps = {
 
 const ITEMS_PER_LOAD = 8;
 
+// Helper: convert shorthand durations like "3D2N" → "3 Days 2 Nights"
+const formatDuration = (duration: string) => {
+  if (!duration) return '';
+  const match = duration.match(/(\d+)D(\d+)N/i);
+  if (match) {
+    const [, days, nights] = match;
+    return `${days} Day${days !== '1' ? 's' : ''} ${nights} Night${nights !== '1' ? 's' : ''}`;
+  }
+  return duration;
+};
+
 export default function Packages({ packages: initialPackages }: PackagesIndexProps) {
   const { auth } = usePage<SharedData>().props;
   const isAdmins = isAdmin(auth.user);
@@ -81,6 +92,15 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
     const diff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     return sortOption === 'newest' ? diff : -diff;
   });
+
+  // Group by duration (Others if undefined) - Same logic as LocalTrip
+  const groupedPackages = sortedPackages.reduce((acc, pkg) => {
+    const duration = pkg.duration?.trim() || '';
+    let formatted = duration ? formatDuration(duration) : 'Others';
+    if (!acc[formatted]) acc[formatted] = [];
+    acc[formatted].push(pkg);
+    return acc;
+  }, {} as Record<string, TourPackage[]>);
 
   const [visiblePackages, setVisiblePackages] = useState<TourPackage[]>(
     sortedPackages.slice(0, ITEMS_PER_LOAD)
@@ -253,33 +273,41 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
               )}
             </div>
 
-            {/* Packages Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visiblePackages.map((pkg) => (
-                <div key={pkg.id} className="relative">
-                  <CardImageBackground
-                    id={pkg.id}
-                    inputId="image-overview-edit"
-                    title={pkg.title}
-                    src={pkg.image_overview ?? ''}
-                    size="smallWide"
-                    editable={toggleEdit}
-                    onClick={() => {
-                      if (!toggleEdit) setSelectedPackage(pkg);
-                    }}
-                    onEdit={() => {
-                      setEditModalPackage(pkg);
-                      setIframeLoading(true);
-                    }}
-                    deletable={true}
-                    onDeletion={() => setDeleteTarget(pkg)}
-                    hasChangeImageBtn={true}
-                    packageId={pkg.id}
-                    forImageOverview={true}
-                  />
+            {/* Packages Grid - Categorized by Duration */}
+            {Object.entries(groupedPackages).map(([duration, pkgs]) => (
+              <div key={duration} className="mb-12">
+                <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
+                  {duration === 'Others' ? 'Other Packages' : `Duration - ${duration}`}
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pkgs.map((pkg) => (
+                    <div key={pkg.id} className="relative">
+                      <CardImageBackground
+                        id={pkg.id}
+                        inputId="image-overview-edit"
+                        title={pkg.title}
+                        src={pkg.image_overview ?? ''}
+                        size="smallWide"
+                        editable={toggleEdit}
+                        onClick={() => {
+                          if (!toggleEdit) setSelectedPackage(pkg);
+                        }}
+                        onEdit={() => {
+                          setEditModalPackage(pkg);
+                          setIframeLoading(true);
+                        }}
+                        deletable={true}
+                        onDeletion={() => setDeleteTarget(pkg)}
+                        hasChangeImageBtn={true}
+                        packageId={pkg.id}
+                        forImageOverview={true}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
 
             {loadingMore && <p className="text-center mt-4 text-gray-500">Loading more...</p>}
           </>

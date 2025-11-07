@@ -280,7 +280,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
           </div>
       </div>
 
-      <section className="mt-8 rounded-3xl text-center">
+      {/* <section className="mt-8 rounded-3xl text-center">
         <h2 className="text-3xl font-bold mb-8">Events</h2>
 
         {isLoading && (
@@ -325,7 +325,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
       </div>
 
       {/* Custom Trip Form Modal */}
@@ -444,7 +444,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                       <option value="3 Days 2 Nights">3 Days 2 Nights</option>
                       <option value="4 Days 3 Nights">4 Days 3 Nights</option>
                       <option value="5 Days 4 Nights">5 Days 4 Nights</option>
-                      <option value="6 Days 5 Nights">6 Day 5 Nights</option>
+                      <option value="6 Days 5 Nights">6 Days 5 Nights</option>
                       <option value="7 Days 6 Nights">7 Days 6 Nights</option>
                       <option value="8 Days 7 Nights">8 Days 7 Nights</option>
                       <option value="9 Days 8 Nights">9 Days 8 Nights</option>

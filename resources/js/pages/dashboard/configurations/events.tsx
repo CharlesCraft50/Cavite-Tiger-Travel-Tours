@@ -82,6 +82,16 @@ export default function Events({ packages: initialPackages }: EventsIndexProps) 
     return sortOption === 'newest' ? diff : -diff;
   });
 
+  // Group by event_type (Others if undefined) - Same logic as the other Events component
+  const groupedPackages = sortedPackages.reduce((acc, pkg) => {
+    const eventType = pkg.event_type
+      ? pkg.event_type.trim().charAt(0).toUpperCase() + pkg.event_type.trim().slice(1)
+      : 'Others';
+    if (!acc[eventType]) acc[eventType] = [];
+    acc[eventType].push(pkg);
+    return acc;
+  }, {} as Record<string, TourPackage[]>);
+
   const [visiblePackages, setVisiblePackages] = useState<TourPackage[]>(
     sortedPackages.slice(0, ITEMS_PER_LOAD)
   );
@@ -253,34 +263,48 @@ export default function Events({ packages: initialPackages }: EventsIndexProps) 
             )}
           </div>
 
-          {/* Packages Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visiblePackages.map((pkg) => (
-              <div key={pkg.id} className="relative">
-                <CardImageBackground
-                  id={pkg.id}
-                  inputId="image-overview-edit"
-                  title={pkg.title}
-                  src={pkg.image_overview ?? ''}
-                  size="smallWide"
-                  editable={toggleEdit}
-                  onClick={() => {
-                    if (!toggleEdit) setSelectedPackage(pkg);
-                  }}
-                  onEdit={() => {
-                    setEditModalPackage(pkg);
-                    setIframeLoading(true);
-                  }}
-                  deletable={true}
-                  onDeletion={() => setDeleteTarget(pkg)}
-                  hasChangeImageBtn={true}
-                  packageId={pkg.id}
-                  forImageOverview={true}
-                  isEvents
-                />
+          {/* Events Grid - Categorized by Event Type */}
+          {Object.entries(groupedPackages).map(([eventType, pkgs]) => {
+            // For Events page, only show event packages
+            const allAreEvents = pkgs.every(pkg => pkg.package_type === 'event');
+            if (!allAreEvents) return null;
+
+            return (
+              <div key={eventType} className="mb-12">
+                <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
+                  {eventType === 'Others' ? 'Other Events' : eventType.replace(/_/g, ' ')}
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pkgs.map((pkg) => (
+                    <div key={pkg.id} className="relative">
+                      <CardImageBackground
+                        id={pkg.id}
+                        inputId="image-overview-edit"
+                        title={pkg.title}
+                        src={pkg.image_overview ?? ''}
+                        size="smallWide"
+                        editable={toggleEdit}
+                        onClick={() => {
+                          if (!toggleEdit) setSelectedPackage(pkg);
+                        }}
+                        onEdit={() => {
+                          setEditModalPackage(pkg);
+                          setIframeLoading(true);
+                        }}
+                        deletable={true}
+                        onDeletion={() => setDeleteTarget(pkg)}
+                        hasChangeImageBtn={true}
+                        packageId={pkg.id}
+                        forImageOverview={true}
+                        isEvents
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
 
           {loadingMore && <p className="text-center mt-4 text-gray-500">Loading more...</p>}
         </div>

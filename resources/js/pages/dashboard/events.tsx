@@ -185,12 +185,12 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
                 <h1 className="text-1xl">Are you ready for excitement?</h1>
               </div>
               <div className="flex flex-col justify-center">
-                <Button
+                {/* <Button
                   className="bg-[#5c1f1d] cursor-pointer hover:bg-[#3d1514]"
                   onClick={() => setShowCreateTripModal(true)}
                 >
                   Explore Cities
-                </Button>
+                </Button> */}
               </div>
             </div>
             <div className="flex flex-row items-center w-full gap-4 mb-4">
