@@ -22,17 +22,6 @@ type PackagesIndexProps = {
 
 const ITEMS_PER_LOAD = 8;
 
-// Helper: convert shorthand durations like "3D2N" → "3 Days 2 Nights"
-const formatDuration = (duration: string) => {
-  if (!duration) return '';
-  const match = duration.match(/(\d+)D(\d+)N/i);
-  if (match) {
-    const [, days, nights] = match;
-    return `${days} Day${days !== '1' ? 's' : ''} ${nights} Night${nights !== '1' ? 's' : ''}`;
-  }
-  return duration;
-};
-
 export default function Events({ packages: initialPackages, cities, selectedCountry }: PackagesIndexProps) {
   const { auth } = usePage<SharedData>().props;
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,12 +59,13 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
     return sortOption === 'newest' ? diff : -diff;
   });
 
-  // Group by duration (Others if undefined)
+  // Group by event_type (Others if undefined) - Same logic as duration but with event_type
   const groupedPackages = sortedPackages.reduce((acc, pkg) => {
-    const duration = pkg.duration?.trim() || '';
-    let formatted = duration ? formatDuration(duration) : 'Others';
-    if (!acc[formatted]) acc[formatted] = [];
-    acc[formatted].push(pkg);
+    const eventType = pkg.event_type
+      ? pkg.event_type.trim().charAt(0).toUpperCase() + pkg.event_type.trim().slice(1)
+      : 'Others';
+    if (!acc[eventType]) acc[eventType] = [];
+    acc[eventType].push(pkg);
     return acc;
   }, {} as Record<string, TourPackage[]>);
 
@@ -269,12 +259,15 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
               </Listbox>
             </div>
 
-            {Object.entries(groupedPackages).map(([duration, pkgs]) => {
+            {Object.entries(groupedPackages).map(([eventType, pkgs]) => {
+              // For Events page, only show event packages
+              const allAreEvents = pkgs.every(pkg => pkg.package_type === 'event');
+              if (!allAreEvents) return null;
 
               return (
-                <div key={duration} className="mb-12">
+                <div key={eventType} className="mb-12">
                   <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
-                    {duration == 'Others' ? '' : `Duration - ${duration}`}
+                    {eventType === 'Others' ? 'Other Events' : eventType.replace(/_/g, ' ')}
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -313,9 +306,6 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
                 </div>
               );
             })}
-
-
-
 
             {loadingMore && <p className="text-center mt-4 text-gray-500">Loading more...</p>}
           </>
