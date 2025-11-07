@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('set null');
             $table->boolean('is_confirmed')->default(false);
             $table->string('booking_number')->unique();
-            $table->decimal('total_amount')->nullable();
+            $table->decimal('total_amount', 15, 2)->nullable();
             $table->boolean('is_final_total')->default(false);
             $table->boolean('is_completed')->default(false);
             $table->string('pickup_address');

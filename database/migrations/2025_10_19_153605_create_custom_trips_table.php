@@ -39,7 +39,7 @@ return new class extends Migration
             // Booking
             $table->boolean('is_confirmed')->default(false);
             $table->string('booking_number')->unique()->nullable();
-            $table->decimal('total_amount', 10, 2)->nullable();
+            $table->decimal('total_amount', 15, 2)->nullable();
             $table->boolean('is_final_total')->default(false);
             $table->boolean('is_completed')->default(false);
 
