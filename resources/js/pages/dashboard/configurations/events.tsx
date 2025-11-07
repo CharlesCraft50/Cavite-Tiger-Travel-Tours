@@ -59,7 +59,7 @@ export default function Events({ packages: initialPackages }: EventsIndexProps) 
         //   })
         //   .finally(() => setIframeLoading(false));
 
-        router.visit(route('configurations.packages'), {
+        router.visit(route('configurations.events'), {
           preserveState: true,
           preserveScroll: true,
         });
