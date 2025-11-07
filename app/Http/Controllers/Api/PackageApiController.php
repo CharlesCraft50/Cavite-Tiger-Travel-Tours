@@ -54,14 +54,48 @@ class PackageApiController extends Controller
 
     public function index(Request $request)
     {
-        $query = TourPackage::with(['city:id,name', 'categories:id,name']);
+        $query = TourPackage::with(['city:id,name', 'categories:id,name'])
+            ->where('package_type', 'normal');
 
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where('title', 'like', "%{$search}%")
-                ->orWhereHas('city', function ($cityQuery) use ($search) {
-                    $cityQuery->where('name', 'like', "%{$search}%");
-                });
+
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('city', function ($cityQuery) use ($search) {
+                        $cityQuery->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $sort = $request->input('sort', 'desc');
+        $query->orderBy('created_at', $sort === 'asc' ? 'asc' : 'desc');
+
+        $perPage = $request->input('per_page', 20);
+        $packages = $query->paginate($perPage);
+
+        return response()->json([
+            'packages' => $packages->items(),
+            'current_page' => $packages->currentPage(),
+            'last_page' => $packages->lastPage(),
+            'total' => $packages->total(),
+        ]);
+    }
+
+    public function indexEvents(Request $request)
+    {
+        $query = TourPackage::with(['city:id,name', 'categories:id,name'])
+            ->where('package_type', 'event');
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('city', function ($cityQuery) use ($search) {
+                        $cityQuery->where('name', 'like', "%{$search}%");
+                    });
+            });
         }
 
         $sort = $request->input('sort', 'desc');

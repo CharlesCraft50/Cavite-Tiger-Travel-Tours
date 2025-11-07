@@ -139,6 +139,49 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function events(Request $request)
+    {
+        $selectedCountryName = 'Philippines';
+        $selectedCountry = Country::where('name', $selectedCountryName)->first();
+        $cities = $selectedCountry ? $selectedCountry->cities : collect();
+
+        $baseQuery = TourPackage::query();
+
+        $baseQuery->where('package_type', 'event');
+
+        if ($request->has('city_id')) {
+            $baseQuery->where('city_id', $request->city_id);
+        }
+
+        $mainQuery = (clone $baseQuery);
+
+        $packages = $mainQuery->get();
+
+        $packages->load([
+            'categories',
+            'preferredVans.availabilities',
+            'wishlist',
+            'otherServices' => function ($query) {
+                $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
+            },
+            'reviews',
+        ]);
+
+        foreach ($packages as $package) {
+            $package->reviews_paginated = $package->reviews()
+                ->with('user')
+                ->latest()
+                ->paginate(5);
+        }
+
+        return Inertia::render('dashboard/events', [
+            'packages' => $packages,
+            'cities' => $cities,
+            'countries' => Country::all(),
+            'selectedCountry' => $selectedCountry,
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

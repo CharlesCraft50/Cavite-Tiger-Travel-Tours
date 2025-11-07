@@ -11,7 +11,7 @@ import '../../css/dashboard.css';
 import BottomNav from '@/components/ui/bottom-nav';
 import clsx from 'clsx';
 import { Button } from '@headlessui/react';
-import { LayoutDashboard, Plane, Truck } from 'lucide-react';
+import { LayoutDashboard, PartyPopper, Plane, Truck } from 'lucide-react';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -91,11 +91,20 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
     return (
         <DashboardLayout title="Home" href="/dashboard">
             <div className="flex mb-2 gap-2">
-                <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]"><LayoutDashboard /> Dashboard</Link>
+                <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]">
+                    <LayoutDashboard /> Dashboard
+                </Link>
                 {!isDrivers && (
                     <>
-                        <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Truck className="fill-black" /> Custom Trip</Link>
-                        <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent"><Plane className="fill-black" /> Local Trip</Link>
+                        <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
+                            <Truck className="fill-black" /> Custom Trip
+                        </Link>
+                        <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
+                            <Plane className="fill-black" /> Local Trip
+                        </Link>
+                        <Link href="/events" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
+                            <PartyPopper className="fill-black" /> Events
+                        </Link>
                     </>
                 )}
             </div>

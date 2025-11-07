@@ -390,7 +390,7 @@ export default function Create({
         : [];
     
     return (
-        <FormLayout removeNavItems hasBackButton backButtonHref={`/packages/${packages.slug}`}>
+        <FormLayout removeNavItems hasBackButton backButtonHref={auth.user ? route('localTrip', { package: packages.slug }) : route('bookings.show', packages.id )}>
             <Head title="Book Now" />
             <form onSubmit={submit} className="flex flex-col gap-6">
                 {/* Hero Image Header */}

@@ -33,7 +33,7 @@ const formatDuration = (duration: string) => {
   return duration;
 };
 
-export default function LocalTrip({ packages: initialPackages, cities, selectedCountry }: PackagesIndexProps) {
+export default function Events({ packages: initialPackages, cities, selectedCountry }: PackagesIndexProps) {
   const { auth } = usePage<SharedData>().props;
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<'newest' | 'oldest'>('newest');
@@ -148,8 +148,8 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
   };
 
   return (
-    <DashboardLayout title="LocalTrip" href="/localtrip">
-      <Head title="LocalTrip" />
+    <DashboardLayout title="Events" href="/events">
+      <Head title="Events" />
       <div className="flex mb-2 gap-2">
         <Link href="/dashboard" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
           <LayoutDashboard /> Dashboard
@@ -157,41 +157,42 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
         <Link href="/custom-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
           <Truck className="fill-black" /> Custom Trip
         </Link>
-        <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]">
+        <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
           <Plane className="fill-black" /> Local Trip
         </Link>
-        <Link href="/events" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
-          <PartyPopper className="fill-black" />Events
+        <Link href="/events" className="border rounded-lg px-4 py-2 flex gap-2 bg-[#f1c5c3]">
+          <PartyPopper className="fill-black" /> Events
         </Link>
       </div>
       <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">
         {selectedPackage ? (
-          <div ref={showRef} className="flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b pb-3 mb-4">
-              <Button variant="outline" className="bg-primary cursor-pointer text-white hover:bg-[#fb2056]/80 hover:text-white" onClick={() => {
-                setSelectedPackage(null);
-              }}>
-                ← Back to Packages
-              </Button>
-              <h2 className="text-lg font-semibold">{selectedPackage.title}</h2>
-              <div className="w-16" />
+          /* Full width container for ShowPage */
+          <div ref={showRef} className="w-full mt-6 mb-10">
+            <div className="border border-sidebar-border/70 dark:border-sidebar-border relative rounded-xl p-6 md:p-8 bg-white dark:bg-[#1E1E1E]">
+              <div className="flex items-center justify-between border-b pb-3 mb-6">
+                <Button variant="outline" className="bg-primary cursor-pointer text-white hover:bg-[#fb2056]/80 hover:text-white" onClick={() => setSelectedPackage(null)}>
+                  ← Back to Events
+                </Button>
+                <h2 className="text-lg font-semibold">{selectedPackage.title}</h2>
+                <div className="w-16" />
+              </div>
+  
+              <ShowPage
+                packages={selectedPackage}
+                categories={selectedPackage.package_categories ?? []}
+                preferredVans={selectedPackage.preferred_vans ?? []}
+                otherServices={selectedPackage.other_services ?? []}
+                isWishlisted={selectedPackage.wishlist?.id != null}
+                disableNav
+              />
             </div>
-
-            <ShowPage
-              packages={selectedPackage}
-              categories={selectedPackage.package_categories ?? []}
-              preferredVans={selectedPackage.preferred_vans ?? []}
-              otherServices={selectedPackage.other_services ?? []}
-              isWishlisted={selectedPackage.wishlist?.id != null}
-              disableNav
-            />
           </div>
         ) : (
           <>
             <div className="flex flex-row mb-8 justify-between">
               <div className="flex flex-col">
-                <h1 className="text-2xl font-semibold">Local Trip!</h1>
-                <h1 className="text-1xl">Are you ready for adventure?</h1>
+                <h1 className="text-2xl font-semibold">Events</h1>
+                <h1 className="text-1xl">Are you ready for excitement?</h1>
               </div>
               <div className="flex flex-col justify-center">
                 <Button
@@ -211,7 +212,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   type="text"
-                  placeholder="Search local trips..."
+                  placeholder="Search events..."
                   className="border rounded-lg p-2 pl-9 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {searchQuery && (
@@ -269,13 +270,11 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
             </div>
 
             {Object.entries(groupedPackages).map(([duration, pkgs]) => {
-              const allAreEvents = pkgs.every(pkg => pkg.package_type === 'event');
-              if (allAreEvents) return null;
 
               return (
                 <div key={duration} className="mb-12">
                   <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
-                    Duration - {duration}
+                    {duration == 'Others' ? '' : `Duration - ${duration}`}
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/custom-trip', [DashboardController::class, 'customTrip'])->name('customTrip');
     Route::get('/local-trip', [DashboardController::class, 'localTrip'])->name('localTrip');
+    Route::get('/events', [DashboardController::class, 'events'])->name('events');
 
     Route::resource('bookings', BookingController::class);
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
@@ -122,6 +123,7 @@ Route::middleware(['auth', 'admin_or_staff'])->group(function () {
     Route::resource('/vancategories', VanCategoryController::class);
 
     Route::get('/configurations/packages', [ConfigurationController::class, 'packages'])->name('configurations.packages');
+    Route::get('/configurations/events', [ConfigurationController::class, 'events'])->name('configurations.events');
     Route::get('/configurations/vehicles', [ConfigurationController::class, 'vehicles'])->name('configurations.vehicles');
     Route::get('/configurations/cities', [ConfigurationController::class, 'cities'])->name('configurations.cities');
     Route::get('/configurations/other-services', [ConfigurationController::class, 'otherServices'])->name('configurations.otherServices');

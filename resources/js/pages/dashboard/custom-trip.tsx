@@ -4,7 +4,7 @@ import { Booking, SharedData, User, PreferredVan, VanCategory, TourPackage } fro
 import { Link, usePage, useForm, router } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useState } from 'react';
 import '../../../css/dashboard.css';
-import { LayoutDashboard, Loader2Icon, Plane, Truck } from 'lucide-react';
+import { LayoutDashboard, Loader2Icon, PartyPopper, Plane, Truck } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -217,6 +217,9 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
         <Link href="/local-trip" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
           <Plane className="fill-black" /> Local Trip
         </Link>
+        <Link href="/events" className="border rounded-lg px-4 py-2 flex gap-2 bg-accent">
+          <PartyPopper className="fill-black" /> Events
+        </Link>
       </div>
 
       <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">
@@ -313,7 +316,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                       size="smallWide"
                       editable={false}
                       onClick={() =>
-                        router.get(route("localTrip", { package: pkg.slug }))
+                        router.get(route("events", { package: pkg.slug }))
                       }
                     />
                   </div>

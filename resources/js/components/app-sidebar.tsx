@@ -155,6 +155,10 @@ export function AppSidebar({ bookingPackageName }: { bookingPackageName?: string
                             href: '/configurations/packages',
                         },
                         {
+                            title: 'Events',
+                            href: '/configurations/events',
+                        },
+                        {
                             title: 'Vehicles',
                             href: '/configurations/vehicles',
                         },

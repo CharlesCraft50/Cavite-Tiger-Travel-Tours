@@ -1,17 +1,19 @@
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Link } from '@inertiajs/react';
+import clsx from 'clsx';
 import { type PropsWithChildren } from 'react';
 
 interface AuthLayoutProps {
     name?: string;
     title?: string;
     description?: string;
+    className?: string
 }
 
-export default function AuthSimpleLayout({ children, title, description }: PropsWithChildren<AuthLayoutProps>) {
+export default function AuthSimpleLayout({ children, title, description, className }: PropsWithChildren<AuthLayoutProps>) {
     return (
-        <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-            <div className="w-full max-w-sm">
+        <div className={clsx("bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10", className)}>
+            <div className="w-full max-w-md bg-white/95 rounded-2xl p-6">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
                         <Link href={route('home')} className="flex flex-col items-center gap-2 font-medium">

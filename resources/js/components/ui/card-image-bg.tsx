@@ -24,6 +24,7 @@ type CardImageBackgroundProps = {
     size?: "small" | "medium" | "large" | "smallWide" | "mediumWide" | "largeWide";
     packageId?: number,
     forImageOverview?: boolean,
+    isEvents?: boolean,
 };
 
 export default function CardImageBackground({
@@ -43,6 +44,7 @@ export default function CardImageBackground({
     size = "medium",
     packageId,
     forImageOverview,
+    isEvents,
 }: CardImageBackgroundProps) {
 
     const { start, stop } = useLoading();
@@ -101,7 +103,7 @@ export default function CardImageBackground({
             preserveScroll: true,
             onSuccess: () => {
                 setIsEditing(false);
-                router.get(route('configurations.packages'), {}, { preserveScroll: true });
+                router.get(route(isEvents ? 'configurations.events' : 'configurations.packages'), {}, { preserveScroll: true });
             }
         });
     }

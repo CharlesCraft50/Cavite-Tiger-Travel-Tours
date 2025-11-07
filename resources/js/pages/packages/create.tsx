@@ -192,6 +192,8 @@ export default function Index({
     useEffect(() => {
         if(editMode && packages) {
             setData('title', packages.title);
+            setData('package_type', packages.package_type || '');
+            setData('event_type', packages.event_type || '');
             setData('subtitle', packages.subtitle || '');
             setData('overview', packages.overview || '');
             setData('content', packages.content || '');
