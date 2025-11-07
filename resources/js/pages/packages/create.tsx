@@ -449,7 +449,7 @@ export default function Index({
                     <Label htmlFor="package_type" required>Package Type</Label>
                     <select
                         id="package_type"
-                        className="border p-2 rounded cursor-not-allowed bg-gray-100 text-gray-500 opacity-75"
+                        className="border p-2 rounded cursor-not-allowed bg-gray-100 text-gray-500 appearance-none"
                         value={data.package_type}
                         onChange={(e) => setData('package_type', e.target.value)}
                         disabled={true}
