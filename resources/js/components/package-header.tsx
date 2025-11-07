@@ -9,6 +9,7 @@ import { router } from "@inertiajs/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from 'swiper';
+import { isAdmin, isDriver, isStaff } from "@/lib/utils";
 
 type PackageBannerProps = {
   id?: number;
@@ -293,7 +294,7 @@ export default function PackageHeader({
             </LinkLoading>
           )}
 
-          {auth?.user && (
+          {auth?.user && !(isAdmin(auth.user) || isStaff(auth.user) || isDriver(auth.user)) && (
             <div className="flex flex-row items-center gap-2">
               <button
                 type="button"
