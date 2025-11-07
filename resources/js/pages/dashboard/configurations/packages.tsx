@@ -56,8 +56,10 @@ export default function Packages({ packages: initialPackages }: PackagesIndexPro
         setEditModalPackage(null);
         setIframeLoading(true);
 
-        // refetch latest packages
-        router.visit(route('configurations.packages'))
+          router.visit(route('configurations.packages'), {
+            preserveState: true,
+            preserveScroll: true,
+          });
       }
     };
 

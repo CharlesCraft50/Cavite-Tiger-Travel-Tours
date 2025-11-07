@@ -46,18 +46,23 @@ export default function Events({ packages: initialPackages }: EventsIndexProps) 
         setIframeLoading(true);
 
         // refetch latest packages
-        fetch('/api/events')
-          .then((res) => res.json())
-          .then((data) => {
-            const sorted = data.packages.sort(
-              (a: TourPackage, b: TourPackage) =>
-                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            );
-            setVisiblePackages(sorted.slice(0, ITEMS_PER_LOAD));
-            setCurrentIndex(ITEMS_PER_LOAD);
-            setHasMore(sorted.length > ITEMS_PER_LOAD);
-          })
-          .finally(() => setIframeLoading(false));
+        // fetch('/api/events')
+        //   .then((res) => res.json())
+        //   .then((data) => {
+        //     const sorted = data.packages.sort(
+        //       (a: TourPackage, b: TourPackage) =>
+        //         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        //     );
+        //     setVisiblePackages(sorted.slice(0, ITEMS_PER_LOAD));
+        //     setCurrentIndex(ITEMS_PER_LOAD);
+        //     setHasMore(sorted.length > ITEMS_PER_LOAD);
+        //   })
+        //   .finally(() => setIframeLoading(false));
+
+        router.visit(route('configurations.packages'), {
+          preserveState: true,
+          preserveScroll: true,
+        });
       }
     };
 
