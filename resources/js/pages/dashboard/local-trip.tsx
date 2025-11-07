@@ -147,6 +147,12 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
     });
   };
 
+  useEffect(() => {
+    if (selectedPackage?.package_type == 'event') {
+      router.visit(route("events", { package: selectedPackage.slug }));
+    }
+  }, [selectedPackage]);
+
   return (
     <DashboardLayout title="LocalTrip" href="/localtrip">
       <Head title="LocalTrip" />

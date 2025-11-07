@@ -280,7 +280,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
           </div>
 
           <div className="text-center mt-6 mb-0 px-6">
-            <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+            <p className="text-gray-700 text-md sm:text-base leading-relaxed">
               Here, you can create your very own <span className="font-semibold text-blue-600">custom trip</span> — simply click the <span className="font-semibold">“Create Own”</span> button at the top left to start planning your adventure!
             </p>
           </div>
