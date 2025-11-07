@@ -456,7 +456,7 @@ export default function Index({
                     >
                         {packageTypeOptions.map((option) => (
                         <option key={option.value} value={option.value}>
-                            {option.label}
+                            {option.label.toLowerCase() == 'normal' ? 'Local' : 'Event'}
                         </option>
                         ))}
                     </select>
