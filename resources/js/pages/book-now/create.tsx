@@ -90,7 +90,7 @@ export default function Create({
         preferred_preparation_id?: number | null | undefined;
         valid_id: File[] | null;
         airport_transfer_type?: string | null | undefined;
-        preferred_day?: number | null | undefined;
+        preferred_days?: number | null | undefined;
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -115,7 +115,7 @@ export default function Create({
         preferred_preparation_id: null,
         valid_id: [],
         airport_transfer_type: null,
-        preferred_day: null,
+        preferred_days: null,
     });
 
     const [imagePreview, setImagePreview] = useState<string[]>([]);
@@ -502,7 +502,7 @@ export default function Create({
 
                 {packages.package_type == 'normal' && (
                     <div className="grid gap-4">
-                        <Label htmlFor="preferred_preparation_id" required>Selected Preferred Preparation</Label>
+                        <Label htmlFor="preferred_preparation_id" required>Select Preferred Preparation</Label>
                         <select
                             id="preferred_preparation_id"
                             className="border p-2 rounded cursor-pointer"
@@ -515,6 +515,7 @@ export default function Create({
                                 setImagePreview([]);
                                 setData('valid_id', null);
                             }}
+                            required
                         >
                             <option value="">Select Preparation</option>
                             {preferredPreparations?.map((p) => (
@@ -556,7 +557,7 @@ export default function Create({
                             />
                         )}
 
-                        {data.preferred_preparation_id != 0 && (
+                        {data.preferred_preparation_id != null && (
                             <div className="mt-4">
                                 <NoteMessage
                                     type="note"
@@ -755,6 +756,7 @@ export default function Create({
                             value={data.airport_transfer_type ?? ''}
                             onChange={(e) => setData('airport_transfer_type', e.target.value)}
                             className="border p-2 rounded cursor-pointer"
+                            required
                         >
                             <option value="">Select transfer type...</option>
                             {airportTransferTypes.map((opt) => (
@@ -789,9 +791,10 @@ export default function Create({
                             <select
                                 id="preferred_days"
                                 name="preferred_days"
-                                value={data.preferred_day ?? ''}
-                                onChange={(e) => setData('preferred_day', Number(e.target.value))}
+                                value={data.preferred_days ?? ''}
+                                onChange={(e) => setData('preferred_days', Number(e.target.value))}
                                 className="w-full border rounded px-3 py-2"
+                                required
                             >
                                 <option value="">[ Select day/s ]</option>
                                 {Array.from({ length: packages.preferred_days }, (_, i) => i + 1).map((day) => (

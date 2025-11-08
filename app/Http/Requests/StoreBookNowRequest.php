@@ -86,7 +86,7 @@ class StoreBookNowRequest extends FormRequest
                 'in:going_airport,going_home,back_to_back',
                 'required_with:preferred_van_id',
             ],
-            'preferred_day' => [
+            'preferred_days' => [
                 $this->preferred_days != null ? 'required' : 'nullable',
                 'integer',
             ],
