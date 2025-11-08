@@ -36,7 +36,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     };
 
     return (
-    <AuthLayout className="bg-[url('/images/bg/gradient_bg_1.jpg')]" title="Log in to your account" description="Enter your email and password below to log in" hasBackButton>
+    <AuthLayout className="bg-[url('/images/bg/gradient_bg_1.jpg')] bg-cover" title="Log in to your account" description="Enter your email and password below to log in" hasBackButton>
             <Head title="Log in" />
 
             <form className="flex flex-col gap-6" onSubmit={submit}>

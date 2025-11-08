@@ -82,7 +82,7 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout className="bg-[url('/images/bg/gradient_bg_1.jpg')]" title="Create an account" description="Enter your details below to create your account" hasBackButton>
+        <AuthLayout className="bg-[url('/images/bg/gradient_bg_1.jpg')] bg-cover" title="Create an account" description="Enter your details below to create your account" hasBackButton>
             <Head title="Register" />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
