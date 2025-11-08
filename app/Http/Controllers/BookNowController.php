@@ -189,6 +189,10 @@ class BookNowController extends Controller
             }
         }
 
+        if ($package->package_type == 'event') {
+            $validated['is_final_total'] = true;
+        }
+
         // Create the booking
         $userId = Auth::id();
         $booking = Booking::create([
