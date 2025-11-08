@@ -92,14 +92,14 @@ export default function ShowPage({
         </div>
 
         <div className="mt-16">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Reviews</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4 dark:text-gray-200">Reviews</h2>
           {packages.reviews && packages.reviews.length > 0 ? (
             <p className="text-gray-600 mb-4">
               Average Rating: {roundedAverageRating} / 5 ({packages.reviews.length} review
               {packages.reviews.length > 1 ? "s" : ""})
             </p>
           ) : (
-            <p className="text-gray-500 mb-4">No reviews yet.</p>
+            <p className="text-gray-500 mb-4 dark:text-gray-400">No reviews yet.</p>
           )}
 
           <PackageReviewList
