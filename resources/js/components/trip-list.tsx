@@ -126,7 +126,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
           <select
             value={tripType}
             onChange={(e) => setTripType(e.target.value as any)}
-            className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
+            className="rounded-md border border-gray-300 dark:bg-accent px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
           >
             <option value="all">All Trips</option>
             <option value="bookings">Local Trips</option>
@@ -137,7 +137,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
+            className="rounded-md border dark:bg-accent border-gray-300 px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="pending">Pending</option>
@@ -160,7 +160,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
           <select
             value={searchBy}
             onChange={(e) => setSearchBy(e.target.value as any)}
-            className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
+            className="rounded-md border dark:bg-accent border-gray-300 px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
           >
             <option value="name">Name</option>
             <option value="destination">Destination</option>
@@ -173,7 +173,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
         <select
           value={sortByDate}
           onChange={(e) => setSortByDate(e.target.value as any)}
-          className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
+          className="rounded-md border dark:bg-accent border-gray-300 px-2 py-2 text-sm focus:border-pink-500 focus:outline-none"
         >
           <option value="newest">Sort by Newest</option>
           <option value="oldest">Sort by Oldest</option>
