@@ -63,7 +63,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         today.setHours(0, 0, 0, 0);
         departureDate.setHours(0, 0, 0, 0);
 
-        if (departureDate < today) {
+        if (departureDate < today && booking.departure_date) {
             if(data.status !== 'past_due') {
                 const formData = new FormData();
                 formData.append('preferred_van_id', String(booking.preferred_van?.id ?? ''));
