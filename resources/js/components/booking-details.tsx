@@ -1067,7 +1067,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 </div>
             </div>
 
-            {hasChanges && (
+            {hasChanges && isEditing && (
                 <div className="flex justify-end gap-2 p-4">
                     <Button
                         type="submit"
