@@ -291,8 +291,12 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         const formData = new FormData();
 
         formData.append('preferred_van_id', String(data.preferred_van_id ?? ''));
-        formData.append('departure_date', data.departure_date);
-        formData.append('return_date', data.return_date);
+        if (data.departure_date != null) {
+            formData.append('departure_date', data.departure_date);
+        }
+        if (data.return_date != null) {
+            formData.append('return_date', data.return_date);
+        }
         formData.append('status', data.status);
         formData.append('notes', data.notes);
         formData.append('pickup_address', data.pickup_address);

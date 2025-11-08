@@ -339,6 +339,10 @@ export default function Create({
             }
         }
 
+        if (data.preferred_days != null && data.preferred_days > 0) {
+            total += data.preferred_days * people * 250;
+        }
+
         setTotalAmount(total);
     }, [
         data.package_category_id,
@@ -350,6 +354,7 @@ export default function Create({
         otherServices,
         data.pax_adult,
         data.pax_kids,
+        data.preferred_days,
     ]);
 
     useEffect(() => {

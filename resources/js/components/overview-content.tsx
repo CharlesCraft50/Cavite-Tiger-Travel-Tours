@@ -109,7 +109,7 @@ export default function OverviewContent({
                         <Textarea
                             name="overview"
                             className={clsx(
-                                "absolute inset-0 w-full max-w-xl sm:max-w-lg md:max-w-xl lg:max-w-2xl resize-none text-sm p-2 overflow-hidden",
+                                "absolute inset-0 w-full max-w-xl sm:max-w-lg md:max-w-xl lg:max-w-2xl resize-none text-sm p-2 overflow-hidden dark:bg-accent",
                                 data?.overview
                                     ? "bg-white"
                                     : "border bg-gray-100 focus:bg-blue-100 hover:shadow dark:bg-gray-900 text-black dark:text-white",

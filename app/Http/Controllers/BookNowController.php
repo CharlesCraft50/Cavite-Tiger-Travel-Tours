@@ -176,6 +176,10 @@ class BookNowController extends Controller
             }
         }
 
+        if (! empty($validated['preferred_days']) && $validated['preferred_days'] > 0) {
+            $totalAmount += $people * 250 * (int) $validated['preferred_days'];
+        }
+
         // Only check preparation if provided
         $preferredPreparation = null;
         if (! empty($validated['preferred_preparation_id'])) {

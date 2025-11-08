@@ -454,7 +454,7 @@ export default function Index({
                     <Label htmlFor="package_type" required>Package Type</Label>
                     <select
                         id="package_type"
-                        className="border p-2 rounded cursor-not-allowed bg-gray-100 text-gray-500 appearance-none"
+                        className="border p-2 rounded cursor-not-allowed bg-gray-100 text-gray-500 appearance-none dark:bg-accent"
                         value={data.package_type}
                         onChange={(e) => setData('package_type', e.target.value)}
                         disabled={true}
@@ -474,7 +474,7 @@ export default function Index({
                         <Label htmlFor="event_type" required>Event Type</Label>
                         <select
                         id="event_type"
-                        className="border p-2 rounded cursor-pointer"
+                        className="border p-2 rounded cursor-pointer dark:bg-accent"
                         value={data.event_type ?? ''}
                         onChange={(e) => setData('event_type', e.target.value)}
                         >
@@ -643,7 +643,7 @@ export default function Index({
                             name="preferred_days"
                             value={data.preferred_days ?? ''}
                             onChange={(e) => setData('preferred_days', e.target.value)}
-                            className="w-full border rounded px-3 py-2"
+                            className="w-full border rounded px-3 py-2 dark:bg-accent"
                         >
                             <option value="">[ Select day/s ]</option>
                             {Array.from({ length: 4 }, (_, i) => i + 1).map((day) => (
@@ -657,7 +657,7 @@ export default function Index({
 
                 <div className="grid gap-2">
                     <div className="gray-card">
-                        <label>
+                        <label className="dark:bg-accent">
                             <input
                                 type="checkbox"
                                 className="w-4 h-4 cursor-pointer"
@@ -669,7 +669,7 @@ export default function Index({
                                 checked={activeExpiry}
                             />
                             <div>
-                                <span className="text-sm font-medium text-gray-700">
+                                <span className="text-sm font-medium text-gray-700 dark:text-white">
                                     Add Expiry Date
                                 </span>
                                 <p className="text-xs text-gray-500">
