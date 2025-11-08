@@ -118,13 +118,14 @@ export default function Show({ user, bookings, totalSpent, userBookings, userCus
         </div>
 
         <div className="flex gap-2">
-          <Link
-            href="/users"
+          <button
+            onClick={() => window.history.back()}
             className="btn-primary inline-flex items-center gap-2 text-xs px-4 py-2"
           >
             <ArrowLeft size={16} />
-            Back to List
-          </Link>
+            Back To List
+          </button>
+
           {user.first_name.toLowerCase() !== 'admin' && (
             <Button
               variant="destructive"

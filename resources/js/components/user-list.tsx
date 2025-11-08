@@ -94,7 +94,7 @@ export default function UserList({ users }: UserListProps) {
         <select
           value={sortBy}
           onChange={(e) => handleSortChange(e.target.value)}
-          className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="rounded-md border dark:bg-accent border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
         >
           <option value="newest">Sort by Newest</option>
           <option value="oldest">Sort by Oldest</option>
