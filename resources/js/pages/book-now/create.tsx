@@ -759,7 +759,7 @@ export default function Create({
                             id="airport_transfer_type"
                             value={data.airport_transfer_type ?? ''}
                             onChange={(e) => setData('airport_transfer_type', e.target.value)}
-                            className="border p-2 rounded cursor-pointer"
+                            className="border p-2 rounded cursor-pointer dark:bg-accent"
                             required
                         >
                             <option value="">Select transfer type...</option>
@@ -797,7 +797,7 @@ export default function Create({
                                 name="preferred_days"
                                 value={data.preferred_days ?? ''}
                                 onChange={(e) => setData('preferred_days', Number(e.target.value))}
-                                className="w-full border rounded px-3 py-2"
+                                className="w-full border rounded px-3 py-2 dark:bg-accent"
                                 required
                             >
                                 <option value="">[ Select day/s ]</option>
