@@ -181,7 +181,7 @@ export default function CustomTripDetails({
       onSubmit={handleSubmit}
       className={clsx("flex flex-col gap-6 p-4", trip.status == 'past_due' && "bg-red-200 dark:bg-red-900 rounded-2xl", trip.status == 'completed' && "bg-green-200 dark:bg-green-900 rounded-2xl")}
     >
-      <div className="border border-gray-200 rounded-xl p-6 bg-white dark:bg-accent shadow-sm">
+      <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white dark:bg-accent shadow-sm">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="flex flex-row gap-4 items-center">
