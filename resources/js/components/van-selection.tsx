@@ -446,7 +446,7 @@ export default function VanSelection({
                             onSelect?.(van.id);
                         }
                     }}
-                    className={clsx("card", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default", isEditing && "cursor-grab")}
+                    className={clsx("card dark:bg-accent", isSelected && "selected", van.action == "delete" && "toDelete", !selectable && "cursor-default", isEditing && "cursor-grab")}
                 >
                     {isEditing ? (
                         <div className="flex items-center justify-center -mx-4">
@@ -557,7 +557,7 @@ export default function VanSelection({
                                 </p> */}
                             </div>
                         ) : (
-                            <p className="text-sm text-gray-600">Pax: {van.pax_adult}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Pax: {van.pax_adult}</p>
                         )}
 
                         <p className="text-sm font-medium text-green-700">
@@ -964,7 +964,7 @@ export default function VanSelection({
                 <Button
                     type="button"
                     onClick={() => setVisibleCount((prev) => prev + 6)}
-                    className="btn-primary w-full shadow bg-gray-100 text-sm text-black hover:bg-gray-200 rounded cursor-pointer"
+                    className="btn-primary w-full shadow bg-gray-100 dark:bg-accent dark:text-white text-sm text-black hover:bg-gray-200 rounded cursor-pointer"
                 >Show More</Button>
             )}
 
@@ -972,7 +972,7 @@ export default function VanSelection({
                 <div className="confirm-modal">
                     <div className="confirm-card">
                         <Dialog open={true} onOpenChange={(open) => !open && setVanToDelete(null)}>
-                            <DialogContent className="p-8 shadow-none bg-white">
+                            <DialogContent className="bg-white dark:bg-accent p-8 shadow-none">
                                 <DialogTitle className="text-base font-semibold text-center mb-2">
                                     Are you sure you want to delete "{vanToDelete.name}"?
                                 </DialogTitle>
@@ -1012,7 +1012,7 @@ export default function VanSelection({
                 <div className="confirm-modal">
                     <div className="confirm-card">
                         <Dialog open={true} onOpenChange={(open) => !open && setCategoryToDelete(null)}>
-                            <DialogContent className="p-8 shadow-none bg-white">
+                            <DialogContent className="bg-white dark:bg-accent p-8 shadow-none">
                                 <DialogTitle className="text-base font-semibold text-center mb-2">
                                     Are you sure you want to this "{categoryToDelete.name}"?
                                 </DialogTitle>

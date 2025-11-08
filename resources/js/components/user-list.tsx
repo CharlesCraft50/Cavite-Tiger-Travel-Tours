@@ -77,8 +77,8 @@ export default function UserList({ users }: UserListProps) {
         </select>
       </div>
 
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-400">
+        <thead className="bg-gray-50 dark:bg-accent">
           <tr>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Name</th>
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Email</th>
@@ -89,7 +89,7 @@ export default function UserList({ users }: UserListProps) {
             <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-400 bg-white dark:bg-accent">
           {paginatedUsers.length > 0 ? (
             paginatedUsers.map((user) => (
               <tr key={user.id}>
@@ -179,7 +179,7 @@ export default function UserList({ users }: UserListProps) {
       )}
 
       <Dialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
-        <DialogContent className="p-4 max-w-md bg-white rounded shadow-xl">
+        <DialogContent className="p-4 max-w-md bg-white dark:bg-accent rounded shadow-xl">
           <DialogTitle className="text-lg font-semibold text-center mb-2">
             Delete User "{userToDelete?.first_name}"?
           </DialogTitle>

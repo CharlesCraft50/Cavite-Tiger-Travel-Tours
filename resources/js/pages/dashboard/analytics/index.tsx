@@ -184,17 +184,17 @@ export default function Analytics({
               <div
                 key={i}
                 className={`flex items-center gap-4 p-4 rounded-xl border shadow transition
-                ${isSelected ? 'bg-gray-100 border-gray-300' : 'bg-white border-gray-200'}
+                ${isSelected ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-800' : 'bg-white dark:bg-accent border-gray-200 dark:border-gray-600'}
                 cursor-pointer hover:bg-gray-50`}
                 onClick={() => {
                   setSelectedLabel(stat.label);
                   stat.onClick();
                 }}
               >
-                <div className="bg-gray-100 p-2 rounded-full">{stat.icon}</div>
+                <div className="bg-gray-100 dark:bg-gray-600 p-2 rounded-full">{stat.icon}</div>
                 <div>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-sm text-gray-500 dark:text-gray-200">{stat.label}</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">
                     {stat.value}
                   </p>
                 </div>
@@ -204,7 +204,7 @@ export default function Analytics({
         </div>
 
         {/* Chart */}
-        <div className="bg-white p-6 shadow rounded-xl border">
+        <div className="bg-white dark:bg-accent p-6 shadow rounded-xl border">
           <h2 className="text-lg font-semibold mb-4">
             {activeStatus === 'users'
               ? 'Total Users'
@@ -216,7 +216,7 @@ export default function Analytics({
           </h2>
 
           {chartData.length === 0 ? (
-            <p className="text-gray-500">No data available.</p>
+            <p className="text-gray-500 dark:text-white">No data available.</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData}>

@@ -179,24 +179,20 @@ export default function CustomTripDetails({
   return (
     <form
       onSubmit={handleSubmit}
-      className={clsx(
-        'flex flex-col gap-6 p-4',
-        trip.status === 'past_due' && 'bg-red-200',
-        trip.status === 'completed' && 'bg-green-200'
-      )}
+      className={clsx("flex flex-col gap-6 p-4", trip.status == 'past_due' && "bg-red-200 dark:bg-red-900 rounded-2xl", trip.status == 'completed' && "bg-green-200 dark:bg-green-900 rounded-2xl")}
     >
-      <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
+      <div className="border border-gray-200 rounded-xl p-6 bg-white dark:bg-accent shadow-sm">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="flex flex-row gap-4 items-center">
             <div>
-              <p className="text-sm text-gray-500">Trip Number</p>
-              <h3 className="text-2xl font-semibold text-gray-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Trip Number</p>
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
                 {trip.booking_number ?? '-'}
               </h3>
             </div>
             <div>
-              {!editable && <div className="card text-sm p-3">Custom Trip</div>}
+              {!editable && <div className="card text-sm p-3 dark:bg-accent">Custom Trip</div>}
             </div>
             <div>
                 {trip.status == 'completed' && <div className="card text-sm p-3 bg-green-100 border-green-400">{trip.is_completed ? 'Confirmed Completed' : 'Completed'}</div>}
@@ -236,28 +232,28 @@ export default function CustomTripDetails({
         {/* Customer Details */}
         <div className="mt-8">
           <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-50 p-4">
-              <p className="text-sm text-gray-600">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-white">
                 Guest Details ({trip.pax_adult} Pax)
               </p>
             </div>
 
-            <div className="bg-white p-4 space-y-2">
+            <div className="bg-white dark:bg-accent p-4 space-y-2">
               <div>
-                <p className="text-sm text-gray-600">Full Name</p>
-                <p className="text-base text-gray-900 font-medium">
-                  {trip.first_name} {trip.last_name}
-                </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Full Name</p>
+                  <p className="text-base text-gray-900 font-medium dark:text-white">
+                      {trip.first_name} {trip.last_name}
+                  </p>
               </div>
 
-              <div className="flex items-center gap-2 text-gray-700 text-sm">
-                <Phone className="w-4 h-4" />
-                <span>{trip.contact_number}</span>
+              <div className="flex items-center gap-2 text-gray-700 dark:text-white text-sm">
+                  <Phone className="w-4 h-4" />
+                  <span>{trip.contact_number}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-gray-700 text-sm">
-                <Mail className="w-4 h-4" />
-                <span>{trip.email}</span>
+              <div className="flex items-center gap-2 text-gray-700 dark:text-white text-sm">
+                  <Mail className="w-4 h-4" />
+                  <span>{trip.email}</span>
               </div>
             </div>
           </div>
@@ -266,17 +262,17 @@ export default function CustomTripDetails({
         {/* Custom Trip Summary */}
         <div className="mt-8">
           <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-50 p-4">
-              <p className="text-sm text-gray-600">Custom Trip Summary</p>
+            <div className="bg-gray-50 p-4 dark:bg-gray-700">
+              <p className="text-sm text-gray-600 dark:text-white">Custom Trip Summary</p>
             </div>
 
-            <div className="bg-white p-4 space-y-4">
+            <div className="bg-white dark:bg-accent p-4 space-y-4">
               <div>
-                <p className="text-sm text-gray-600">Trip Type</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Trip Type</p>
                 {editable && isEditing ? (
                   <select
                     id="trip_type"
-                    className="border p-2 rounded cursor-pointer"
+                    className="border p-2 rounded cursor-pointer dark:bg-accent"
                     value={data.trip_type ?? tripOptions[0].value}
                     onChange={(e) => setData({ ...data, trip_type: e.target.value })}
                   >
@@ -291,11 +287,11 @@ export default function CustomTripDetails({
                   <p className="text-base font-medium">{trip.trip_type === 'single_trip' ? 'Single Trip' : 'Round Trip'}</p>
                 )}
 
-                <p className="text-sm text-gray-600 mt-2">Costing Type</p>
+                <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Costing Type</p>
                 {editable && isEditing ? (
                   <select
                     id="costing_type"
-                    className="border p-2 rounded cursor-pointer"
+                    className="border p-2 rounded cursor-pointer dark:bg-accent"
                     value={data.costing_type ?? costingOptions[0].value}
                     onChange={(e) => setData({ ...data, costing_type: e.target.value })}
                   >
@@ -340,10 +336,10 @@ export default function CustomTripDetails({
               </div>
             </div>
 
-            <div className="bg-white p-4 space-y-4">
+            <div className="bg-white dark:bg-accent p-4 space-y-4">
               {/* Date of Trip */}
               <div>
-                <p className="text-sm text-gray-600">Date of Trip</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Date of Trip</p>
                 {editable && isEditing ? (
                   <div className="flex flex-row items-center p-2">
                     <DatePicker
@@ -390,7 +386,7 @@ export default function CustomTripDetails({
 
               {/* Pickup & Dropoff Times */}
               <div>
-                <p className="text-sm text-gray-600">Pickup Time</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Pickup Time</p>
                 {editable && isEditing ? (
                   <Input
                     type="time"
@@ -417,7 +413,7 @@ export default function CustomTripDetails({
 
               {/* Pickup Address & Destination */}
               <div>
-                <p className="text-sm text-gray-600">Pickup Address</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Pickup Address</p>
                 {editable && isEditing ? (
                   <Input
                     className="w-full p-2 border-1 border-gray-200 rounded-lg"
@@ -431,7 +427,7 @@ export default function CustomTripDetails({
                   <p className="text-base font-medium">{trip.pickup_address}</p>
                 )}
 
-                <p className="text-sm text-gray-600 mt-2">Destination</p>
+                <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Destination</p>
                 {editable && isEditing ? (
                   <Input
                     className="w-full p-2 border-1 border-gray-200 rounded-lg"
@@ -450,7 +446,7 @@ export default function CustomTripDetails({
 
               {/* Preferred Van */}
               <div>
-                <p className="text-sm text-gray-600">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({trip.pax_adult} Pax)</span>)}</p> 
+                <p className="text-sm text-gray-600 dark:text-gray-400">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({trip.pax_adult} Pax)</span>)}</p> 
                 {editable && isEditing ? (
                   <>
                     <VanSelection
@@ -517,7 +513,7 @@ export default function CustomTripDetails({
                         )}
                       </>
                     ): (
-                      <div className="mt-2 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-md text-sm">
+                      <div className="mt-4 bg-blue-50 dark:bg-gray-800 dark:text-white dark:border-gray-900 border border-blue-200 text-blue-800 px-4 py-2 rounded-md text-sm">
                         Please wait for admin approval.
                       </div>
                     )}
@@ -529,7 +525,7 @@ export default function CustomTripDetails({
 
               {/* Notes */}
               <div>
-                <p className="text-sm text-gray-600">Notes</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Notes</p>
                 {editable && isEditing ? (
                   <Textarea
                     className="w-full p-2 border-1 border-gray-200 rounded-lg"
@@ -546,14 +542,14 @@ export default function CustomTripDetails({
               <hr />
 
               {/* Status & Total Amount */}
-              <div className="flex justify-between items-center bg-gray-50 px-4 py-3 rounded-md">
+              <div className="flex justify-between items-center bg-gray-50 dark:bg-accent px-4 py-3 rounded-md">
                 <div>
-                  <p className="text-sm text-gray-600">Status</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
                   {editable && isEditing ? (
                     <select
                       value={trip.status}
                       onChange={(e) => setData({ ...data, status: e.target.value })}
-                      className="text-base font-medium text-primary"
+                      className="text-base font-medium text-primary dark:bg-accent"
                     >
                       <option value="pending">Pending</option>
                       <option value="on_process">On Process</option>
@@ -570,7 +566,7 @@ export default function CustomTripDetails({
                   )}
                 </div>
                 <div className="text-right">
-                    <p className="text-sm text-gray-600">Total Amount</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Amount</p>
                     {editable && isEditing ? (
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
@@ -711,7 +707,7 @@ export default function CustomTripDetails({
                             <select
                                 value={data.payment_status || ''}
                                 onChange={e => setData({ ...data, payment_status: e.target.value })}
-                                className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                                className="w-full p-2 border border-gray-300 rounded-md mt-1 dark:bg-accent"
                             >
                             <option value="pending">Pending</option>
                             <option value="on_process">On Process</option>

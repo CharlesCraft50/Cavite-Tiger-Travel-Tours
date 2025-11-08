@@ -170,7 +170,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
           <PartyPopper className="fill-black" />Events
         </Link>
       </div>
-      <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">
+      <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-accent shadow-sm max-w-7xl mx-auto">
         {selectedPackage ? (
           <div ref={showRef} className="flex flex-col gap-4">
             <div className="flex items-center justify-between border-b pb-3 mb-4">
@@ -232,7 +232,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
 
               <Listbox value={sortOption} onChange={setSortOption}>
                 <div className="relative w-40">
-                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
+                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white dark:bg-accent py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
                     <span className="block truncate">
                       {sortOption === 'newest' ? 'Newest to Oldest' : 'Oldest to Newest'}
                     </span>
@@ -240,18 +240,17 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
                       <ChevronDownIcon className="h-5 w-5 text-gray-400" />
                     </span>
                   </Listbox.Button>
-
                   <Transition
                     as={Fragment}
                     leave="transition ease-in duration-100"
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                   >
-                    <Listbox.Options className="absolute z-50 mt-1 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg max-h-60 focus:outline-none sm:text-sm">
+                    <Listbox.Options className="dark:bg-accent absolute z-50 mt-1 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg max-h-60 focus:outline-none sm:text-sm">
                       <Listbox.Option
                         className={({ active }) =>
-                          `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
-                            active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                          `relative cursor-pointer select-none dark:bg-accent py-2 pl-4 pr-4 ${
+                            active ? 'bg-blue-100 text-blue-900 dark:text-gray-200' : 'text-gray-900 dark:text-white'
                           }`
                         }
                         value="newest"
@@ -260,8 +259,8 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
                       </Listbox.Option>
                       <Listbox.Option
                         className={({ active }) =>
-                          `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
-                            active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                          `relative cursor-pointer select-none dark:bg-accent py-2 pl-4 pr-4 ${
+                            active ? 'bg-blue-100 text-blue-900 dark:text-gray-200' : 'text-gray-900 dark:text-white'
                           }`
                         }
                         value="oldest"
@@ -307,7 +306,7 @@ export default function LocalTrip({ packages: initialPackages, cities, selectedC
 
                           {/* Display average rating */}
                           {pkg.reviews && pkg.reviews.length > 0 && (
-                            <div className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 rounded-md flex items-center text-sm font-medium shadow">
+                            <div className="absolute bottom-2 left-2 bg-white/90 dark:bg-neutral-800 px-2 py-1 rounded-md flex items-center text-sm font-medium shadow">
                               <span className="text-yellow-400 mr-1">★</span>
                               <span>{roundedAvg} / 5</span>
                               <span className="ml-2 text-gray-500">({pkg.reviews.length})</span>

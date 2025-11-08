@@ -66,8 +66,6 @@ export default function ShowPage({
       >
         <Head title={packages.title} />
 
-        
-
         <div className="space-y-4">
           <div
             className="tiptap ProseMirror"

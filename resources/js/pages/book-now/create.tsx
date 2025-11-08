@@ -479,7 +479,7 @@ export default function Create({
 
                 <div className="grid gap-4">
                     <Label htmlFor="package_title">Selected Package</Label>
-                    <p id="package_title" className="p-2 border rounded bg-gray-100">
+                    <p id="package_title" className="p-2 border rounded bg-gray-100 dark:bg-accent">
                         {packages.title}
                     </p>
                 </div>
@@ -505,7 +505,7 @@ export default function Create({
                         <Label htmlFor="preferred_preparation_id" required>Select Preferred Preparation</Label>
                         <select
                             id="preferred_preparation_id"
-                            className="border p-2 rounded cursor-pointer"
+                            className="border p-2 rounded cursor-pointer dark:bg-accent"
                             onChange={(e) => {
                                 const selectedId = Number(e.target.value);
                                 const selectedPrep = preferredPreparations.find(p => p.id === selectedId);
@@ -645,6 +645,10 @@ export default function Create({
                             }}
                             countryCodeEditable={false}
                             enableSearch={true}
+                            containerClass="w-full"
+                            inputClass="!w-full !px-12 !bg-white dark:!bg-neutral-900 dark:!text-white dark:!border-neutral-700 !border !rounded-lg !px-3 !py-2 !text-sm"
+                            buttonClass="!bg-white dark:!bg-neutral-900 dark:!border-neutral-700"
+                            dropdownClass="dark:!bg-neutral-900 dark:!text-white"
                         />
                         <InputError message={contactNumberError} className="mt-2" />
                     </div>

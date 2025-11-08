@@ -5,6 +5,7 @@ import { Check, PencilIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLoading } from '@/components/ui/loading-provider';
 import { router } from '@inertiajs/react';
+import clsx from 'clsx';
 
 interface PackagHeaderLayoutProps {
   id?: number;
@@ -78,7 +79,7 @@ export default function PackagHeaderLayout({
   }
 
   return (
-    <div className="bg-white max-w-7xl mx-auto px-4 py-8">
+    <div className="bg-white dark:bg-transparent max-w-7xl mx-auto px-4 py-8">
       
       {!isEditing && (
         <PackageHeader

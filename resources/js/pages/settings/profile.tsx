@@ -206,13 +206,15 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                     setData('contact_number', fullValue);
                                     setContactNumberError('');
                                 }}
-                                isValid={(value, country) => {
-                                    const digits = value.replace(/\D/g, '');
-                                    return digits.length >= 10;
-                                }}
+                                isValid={(value) => value.replace(/\D/g, '').length >= 10}
                                 countryCodeEditable={false}
-                                enableSearch={true}
+                                enableSearch
+                                containerClass="w-full"
+                                inputClass="!w-full !px-12 !bg-white dark:!bg-neutral-900 dark:!text-white dark:!border-neutral-700 !border !rounded-lg !px-3 !py-2 !text-sm"
+                                buttonClass="!bg-white dark:!bg-neutral-900 dark:!border-neutral-700"
+                                dropdownClass="dark:!bg-neutral-900 dark:!text-white"
                             />
+
                             <InputError message={contactNumberError} />
                         </div>
 

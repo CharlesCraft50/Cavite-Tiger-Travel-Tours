@@ -49,7 +49,7 @@ export default function NotificationBell() {
 
       <div
         className={clsx(
-          "border border-gray-300 bg-gray-50 rounded-lg overflow-hidden z-10",
+          "border border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-accent rounded-lg overflow-hidden z-10",
           "md:absolute md:top-10 md:right-0 md:w-[250px]",
           "w-full mt-2",
           isOpen ? "" : "hidden"
@@ -69,7 +69,7 @@ export default function NotificationBell() {
               <Link href={data.custom_trip_id != null ? `/custom-trips/${data.custom_trip_id}` : `/bookings/${data.booking_id}`} key={idx}>
                 <div
                   className={clsx(
-                    "flex items-start gap-2 w-full px-4 py-2 transition duration-300 hover:bg-gray-200",
+                    "flex items-start gap-2 w-full px-4 py-2 transition duration-300 hover:bg-gray-200 dark:hover:bg-gray-800",
                     !isLast && "border-b border-gray-200"
                   )}
                 >
@@ -88,7 +88,7 @@ export default function NotificationBell() {
 
                   <div className="flex-1">
                     <p className="text-sm">{data.message}</p>
-                    <small className="text-gray-600">
+                    <small className="text-gray-600 dark:text-gray-400">
                       {new Date(n.created_at).toLocaleString()}
                     </small>
                   </div>

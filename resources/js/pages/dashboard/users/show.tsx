@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Booking, User } from '@/types';
+import { Booking, CustomTrip, User } from '@/types';
 import { ArrowLeft, Check, Pencil, ShieldCheck, User2, X, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import {
@@ -25,14 +25,17 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import TripList from '@/components/trip-list';
 
 interface Props {
   user: User;
   bookings: Booking[];
   totalSpent: number;
+  userBookings: Booking[];
+  userCustomTrips: CustomTrip[],
 }
 
-export default function Show({ user, bookings, totalSpent }: Props) {
+export default function Show({ user, bookings, totalSpent, userBookings, userCustomTrips }: Props) {
   const chartData = Object.values(
     bookings.reduce((acc, booking) => {
       const month = new Date(booking.created_at).toLocaleString('default', {
@@ -83,6 +86,27 @@ export default function Show({ user, bookings, totalSpent }: Props) {
     });
   };
 
+  const allTrips = [
+    ...userBookings.map(b => ({
+        type: 'booking' as const,
+        id: b.id,
+        date: new Date(b.departure_date),
+        status: b.status,
+        total_amount: b.total_amount ?? 0,
+        paymentStatus: b.payment?.status ?? '',
+        is_completed: b.is_completed,
+    })),
+    ...userCustomTrips.map(t => ({
+        type: 'custom' as const,
+        id: t.id,
+        date: new Date(t.date_of_trip),
+        status: t.status,
+        total_amount: t.total_amount ?? 0,
+        paymentStatus: t.payment?.status ?? '',
+        is_completed: t.is_completed,
+    })),
+];
+
   return (
     <DashboardLayout title="Users" href="/users">
       <Head title={`User: ${user.first_name}`} />
@@ -114,9 +138,9 @@ export default function Show({ user, bookings, totalSpent }: Props) {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white p-6 shadow-sm mb-6">
+      <div className="rounded-lg border bg-white dark:bg-accent p-6 shadow-sm mb-6">
         <div className="mb-4 flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-400">
             {user.profile_photo ? (
                 <img
                     src={user.profile_photo}
@@ -124,20 +148,20 @@ export default function Show({ user, bookings, totalSpent }: Props) {
                     className="w-full h-full object-cover rounded-full"
                 />
             ) : (
-                <div className="flex items-center justify-center w-full h-full bg-white text-gray-600 rounded-full">
+                <div className="flex items-center justify-center w-full h-full bg-white text-gray-600 dark:bg-gray-400 rounded-full">
                     <User2 className="h-6 w-6 text-gray-500" />
                 </div>
             )}
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-800">{user.first_name}</h2>
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{user.first_name}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-200">{user.email}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-gray-700">
           <div>
-            <p className="text-gray-500 mb-1">Role</p>
+            <p className="text-gray-500 mb-1 dark:text-gray-200">Role</p>
             <div className="flex flex-row items-center space-x-2">
               {isEditing ? (
                 <>
@@ -196,8 +220,8 @@ export default function Show({ user, bookings, totalSpent }: Props) {
           </div>
 
           <div>
-            <p className="text-gray-500 mb-1">Joined</p>
-            <p>
+            <p className="text-gray-500 mb-1 dark:text-gray-200">Joined</p>
+            <p className="dark:text-gray-400">
               {new Date(user.created_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -209,18 +233,18 @@ export default function Show({ user, bookings, totalSpent }: Props) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">Total Bookings</p>
-          <p className="text-2xl font-bold text-gray-900">{bookings.length}</p>
+        <div className="rounded-lg border bg-white dark:bg-accent p-6 shadow-sm">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Bookings</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{bookings.length}</p>
         </div>
 
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">Total Spent</p>
-          <p className="text-2xl font-bold text-gray-900">₱ {totalSpent.toLocaleString()}</p>
+        <div className="rounded-lg border bg-white dark:bg-accent p-6 shadow-sm">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">₱ {totalSpent.toLocaleString()}</p>
         </div>
       </div>
 
-      <div className="bg-white p-6 shadow rounded-xl border mb-6">
+      <div className="rounded-lg border bg-white dark:bg-accent p-6 shadow-sm mb-6">
         <h2 className="text-lg font-semibold mb-4">Bookings Over Time</h2>
 
         {chartData.length === 0 ? (
@@ -238,9 +262,9 @@ export default function Show({ user, bookings, totalSpent }: Props) {
         )}
       </div>
 
-      <div className="bg-white p-6 shadow rounded-xl border mb-6">
+      <div className="bg-white dark:bg-accent p-6 shadow rounded-xl border mb-6">
         <h2 className="text-lg font-semibold mb-4">All Bookings</h2>
-        <BookingList bookings={bookings} searchByUserId={user.id.toString()} />
+        <TripList customTrips={userCustomTrips} bookings={userBookings} limit={3} />
       </div>
 
       <Dialog open={showDeleteDialog} onOpenChange={(open) => !open && setShowDeleteDialog(false)}>

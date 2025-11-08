@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\CustomTrip;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,7 +31,35 @@ class UserController extends Controller
     {
         $user = User::with(['bookings.payment', 'bookings.tourPackage'])->findOrFail($id);
 
-        $bookings = $user->bookings;
+        $bookings = null;
+        $customTrips = null;
+
+        if ($user->isAdmin() || $user->isStaff()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->orderByDesc('created_at')
+                ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
+                ->orderByDesc('created_at')
+                ->get();
+        } elseif ($user->isDriver()) {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
+                ->where('driver_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            $bookings = Booking::with(['tourPackage', 'preferredVan', 'packageCategory', 'payment'])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+            $customTrips = CustomTrip::with(['preferredVan', 'payment'])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+        }
 
         $totalSpent = $bookings
             ->filter(fn ($b) => optional($b->payment)->status === 'accepted')
@@ -39,6 +69,8 @@ class UserController extends Controller
             'user' => $user,
             'bookings' => $bookings,
             'totalSpent' => $totalSpent,
+            'userBookings' => $bookings,
+            'userCustomTrips' => $customTrips,
         ]);
     }
 

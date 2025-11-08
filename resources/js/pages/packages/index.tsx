@@ -8,6 +8,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useLoading } from '@/components/ui/loading-provider';
 import { PlusSquareIcon, Search } from 'lucide-react';
 import { isAdmin } from '@/lib/utils';
+import clsx from 'clsx';
 
 type PackagesIndexProps = {
     packages?: TourPackage[]; 
@@ -109,12 +110,12 @@ export default function Index({ packages, cities, countries, selectedCountry }: 
                             className="border rounded-lg p-2 pl-9 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         {searchResults.length > 0 && (
-                            <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow-lg max-h-64 overflow-auto">
+                            <div className="dark:bg-accent bg-white nabsolute z-50 mt-1 w-full border rounded shadow-lg max-h-64 overflow-auto">
                                 {searchResults.map((pkg: TourPackage) => (
                                     <Link
                                         key={pkg.id}
                                         href={`/packages/${pkg.slug}`}
-                                        className="block px-4 py-2 hover:bg-gray-100"
+                                        className="hover:bg-white dark:hover:text-black dark:hover:bg-gray-100 block px-4 py-2"
                                     >
                                         {pkg.title} — {pkg.city?.name}
                                     </Link>

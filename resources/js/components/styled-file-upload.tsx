@@ -107,7 +107,7 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
     if (error) return 'border-red-400 bg-red-50';
     if (isDragOver) return 'border-blue-500 bg-blue-50';
     if (selectedFiles.length > 0) return 'border-green-400 bg-green-50';
-    return 'border-gray-300 bg-gray-50';
+    return 'border-gray-300 bg-gray-50 dark:bg-accent';
   };
 
   return (
@@ -139,7 +139,7 @@ const StyledFileUpload: React.FC<StyledFileUploadProps> = ({
               <Upload className={`w-12 h-12 ${error ? 'text-red-400' : 'text-gray-400'}`} />
             </div>
             <div>
-              <p className={`text-sm font-medium ${error ? 'text-red-700' : 'text-gray-700'}`}>
+              <p className={`text-sm font-medium ${error ? 'text-red-700' : 'text-gray-700 dark:text-gray-400'}`}>
                 Click to upload or drag and drop
               </p>
               <p className={`text-xs ${error ? 'text-red-600' : 'text-gray-500'}`}>{description}</p>

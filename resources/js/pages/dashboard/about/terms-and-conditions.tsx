@@ -7,7 +7,7 @@ export default function TermsAndConditions({disableNav} : {disableNav?: boolean;
         <DashboardLayout title="Terms and Conditions" href="/terms-and-conditions" disableNav={disableNav}>
             <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex flex-col justify-center overflow-hidden rounded-xl border md:min-h-min p-6">
                <h1 className="text-2xl font-semibold">Terms and Conditions</h1>
-                  <section className="mx-auto px-4 py-8 space-y-6 text-gray-700">
+                  <section className="mx-auto px-4 py-8 space-y-6 text-gray-700 dark:text-white">
                     <h1 className="mb-4 text-1xl font-semibold uppercase">
                       Cavite Tiger Travel and Tours Corporation Terms and Conditions
                     </h1>
@@ -53,7 +53,7 @@ export default function TermsAndConditions({disableNav} : {disableNav?: boolean;
                     </ol>
 
                     <div className="pt-8 text-center">
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                             For inquiries or clarifications, please reach out through our official Facebook page:
                         </p>
                         <a

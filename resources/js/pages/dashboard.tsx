@@ -108,7 +108,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                     </>
                 )}
             </div>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="min-h-screen bg-gray-50 dark:bg-transparent">
                 <div className="container mx-auto px-4 py-8">
                     {/* Header Section */}
                     <div className="mb-8">
@@ -171,7 +171,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border">
+                    <div className="bg-white dark:bg-accent rounded-2xl p-6 shadow-lg border">
                         <div className="text-center">
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                             Upcoming Trips
@@ -182,7 +182,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border">
+                    <div className="bg-white dark:bg-accent rounded-2xl p-6 shadow-lg border">
                         <div className="text-center">
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                             Accepted Trips
@@ -193,7 +193,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border">
+                    <div className="bg-white dark:bg-accent rounded-2xl p-6 shadow-lg border">
                         <div className="text-center">
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                             {/* {!(isAdmins || isDrivers) ? "Total Spent" : "Completed"} */}
@@ -211,7 +211,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
                     {/* Content Sections */}
                     <div className={clsx("grid gap-8", !(isAdmins || isDrivers) && "grid-cols-1 xl:grid-cols-2")}>
                         {/* Upcoming Trips Section */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                        <div className="bg-white dark:bg-accent rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                             {(isAdmins || isDrivers) ? 'Recent Bookings' : 'Upcoming Trips'}
@@ -228,7 +228,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
 
                         <div className="space-y-4">
                             {(isAdmins || isDrivers) ? (
-                            <TripList customTrips={userCustomTrips} bookings={userBookings} limit={3} isDriver={isDrivers} />
+                                <TripList customTrips={userCustomTrips} bookings={userBookings} limit={3} isDriver={isDrivers} />
                             ) : (
                             allTrips.length > 0 ? (
                                 allTrips
@@ -306,7 +306,7 @@ export default function Dashboard({ bookingCount, userBookings, userCustomTrips 
 
                         {/* Recommended Packages Section */}
                         {!(isAdmins || isDrivers) && (
-                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="bg-white dark:bg-accent rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                                         Recommended for You

@@ -222,7 +222,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
         </Link>
       </div>
 
-      <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-gray-900 shadow-sm max-w-7xl mx-auto">
+      <div className="border border-gray-300 dark:border-gray-700 min-h-screen rounded-2xl p-6 bg-white dark:bg-accent shadow-sm max-w-7xl mx-auto">
         <div className="flex flex-row mb-8 justify-between">
           <div className="flex flex-col">
             <h1 className="text-2xl font-semibold">Customized Trip!</h1>
@@ -280,7 +280,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
           </div>
 
           <div className="text-center mt-6 mb-0 px-6">
-            <p className="text-gray-700 text-md sm:text-base leading-relaxed">
+            <p className="text-gray-700 dark:text-white text-md sm:text-base leading-relaxed">
               Here, you can create your very own <span className="font-semibold text-blue-600">custom trip</span> — simply click the <span className="font-semibold">“Create Own”</span> button at the top left to start planning your adventure!
             </p>
           </div>
@@ -368,7 +368,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                 </Label>
                 <select
                   id="trip_type"
-                  className="border p-2 rounded cursor-pointer"
+                  className="border p-2 rounded cursor-pointer dark:bg-accent"
                   value={data.trip_type ?? tripOptions[0].value}
                   onChange={(e) =>{
                     setData('trip_type', e.target.value);
@@ -405,7 +405,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                 </Label>
                 <select
                   id="costing_type"
-                  className="border p-2 rounded cursor-pointer"
+                  className="border p-2 rounded cursor-pointer dark:bg-accent"
                   value={data.costing_type ?? costingOptions[0].value}
                   onChange={(e) => {
                     setData('costing_type', e.target.value);
@@ -464,11 +464,11 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
               <div className="grid grid-cols-2 gap-6">
                 <div className="grid gap-2">
                   <Label>First Name</Label>
-                  <Input value={data.first_name} disabled />
+                  <Input value={data.first_name} className="dark:bg-accent" disabled />
                 </div>
                 <div className="grid gap-2">
                   <Label>Last Name</Label>
-                  <Input value={data.last_name} disabled />
+                  <Input value={data.last_name} className="dark:bg-accent" disabled />
                 </div>
               </div>
 
@@ -476,11 +476,11 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
               <div className="grid grid-cols-2 gap-6">
                 <div className="grid gap-2">
                   <Label>Contact Number</Label>
-                  <Input value={data.contact_number} disabled />
+                  <Input value={data.contact_number} className="dark:bg-accent" disabled />
                 </div>
                 <div className="grid gap-2">
                   <Label>Email</Label>
-                  <Input value={data.email} disabled />
+                  <Input value={data.email} className="dark:bg-accent" disabled />
                 </div>
               </div>
 
@@ -492,7 +492,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                   onChange={(date: Date | null) =>
                     date && setData('date_of_trip', date.toISOString().split('T')[0])
                   }
-                  className="w-full border px-3 py-2 rounded-md"
+                  className="w-full border px-3 py-2 rounded-md dark:bg-accent"
                   placeholderText="Select date of trip"
                   minDate={new Date(new Date().setDate(new Date().getDate() + 3))}
                   disabled={processing}
@@ -509,6 +509,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                     value={data.pickup_time}
                     onChange={(e) => setData('pickup_time', e.target.value)}
                     disabled={processing}
+                    className="dark:bg-accent"
                   />
                   <InputError message={errors.pickup_time} className="mt-2" />
                 </div>
@@ -524,6 +525,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                     onChange={(e) => setData('pickup_address', e.target.value)}
                     disabled={processing}
                     required
+                    className="dark:bg-accent"
                   />
                   <InputError message={errors.pickup_address} className="mt-2" />
                 </div>
@@ -534,6 +536,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                     value={data.destination}
                     onChange={(e) => setData('destination', e.target.value)}
                     disabled={processing}
+                    className="dark:bg-accent"
                   />
                   <InputError message={errors.destination} className="mt-2" />
                 </div>
@@ -545,7 +548,7 @@ export default function CustomTrip({ bookingCount, userBookings, preferredVans, 
                 <textarea
                   value={data.notes}
                   onChange={(e) => setData('notes', e.target.value)}
-                  className="w-full border px-3 py-2 rounded-md"
+                  className="w-full border px-3 py-2 rounded-md dark:bg-accent"
                   placeholder="Any additional notes..."
                   rows={4}
                   disabled={processing}

@@ -2,14 +2,14 @@ import React from "react";
 
 const TripRatesInfo: React.FC = () => {
   return (
-    <div className="mt-6 mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg text-blue-900">
-      <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+    <div className="mt-6 mb-8 p-6 bg-blue-50 dark:bg-accent border border-blue-200 dark:border-gray-800 rounded-lg text-blue-900">
+      <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 dark:text-gray-400">
         🚐 CTTT Trip Rates Based on Distance (KM)
       </h2>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm border border-blue-200 rounded-lg bg-white">
-          <thead className="bg-blue-100">
+        <table className="w-full text-sm border dark:text-white border-blue-200 dark:border-gray-800 rounded-lg bg-white dark:bg-accent">
+          <thead className="bg-blue-100 dark:bg-gray-800">
             <tr>
               <th className="p-2 text-left border-b">Distance (KM)</th>
               <th className="p-2 text-left border-b">Trip Cost</th>
@@ -26,7 +26,7 @@ const TripRatesInfo: React.FC = () => {
               ["401 – 500 KM", "₱5,000 + Fuel + Toll (if applicable)", "–", "12 hours"],
               ["501 KM & above", "₱6,000/day + Fuel + Toll (if applicable)", "–", "12 hours/day"],
             ].map(([distance, cost, inclusions, hours], i) => (
-              <tr key={i} className="odd:bg-white even:bg-blue-50">
+              <tr key={i} className="odd:bg-white dark:bg-accent even:bg-blue-50">
                 <td className="p-2 border-b">{distance}</td>
                 <td className="p-2 border-b">{cost}</td>
                 <td className="p-2 border-b">{inclusions}</td>
@@ -37,7 +37,7 @@ const TripRatesInfo: React.FC = () => {
         </table>
       </div>
 
-      <div className="mt-4 space-y-2 text-sm">
+      <div className="mt-4 space-y-2 text-sm dark:text-gray-200">
         <p className="font-semibold">⏱ Overtime Charges</p>
         <p>₱350/hour for trips exceeding 12 hours (Day Tour basis)</p>
 

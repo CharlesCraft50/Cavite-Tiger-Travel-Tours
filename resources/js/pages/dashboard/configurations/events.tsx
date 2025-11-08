@@ -204,7 +204,7 @@ export default function Events({ packages: initialPackages }: EventsIndexProps) 
             {/* Sort dropdown */}
             <Listbox value={sortOption} onChange={setSortOption}>
               <div className="relative w-40">
-                <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
+                <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white dark:bg-accent py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
                   <span className="block truncate">
                     {sortOption === 'newest' ? 'Newest to Oldest' : 'Oldest to Newest'}
                   </span>
@@ -218,11 +218,11 @@ export default function Events({ packages: initialPackages }: EventsIndexProps) 
                   leaveFrom="opacity-100"
                   leaveTo="opacity-0"
                 >
-                  <Listbox.Options className="absolute z-50 mt-1 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg max-h-60 focus:outline-none sm:text-sm">
+                  <Listbox.Options className="dark:bg-accent absolute z-50 mt-1 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg max-h-60 focus:outline-none sm:text-sm">
                     <Listbox.Option
                       className={({ active }) =>
-                        `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
-                          active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                        `relative cursor-pointer select-none dark:bg-accent py-2 pl-4 pr-4 ${
+                          active ? 'bg-blue-100 text-blue-900 dark:text-gray-200' : 'text-gray-900 dark:text-white'
                         }`
                       }
                       value="newest"
@@ -231,8 +231,8 @@ export default function Events({ packages: initialPackages }: EventsIndexProps) 
                     </Listbox.Option>
                     <Listbox.Option
                       className={({ active }) =>
-                        `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
-                          active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                        `relative cursor-pointer select-none dark:bg-accent py-2 pl-4 pr-4 ${
+                          active ? 'bg-blue-100 text-blue-900 dark:text-gray-200' : 'text-gray-900 dark:text-white'
                         }`
                       }
                       value="oldest"

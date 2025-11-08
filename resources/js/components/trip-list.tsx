@@ -181,19 +181,19 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
       </div>
 
       {/* Table */}
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-400">
+        <thead className="bg-gray-50 dark:bg-accent">
           <tr>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Trip #</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Date</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Name</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Destination / Package</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Type</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Status</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Action</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-400">Trip #</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-400">Date</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-400">Name</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-400">Destination / Package</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-400">Type</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-400">Status</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-400">Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-400 bg-white dark:bg-accent">
           {paginatedTrips.length > 0 ? (
             paginatedTrips.map((trip) => {
               const absoluteStatus = getTripStatus(trip);
@@ -291,7 +291,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
 
       {/* Cancel Dialog */}
       <Dialog open={!!cancelTarget} onOpenChange={(open) => !open && setCancelTarget(null)}>
-        <DialogContent className="p-4 max-w-md bg-white rounded shadow-xl">
+        <DialogContent className="p-4 max-w-md bg-white dark:bg-accent rounded shadow-xl">
           <DialogTitle className="text-lg font-semibold text-center mb-2">
             Cancel {cancelTarget?.type === 'custom' ? 'Trip' : 'Booking'} "{cancelTarget?.booking_number}"?
           </DialogTitle>

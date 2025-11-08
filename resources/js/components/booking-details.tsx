@@ -452,18 +452,18 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     };
 
   return (
-    <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200", booking.status == 'completed' && "bg-green-200")} onSubmit={submit}>
-        <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
+    <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200 dark:bg-red-900 rounded-2xl", booking.status == 'completed' && "bg-green-200 dark:bg-green-900 rounded-2xl")} onSubmit={submit}>
+        <div className="border border-gray-200 rounded-xl p-6 bg-white dark:bg-accent shadow-sm">
             <div className="flex justify-between top-0 right-0 items-center">
                 <div className="flex flex-row gap-4 items-center">
                     <div className="grid gap-2">
-                        <p className="text-sm text-gray-500">Booking Number</p>
-                        <h3 className="text-2xl font-semibold text-gray-900">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Booking Number</p>
+                        <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
                             {booking.booking_number}
                         </h3>
                     </div>
                     <div>
-                        {booking.status == 'completed' && <div className="card text-sm p-3 bg-green-100 border-green-400">{booking.is_completed ? 'Confirmed Completed' : 'Completed'}</div>}
+                        {booking.status == 'completed' && <div className="card text-sm p-3 bg-green-100 dark:bg-accent border-green-400">{booking.is_completed ? 'Confirmed Completed' : 'Completed'}</div>}
                     </div>
                     {booking.is_completed == false && booking.status == 'completed' && isAdmins && (
                         <Button className="btn-primary cursor-pointer" onClick={handleMarkCompletion}>
@@ -506,26 +506,26 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
             <div className="mt-8">
                 <div className="border rounded-lg overflow-hidden">
-                    <div className="bg-gray-50 p-4">
-                        <p className="text-sm text-gray-600">
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4">
+                        <p className="text-sm text-gray-600 dark:text-white">
                             Guest Details ({booking.pax_adult} Pax)
                         </p>
                     </div>
 
-                    <div className="bg-white p-4 space-y-2">
+                    <div className="bg-white dark:bg-accent p-4 space-y-2">
                         <div>
-                            <p className="text-sm text-gray-600">Full Name</p>
-                            <p className="text-base text-gray-900 font-medium">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Full Name</p>
+                            <p className="text-base text-gray-900 font-medium dark:text-white">
                                 {booking.first_name} {booking.last_name}
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-2 text-gray-700 text-sm">
+                        <div className="flex items-center gap-2 text-gray-700 dark:text-white text-sm">
                             <Phone className="w-4 h-4" />
                             <span>{booking.contact_number}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 text-gray-700 text-sm">
+                        <div className="flex items-center gap-2 text-gray-700 dark:text-white text-sm">
                             <Mail className="w-4 h-4" />
                             <span>{booking.email}</span>
                         </div>
@@ -535,27 +535,27 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
             <div className="mt-8">
                 <div className="border rounded-lg overflow-hidden">
-                    <div className="bg-gray-50 p-4">
-                        <p className="text-sm text-gray-600">
+                    <div className="bg-gray-50 p-4 dark:bg-gray-700">
+                        <p className="text-sm text-gray-600 dark:text-white">
                             Package Summary
                         </p>
                     </div>
 
-                    <div className="bg-white p-4 space-y-4">
+                    <div className="bg-white dark:bg-accent p-4 space-y-4">
                         <div>
-                            <p className="text-sm text-gray-600">Tour Package</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Tour Package</p>
                             <p className="text-base font-medium">{booking.tour_package?.title}</p>
                             {booking.preferred_days && (
                                 <>
-                                    <p className="text-sm text-gray-600 mt-2">Selected Preferred Day/s</p>
-                                    <p className="text-base font-medium">{booking.preferred_days} {booking.preferred_days > 1 ? 'Days' : 'Day'}</p>
+                                    <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Selected Preferred Day/s</p>
+                                    <p className="text-base font-medium dark:text-white">{booking.preferred_days} {booking.preferred_days > 1 ? 'Days' : 'Day'}</p>
                                 </>
                             )}
 
                             {booking.tour_package?.package_type == 'event' && (
                                 <>
-                                    <p className="text-sm text-gray-600 mt-2">Trip Type</p>
-                                    <p className="text-base font-medium">Round Trip</p>
+                                    <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Trip Type</p>
+                                    <p className="text-base font-medium dark:text-white">Round Trip</p>
                                 </>
                             )}
 
@@ -563,19 +563,19 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             <p className="text-base font-medium">{booking.package_category?.name}</p> */}
                             {booking.preferred_preparation && (
                                 <>
-                                    <p className="text-sm text-gray-600 mt-2">Selected Preferred Preparation</p>
-                                    <p className="text-base font-medium">{booking.preferred_preparation?.label}</p>
+                                    <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Selected Preferred Preparation</p>
+                                    <p className="text-base font-medium dark:text-white">{booking.preferred_preparation?.label}</p>
                                 </>
                             )}
 
                             {!!booking.preferred_preparation?.requires_valid_id && (booking.valid_id_paths || []).length > 0 && (
                                 <>
-                                    <p className="text-sm text-gray-600 mt-2">Valid ID</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Valid ID</p>
                                     <div className="flex flex-wrap gap-2">
                                         {(booking.valid_id_paths || []).map((path, idx) => (
                                             <div
                                                 key={idx}
-                                                className="w-40 h-52 flex items-center justify-center bg-gray-100 rounded-md overflow-hidden cursor-pointer"
+                                                className="w-40 h-52 flex items-center justify-center bg-gray-100 dark:bg-accent rounded-md overflow-hidden cursor-pointer"
                                                 onClick={() => setOpenImage(path)}
                                             >
                                                 <img
@@ -610,7 +610,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         {booking.tour_package?.package_type == 'normal' && (
                             <>
                                 <div>
-                                    {booking.preferred_van && (<p className="text-sm text-gray-600">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({booking.pax_adult} Pax)</span>)}</p>)}
+                                    {booking.preferred_van && (<p className="text-sm text-gray-600 dark:text-gray-400">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({booking.pax_adult} Pax)</span>)}</p>)}
                                     {editable && isEditing ? (
                                         <>
                                             <VanSelection 
@@ -649,7 +649,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                                         id="airport_transfer_type"
                                                         value={data.airport_transfer_type ?? ''}
                                                         onChange={(e) => setData('airport_transfer_type', e.target.value)}
-                                                        className="border p-2 rounded cursor-pointer"
+                                                        className="border p-2 rounded cursor-pointer dark:bg-accent"
                                                     >
                                                         <option value="">Select transfer type...</option>
                                                         {airportTransferTypes.map((opt) => (
@@ -681,23 +681,23 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                             </div>)}
                                             
                                             {booking.preferred_van?.plate_number != null && (
-                                                <>
-                                                    <p className="text-sm text-gray-800">Plate Number</p>
-                                                    <span className="text-black font-semibold">{booking.preferred_van?.plate_number}</span>
-                                                </>
+                                                <div className="mt-2">
+                                                    <p className="text-sm text-gray-800 dark:text-gray-400">Plate Number</p>
+                                                    <span className="text-black font-semibold dark:text-white">{booking.preferred_van?.plate_number}</span>
+                                                </div>
                                             )}
 
                                             {booking.preferred_van && (
                                                 <>
-                                                    <p className="text-sm text-gray-800">Assigned Driver</p>
-                                                    <span className="text-black font-semibold">{booking?.preferred_van.driver?.first_name} {booking?.preferred_van.driver?.last_name}</span>
+                                                    <p className="text-sm text-gray-800 dark:text-gray-400">Assigned Driver</p>
+                                                    <span className="text-black font-semibold dark:text-white">{booking?.preferred_van.driver?.first_name} {booking?.preferred_van.driver?.last_name}</span>
                                                 </>
                                             )}
 
                                             {booking.airport_transfer_type && (
                                                 <>
-                                                    <p className="text-sm text-gray-800">Airport Transfer Type</p>
-                                                    <span className="text-black font-semibold">
+                                                    <p className="text-sm text-gray-800 dark:text-gray-400">Airport Transfer Type</p>
+                                                    <span className="text-black font-semibold dark:text-white">
                                                     {{
                                                         going_airport: "Going Airport",
                                                         going_home: "Going Home",
@@ -715,7 +715,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                 
                                 <div>
                                     {/* Departure Date */}
-                                    <p className="text-sm text-gray-600">Departure Date</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Departure Date</p>
                                     {editable && isEditing ? (
                                         <div className="flex flex-row items-center p-2">
                                             <DatePicker
@@ -757,7 +757,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                     )}
 
                                     {/* Return Date */}
-                                    <p className="text-sm text-gray-600 mt-2">Return Date</p>
+                                    <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Return Date</p>
                                     {editable && isEditing ? (
                                         <div className="flex flex-row items-center p-2">
                                             <DatePicker
@@ -824,7 +824,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         <hr />
 
                         <div>
-                            <p className="text-sm text-gray-600">Pickup Address</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Pickup Address</p>
                             {editable && isEditing ? (
                                 <Input
                                     className="w-full p-2 border-1 border-gray-200 rounded-lg"
@@ -838,7 +838,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         </div>
 
                         <div>
-                            <p className="text-sm text-gray-600">Notes</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Notes</p>
                             {editable && isEditing ? (
                                 <Textarea
                                     className="w-full p-2 border-1 border-gray-200 rounded-lg"
@@ -865,16 +865,17 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         )}
 
 
-                        <div className="flex justify-between items-center bg-gray-50 px-4 py-3 rounded-md">
+                        <div className="flex justify-between items-center bg-gray-50 dark:bg-accent px-4 py-3 rounded-md">
                             <div>
                                 {!booking.payment?.status && (
                                     <>
-                                        <p className="text-sm text-gray-600">Status</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
                                         {editable && isEditing ? (
                                             <>
                                                 <select
                                                     value={data.status}
                                                     onChange={(e) => setData('status', e.target.value)}
+                                                    className="dark:bg-accent"
                                                 >
                                                     <option value="pending">Pending</option>
                                                     <option value="on_process">On Process</option>
@@ -894,7 +895,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                 )}
                             </div>
                             <div className="text-right">
-                                <p className="text-sm text-gray-600">Total Amount</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Amount</p>
                                 
                                 <div className="flex flex-row items-center text-primary">
                                     {editable && isEditing ? (
@@ -934,13 +935,13 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                 <>
                                     {!booking.payment ? (
                                         booking.status !== 'past_due' && booking.status !== 'cancelled' && (
-                                            <div className="border rounded-lg p-4 mt-4 bg-yellow-50 border-yellow-300">
-                                                <p className="text-sm text-yellow-800">
+                                            <div className="border rounded-lg p-4 mt-4 bg-yellow-50 dark:bg-gray-600 border-yellow-300 dark:border-gray-800">
+                                                <p className="text-sm text-yellow-800 dark:text-white">
                                                     {isAdmins || isDrivers || isStaffs ? "The user haven't completed the payment yet." : "You haven't completed the payment yet."}
                                                 </p>
                                                 <Link
                                                     href={route('booking.payment', booking.id)}
-                                                    className="inline-block mt-2 text-sm font-medium text-yellow-900 underline hover:text-yellow-700"
+                                                    className="inline-block mt-2 text-sm font-medium text-yellow-900 dark:text-white underline hover:text-yellow-700"
                                                 >
                                                     Pay Now → {window.location.origin}/book-now/payment/{booking.id}
                                                 </Link>
@@ -1031,11 +1032,11 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
                                     {editable && isEditing ? (
                                         <div className="mb-2 mt-2">
-                                            <label className="text-sm text-gray-700 font-medium">Update Payment Status</label>
+                                            <label className="text-sm text-gray-700 dark:text-gray-400 font-medium">Update Payment Status</label>
                                             <select
                                                 value={data.payment_status}
                                                 onChange={(e) => setData('payment_status', e.target.value)}
-                                                className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                                                className="w-full p-2 border border-gray-300 rounded-md mt-1 dark:bg-accent"
                                             >
                                                 <option value="pending">Pending</option>
                                                 <option value="on_process">On Process</option>
@@ -1084,9 +1085,9 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             {(booking.user_id === auth.user.id || isAdmins) && (
                 <>
                     {(!hasReview && booking.status )=== 'completed' ? (
-                        <div className="mt-10 p-6 bg-white shadow rounded-2xl border">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                            Share your experience
+                        <div className="mt-10 p-6 bg-white dark:bg-accent shadow rounded-2xl border">
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+                                Share your experience
                             </h3>
 
                             <StarRating
@@ -1097,7 +1098,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             />
 
                             <div className="mt-4 flex items-center justify-between">
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 dark:text-white">
                                     Your feedback helps us improve future tours.
                                 </p>
                                 <Button
@@ -1112,7 +1113,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                             <InputError message={errorRating} className="mt-2" />
                         </div>
                     ) : (
-                        <div className="mt-10 p-6 bg-white shadow rounded-2xl border">
+                        <div className="mt-10 p-6 bg-white dark:bg-accent shadow rounded-2xl border">
                             <UserReview
                                 userName={userReview?.user?.first_name ?? ''}
                                 rating={userReview?.rating ?? 0}

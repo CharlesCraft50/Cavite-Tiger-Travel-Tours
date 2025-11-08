@@ -8,8 +8,8 @@ type NoteMessageProps = {
 
 export default function NoteMessage({ type, message, leading }: NoteMessageProps) {
   const colors = type === 'important'
-    ? 'border-red-300 bg-red-50 text-red-800'
-    : 'border-blue-200 bg-blue-50 text-blue-800';
+    ? 'border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-300'
+    : 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300';
 
   const Icon = type === 'important' ? AlertCircle : Info;
 
