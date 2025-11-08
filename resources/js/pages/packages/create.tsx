@@ -203,6 +203,9 @@ export default function Index({
             setData('duration', packages.duration || '');
             setData('location', packages.location);
             setData('base_price', packages.base_price);
+            if (packages.preferred_days != null) {
+                setData('preferred_days', packages.preferred_days.toString())
+            }
             
             if(packages.available_from || packages.available_until) {
                 setActiveExpiry(true);
