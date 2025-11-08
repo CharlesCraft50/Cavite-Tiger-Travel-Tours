@@ -73,6 +73,7 @@ class UpdatePackageRequest extends FormRequest
                 'in:limited_time,popular,seasonal,festival,exclusive,new_arrival,flash_sale',
                 'required_if:package_type,event',
             ],
+            'preferred_days' => ['nullable', 'integer', 'required_if:package_type,event'],
         ];
 
     }
