@@ -127,17 +127,6 @@ export default function Index({ packages, cities, countries, selectedCountry }: 
 
                 {/* City Cards */}
                 <div className="flex flex-wrap gap-4 justify-center items-center">
-                    {!!isAdmins && (
-                        <Link
-                            href={route('packages.create')}
-                            className="flex-col gap-2 relative w-76 h-84 bg-gray-200 border-gray-600 shadow-lg rounded-xl overflow-hidden flex items-center justify-center text-center cursor-pointer transition-shadow duration-300"
-                            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'inset 0 0 30px rgba(0, 0, 0, 0.5)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = ''; }}
-                        >
-                            <PlusSquareIcon className="w-24 h-24 text-gray-600" />
-                            <span className="font-semibold text-gray-600">Add New Package</span>
-                        </Link>
-                    )}
                     {cities.map((city: City) => (
                         <CardImageBackground
                             key={city.id}
