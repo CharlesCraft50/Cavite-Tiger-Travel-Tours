@@ -5,13 +5,13 @@ import { ExternalLink } from 'lucide-react';
 export default function Index({disableNav} : {disableNav?: boolean;}) {
     return (
         <DashboardLayout title="Information" href="/dashboard/about" disableNav={disableNav}>
-            <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex flex-col justify-center items-center overflow-hidden rounded-xl border md:min-h-min p-4">
+            <div className="dark:text-white border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex flex-col justify-center items-center overflow-hidden rounded-xl border md:min-h-min p-4">
                 <h1 className="mb-4 text-3xl font-semibold">About</h1>
                 <img 
                     src="https://i.ibb.co/SDVcHC60/dawdasdasd.png" 
                     className="w-[30%] h-[30%] object-contain" 
                 />
-                <section className="max-w-5xl mx-auto px-6 py-16 space-y-10 text-gray-700">
+                <section className="dark:text-white max-w-5xl mx-auto px-6 py-16 space-y-10 text-gray-700">
                     <div>
                         <h2 className="text-3xl font-semibold mb-4">Who We Are</h2>
                         <p>

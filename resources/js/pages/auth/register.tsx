@@ -82,7 +82,7 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout className="bg-[url('/images/bg/stylistic_bg_2.jpg')]" title="Create an account" description="Enter your details below to create your account" hasBackButton>
+        <AuthLayout className="bg-[url('/images/bg/gradient_bg_1.jpg')]" title="Create an account" description="Enter your details below to create your account" hasBackButton>
             <Head title="Register" />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
@@ -143,6 +143,10 @@ export default function Register() {
                             }}
                             countryCodeEditable={false}
                             enableSearch={true}
+                            containerClass="w-full"
+                            inputClass="!w-full !px-12 !bg-white dark:!bg-neutral-900 dark:!text-white dark:!border-neutral-700 !border !rounded-lg !px-3 !py-2 !text-sm"
+                            buttonClass="!bg-white dark:!bg-neutral-900 dark:!border-neutral-700"
+                            dropdownClass="dark:!bg-neutral-900 dark:!text-white"
                         />
                         <InputError message={contactNumberError} />
                     </div>

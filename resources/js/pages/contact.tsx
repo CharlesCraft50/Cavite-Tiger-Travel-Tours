@@ -10,7 +10,7 @@ export default function ContactPage() {
       <Navbar />
       <Head title="Contact" />
       <section
-        className="relative bg-cover bg-center bg-no-repeat min-h-[500px] overflow-hidden"
+        className="dark:text-white relative bg-cover bg-center bg-no-repeat min-h-[500px] overflow-hidden"
       >
         {/* Background image with blur */}
         <div
@@ -34,7 +34,7 @@ export default function ContactPage() {
       </section>
 
 
-      <section className="max-w-5xl mx-auto px-6 py-16 space-y-10 text-gray-700">
+      <section className="dark:text-white max-w-5xl mx-auto px-6 py-16 space-y-10 text-gray-700">
         <div>
           <h2 className="text-3xl font-semibold mb-4">Contact Information</h2>
           <ul className="space-y-4">

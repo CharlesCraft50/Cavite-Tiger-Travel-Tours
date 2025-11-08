@@ -47,8 +47,8 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
     </section>
 
       {/* Quote Section */}
-      <section className="bg-white text-center py-12 px-4">
-        <p className="text-2xl italic text-gray-700 max-w-3xl mx-auto">
+      <section className="bg-white dark:bg-gray-800 text-center py-12 px-4">
+        <p className="text-2xl italic text-gray-700 dark:text-gray-200 max-w-3xl mx-auto">
           "Traveling - it leaves you speechless, then turns you into a storyteller"
         </p>
         <div className="mt-4 flex justify-center items-center gap-3">
@@ -62,7 +62,7 @@ export default function IndexPage({ packages }: { packages: TourPackage[] }) {
       </section>
 
       {/* South Luzon Section */}
-      <section className="py-16 px-6 bg-red-50 text-center">
+      <section className="py-16 px-6 bg-red-50 dark:bg-accent text-center">
         <h2 className="text-3xl font-bold mb-6">Tour Packages</h2>
 
         <div className="max-w-6xl mx-auto relative">
