@@ -22,7 +22,7 @@ type TripListProps = {
 };
 
 export default function TripList({ bookings, customTrips, limit, statusFilter, isDriver }: TripListProps) {
-  const [tripType, setTripType] = useState<'all' | 'bookings' | 'custom'>('all');
+  const [tripType, setTripType] = useState<'all' | 'bookings' | 'events' | 'custom'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchBy, setSearchBy] = useState<'name' | 'destination' | 'package' | 'booking_number'>('name');
   const [status, setStatus] = useState(statusFilter || '');
@@ -43,6 +43,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
       created_at: b.created_at,
       is_completed: b.is_completed,
       package: b.tour_package,
+      package_type: b.tour_package?.package_type,
     })),
     ...customTrips.map((c) => ({
       id: c.id,
@@ -55,6 +56,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
       created_at: c.created_at,
       is_completed: c.is_completed,
       package: null,
+      package_type: null,
     })),
   ];
 
@@ -69,7 +71,8 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
   // Filter
   const filteredTrips = allTrips
     .filter((trip) => {
-      if (tripType === 'bookings' && trip.type !== 'booking') return false;
+      if (tripType === 'bookings' && (trip.type !== 'booking' || trip.package_type !== 'normal')) return false;
+      if (tripType === 'events' && (trip.type !== 'booking' || trip.package_type !== 'event')) return false;
       if (tripType === 'custom' && trip.type !== 'custom') return false;
       const query = searchQuery.toLowerCase();
       const matchesSearch = (() => {
@@ -130,6 +133,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
           >
             <option value="all">All Trips</option>
             <option value="bookings">Local Trips</option>
+            <option value="events">Events</option>
             <option value="custom">Custom Trips</option>
           </select>
 
@@ -203,7 +207,7 @@ export default function TripList({ bookings, customTrips, limit, statusFilter, i
                   <td className="px-4 py-2">{trip.date}</td>
                   <td className="px-4 py-2">{trip.name}</td>
                   <td className="px-4 py-2">{trip.destination}</td>
-                  <td className="px-4 py-2 capitalize">{trip.type == 'booking' ? trip.package?.package_type == 'event' ? 'Event' : 'Local' : trip.type}</td>
+                  <td className="px-4 py-2 capitalize">{trip.type == 'booking' ? trip.package_type === 'event' ? 'Event' : 'Local' : trip.type}</td>
                   <td className="px-4 py-2">
                     <span
                       className={clsx(
