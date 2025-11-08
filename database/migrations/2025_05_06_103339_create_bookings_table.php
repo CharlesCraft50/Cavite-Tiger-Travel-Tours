@@ -22,9 +22,9 @@ return new class extends Migration
             $table->string('email');
 
             // Booking Details
-            $table->date('departure_date');
+            $table->date('departure_date')->nullable();
             $table->time('departure_time')->nullable();
-            $table->date('return_date');
+            $table->date('return_date')->nullable();
             $table->integer('pax_adult')->nullable();
             $table->integer('pax_kids')->nullable();
             $table->text('notes')->nullable();
@@ -42,6 +42,8 @@ return new class extends Migration
                 ->onDelete('set null');
 
             $table->json('valid_id_paths')->nullable();
+            $table->enum('airport_transfer_type', ['going_airport', 'going_home', 'back_to_back'])->nullable();
+            $table->integer('preferred_days')->nullable();
 
             // Admin Status
             $table->enum('status', ['pending', 'on_process', 'accepted', 'declined', 'past_due', 'cancelled', 'completed'])->default('pending');

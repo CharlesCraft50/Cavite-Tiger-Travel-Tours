@@ -48,7 +48,7 @@ class UpdatePackageRequest extends FormRequest
             'image_banner.*' => ['image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'base_price' => ['nullable', 'required', 'integer'],
 
-            // ✅ Validate categories as array
+            // Validate categories as array
             'categories' => ['nullable', 'array'],
             'categories.*.name' => ['required', 'string', 'max:70'],
             'categories.*.content' => ['required', 'string'],
@@ -57,11 +57,11 @@ class UpdatePackageRequest extends FormRequest
             'categories.*.use_custom_price' => ['nullable', 'in:true,false,0,1'],
             'categories.*.custom_price' => ['nullable', 'numeric'],
 
-            // ✅ Validate preferred_van as array
+            // Validate preferred_van as array
             'preferred_van_ids' => ['nullable', 'array'],
             'preferred_van_ids.*' => ['integer', 'exists:preferred_vans,id'],
 
-            // ✅ Validate other_service_ids as array
+            // Validate other_service_ids as array
             'other_service_ids' => ['nullable', 'array'],
             'other_service_ids.*' => ['integer', 'exists:other_service_ids,id'],
 

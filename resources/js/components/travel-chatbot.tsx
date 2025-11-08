@@ -89,7 +89,7 @@ export default function TravelChatbot() {
             return {
                 text: `🧳 𝗣𝗹𝗮𝗻𝗻𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝘁𝗿𝗶𝗽? Here are some helpful travel tips:
 
-            - ✅ Pack light, but don't forget the essentials  
+            - Pack light, but don't forget the essentials  
             - 📅 Book in advance for better deals  
             - 🛂 Always keep a digital copy of your IDs  
             - 💡 Learn a few local phrases  

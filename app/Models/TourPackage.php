@@ -28,6 +28,7 @@ class TourPackage extends Model
         'base_price',
         'package_type',
         'event_type',
+        'preferred_days',
     ];
 
     protected $casts = [

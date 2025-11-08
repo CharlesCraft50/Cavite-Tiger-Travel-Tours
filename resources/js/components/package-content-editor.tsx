@@ -98,7 +98,7 @@ export default function PackageContentEditor({
         };
     }, [activeModal]);
 
-    // ✅ Handle multiple files
+    // Handle multiple files
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
 

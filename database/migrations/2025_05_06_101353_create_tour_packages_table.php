@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('subtitle')->nullable();
             $table->string('location')->nullable();
             $table->string('duration')->nullable(); // e.g. 3D2N
+            $table->integer('preferred_days')->nullable();
             $table->string('overview')->nullable();
             $table->longText('content')->nullable();
             $table->integer('pax_kids')->nullable();

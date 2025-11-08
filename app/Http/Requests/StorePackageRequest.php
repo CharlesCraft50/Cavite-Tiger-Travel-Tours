@@ -36,18 +36,18 @@ class StorePackageRequest extends FormRequest
             'image_banner.*' => ['image', 'mimes:jpeg,png,jpg,gif,svg,webp'],
             'base_price' => ['required', 'numeric'],
 
-            // ✅ Validate categories as array
+            // Validate categories as array
             'categories' => ['nullable', 'array'],
             'categories.*.name' => ['required', 'string', 'max:70'],
             'categories.*.content' => ['required', 'string'],
             'categories.*.has_button' => ['nullable', 'boolean'],
             'categories.*.button_text' => ['nullable', 'string', 'max:20'],
 
-            // ✅ Validate preferred_van as array
+            // Validate preferred_van as array
             'preferred_van_ids' => ['nullable', 'array'],
             'preferred_van_ids.*' => ['integer', 'exists:preferred_vans,id'],
 
-            // ✅ Validate other_service_ids as array
+            // Validate other_service_ids as array
             'other_service_ids' => ['nullable', 'array'],
             'other_service_ids.*' => ['integer', 'exists:other_service_ids,id'],
 
@@ -59,6 +59,7 @@ class StorePackageRequest extends FormRequest
                 'in:limited_time,popular,seasonal,festival,exclusive,new_arrival,flash_sale',
                 'required_if:package_type,event',
             ],
+            'preferred_days' => ['nullable', 'integer', 'required_if:package_type,event'],
         ];
 
     }

@@ -39,6 +39,24 @@ type BookNowCreateProps = {
     preferredPreparations: PreferredPreparation[];
 }
 
+export const airportTransferTypes = [
+    {
+        value: "going_airport",
+        label: "Going Airport",
+        note: "Van will pick you up at your address and drop you off at the airport.",
+    },
+    {
+        value: "going_home",
+        label: "Going Home",
+        note: "Van will pick you up at the airport and drop you off at your address.",
+    },
+    {
+        value: "back_to_back",
+        label: "Back to Back",
+        note: "Applies to both transfers. Pick-up from your address to the airport, and from the airport back to your address.",
+    },
+];
+
 export default function Create({ 
     packages,
     drivers,
@@ -69,8 +87,10 @@ export default function Create({
         preferred_van_id: number | null;
         other_services: number[];
         driver_id: number | null;
-        preferred_preparation_id: number;
+        preferred_preparation_id?: number | null | undefined;
         valid_id: File[] | null;
+        airport_transfer_type?: string | null | undefined;
+        preferred_day?: number | null | undefined;
     }>({
         package_title: packages.title,
         tour_package_id: packages.id,
@@ -92,8 +112,10 @@ export default function Create({
         preferred_van_id: null,
         other_services: [],
         driver_id: null,
-        preferred_preparation_id: 0,
+        preferred_preparation_id: null,
         valid_id: [],
+        airport_transfer_type: null,
+        preferred_day: null,
     });
 
     const [imagePreview, setImagePreview] = useState<string[]>([]);
@@ -423,9 +445,9 @@ export default function Create({
                         )}
 
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center px-4 z-1 pointer-events-none">
-                            <div className="bg-white/80 backdrop-blur-md p-6 rounded-lg text-center max-w-2xl">
+                            <div className="bg-white/60 backdrop-blur-md p-6 rounded-lg text-center max-w-2xl">
                                 <h1 className="text-2xl md:text-4xl font-bold mb-2 text-gray-900">
-                                    Book Now - {packages.title}
+                                    {packages.title} - {packages.subtitle ? packages.subtitle : 'Book Now'}
                                 </h1>
                                 {packages.overview && (
                                     <p className="text-gray-700 text-sm md:text-base">{packages.overview}</p>
@@ -435,12 +457,21 @@ export default function Create({
                     </div>
                 )}
 
-                <div>
-                    <NoteMessage
-                        type="important"
-                        message="Preferred van for drop-off/pick-up at the airport has different costs, and it's optional if you have your own vehicle for transportation."
-                    />
-                </div>
+                {packages.package_type == 'normal' ? (
+                    <div>
+                        <NoteMessage
+                            type="important"
+                            message="Preferred van for drop-off/pick-up at the airport has different costs, and it's optional if you have your own vehicle for transportation."
+                        />
+                    </div>
+                ) : (
+                    <div>
+                        <NoteMessage
+                            type="important"
+                            message="This is Joiners Trip, meaning the van must maximize its seat capacity containing random people/friends/family/loved ones to start its journey to the event place. Down payment is required to reserve your slots. Please pay 250php/person for reservation and please pay the remaining balance to the driver once the driver has dropped you off on your address. Paying the remaining balance is applicable within the day (Day 1), the next day will going to be a different payment for the remaining balance since you have paid the down payment for each day (if 2 days or above is selected). Your total amount will be updated after your trip. You will arrive at the event earlier before the event starts."
+                        />
+                    </div>
+                )}
 
                 <div className="grid gap-4">
                     <p className="font-semibold">Required Fields <span className="text-red-500">*</span></p>
@@ -453,72 +484,90 @@ export default function Create({
                     </p>
                 </div>
 
-                <div className="grid gap-4">
-                    <Label htmlFor="preferred_preparation_id" required>Selected Preferred Preparation</Label>
-                    <select
-                        id="preferred_preparation_id"
-                        className="border p-2 rounded cursor-pointer"
-                        onChange={(e) => {
-                            const selectedId = Number(e.target.value);
-                            const selectedPrep = preferredPreparations.find(p => p.id === selectedId);
-
-                            setData('preferred_preparation_id', selectedId);
-                            setRequiresValidId(selectedPrep?.requires_valid_id || false);
-                            setImagePreview([]);
-                            setData('valid_id', null);
-                        }}
-                    >
-                        <option value="">Select Preparation</option>
-                        {preferredPreparations?.map((p) => (
-                            <option key={p.id} value={p.id}>
-                                {p.label}
+                {packages.package_type == 'event' && (
+                    <div className="grid gap-2">
+                        <Label htmlFor="trip_type" required>Trip Type</Label>
+                        <select
+                            id="trip_type"
+                            className="border p-2 rounded cursor-not-allowed bg-gray-100 text-gray-500 appearance-none"
+                            value={'round_trip'}
+                            disabled={true}
+                        >
+                            <option key={'round_trip'} value={'round_trip'}>
+                                Round Trip
                             </option>
-                        ))}
-                    </select>
-                    <InputError message={errors.preferred_preparation_id} className="mt-2" />
+                        </select>
+                    </div>
+                )}
 
-                    {requiresValidId && (
-                        <StyledFileUpload
-                            id="valid_id"
-                            label="Upload valid IDs"
-                            required
-                            accept="image/*"
-                            multiple
-                            value={data.valid_id}
-                            error={errors.valid_id}
-                            description="Upload clear photos for your valid IDs."
-                            supportedFormats="JPG, PNG"
-                            maxSize="10MB"
-                            onChange={(fileOrFiles: File | File[] | null) => {
-                                const files = Array.isArray(fileOrFiles)
-                                    ? fileOrFiles
-                                    : fileOrFiles
-                                    ? [fileOrFiles]
-                                    : [];
+                {packages.package_type == 'normal' && (
+                    <div className="grid gap-4">
+                        <Label htmlFor="preferred_preparation_id" required>Selected Preferred Preparation</Label>
+                        <select
+                            id="preferred_preparation_id"
+                            className="border p-2 rounded cursor-pointer"
+                            onChange={(e) => {
+                                const selectedId = Number(e.target.value);
+                                const selectedPrep = preferredPreparations.find(p => p.id === selectedId);
 
-                                setData('valid_id', files);
-
-                                if (files.length > 0) {
-                                    const urls = files.map(file => URL.createObjectURL(file));
-                                    setImagePreview(urls);
-                                } else {
-                                    setImagePreview([]);
-                                }
+                                setData('preferred_preparation_id', selectedId);
+                                setRequiresValidId(selectedPrep?.requires_valid_id || false);
+                                setImagePreview([]);
+                                setData('valid_id', null);
                             }}
-                        />
-                    )}
+                        >
+                            <option value="">Select Preparation</option>
+                            {preferredPreparations?.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.label}
+                                </option>
+                            ))}
+                        </select>
+                        <InputError message={errors.preferred_preparation_id} className="mt-2" />
 
-                    {data.preferred_preparation_id != 0 && (
-                        <div className="mt-4">
-                            <NoteMessage
-                                type="note"
-                                message={data.preferred_preparation_id == 1 ? "The cost of the selected tour package is included, while flight tickets are not." : data.preferred_preparation_id == 2 ? "The cost of the selected tour package and flight tickets are included." : ""}
-                                leading={data.preferred_preparation_id == 1 ? "Land Arrangement/Preparation" : data.preferred_preparation_id == 2 ? "All-in Arrangement/Preparation" : ""}
+                        {requiresValidId && (
+                            <StyledFileUpload
+                                id="valid_id"
+                                label="Upload valid IDs"
+                                required
+                                accept="image/*"
+                                multiple
+                                value={data.valid_id}
+                                error={errors.valid_id}
+                                description="Upload clear photos for your valid IDs."
+                                supportedFormats="JPG, PNG"
+                                maxSize="10MB"
+                                onChange={(fileOrFiles: File | File[] | null) => {
+                                    const files = Array.isArray(fileOrFiles)
+                                        ? fileOrFiles
+                                        : fileOrFiles
+                                        ? [fileOrFiles]
+                                        : [];
+
+                                    setData('valid_id', files);
+
+                                    if (files.length > 0) {
+                                        const urls = files.map(file => URL.createObjectURL(file));
+                                        setImagePreview(urls);
+                                    } else {
+                                        setImagePreview([]);
+                                    }
+                                }}
                             />
-                        </div>
-                    )}
+                        )}
 
-                </div>
+                        {data.preferred_preparation_id != 0 && (
+                            <div className="mt-4">
+                                <NoteMessage
+                                    type="note"
+                                    message={data.preferred_preparation_id == 1 ? "The cost of the selected tour package is included, while flight tickets are not." : data.preferred_preparation_id == 2 ? "The cost of the selected tour package and flight tickets are included." : ""}
+                                    leading={data.preferred_preparation_id == 1 ? "Land Arrangement/Preparation" : data.preferred_preparation_id == 2 ? "All-in Arrangement/Preparation" : ""}
+                                />
+                            </div>
+                        )}
+
+                    </div>
+                )}
 
                 {/* <div className="grid gap-4">
                     <Label htmlFor="package_category_id">Select Package Option</Label>
@@ -697,6 +746,33 @@ export default function Create({
                     </div> */}
                 </div>
 
+                {/* Airport Transfer Type */}
+                {selectedVan && (
+                    <div className="grid grid-cols-1 gap-6">
+                        <Label htmlFor="airport_transfer_type" required>Airport Transfer Type</Label>
+                        <select
+                            id="airport_transfer_type"
+                            value={data.airport_transfer_type ?? ''}
+                            onChange={(e) => setData('airport_transfer_type', e.target.value)}
+                            className="border p-2 rounded cursor-pointer"
+                        >
+                            <option value="">Select transfer type...</option>
+                            {airportTransferTypes.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                {data.airport_transfer_type && (
+                    <NoteMessage
+                        type="note"
+                        message={airportTransferTypes.find((opt) => opt.value === data.airport_transfer_type)?.note ?? ''}
+                    />
+                )}
+
                 {packages.duration != null && (
                     <div className="grid grid-cols-2 gap-6">
                         <div className="grid gap-2">
@@ -706,72 +782,103 @@ export default function Create({
                     </div>
                 )}
 
-                {/* Departure and Return Dates */}
-                <div className="grid grid-cols-2 gap-6">
-                    {/* Departure Date */}
-                    <div className="grid gap-2">
-                        <Label htmlFor="departure_date">Departure Date</Label>
-                        <DatePicker
-                            selected={data.departure_date ? new Date(data.departure_date) : null}
-                            onChange={(date: Date | null) => {
-                                if (date) {
-                                    const isoDate = format(date, 'yyyy-MM-dd');
-                                    setData("departure_date", isoDate);
-
-                                    // Clear return_date if it becomes invalid
-                                    if (data.return_date && new Date(data.return_date) < date) {
-                                        setData("return_date", "");
-                                    }
-                                }
-                            }}
-                            dateFormat="yyyy-MM-dd"
-                            minDate={
-                                availableDates?.from
-                                    ? new Date(
-                                        Math.max(
-                                            new Date(availableDates.from).getTime(),
-                                            addDays(new Date(), 3).getTime() // 3 days from today
-                                        )
-                                    )
-                                    : addDays(new Date(), 3) // fallback: 3 days from today
-                            }
-                            maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
-                            excludeDates={
-                                availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
-                            }
-                            placeholderText="Select a departure date"
-                            className="w-full border px-3 py-2 rounded-md"
-                        />
-                        <InputError message={errors.departure_date} className="mt-2" />
-                    </div>
-
-                    {/* Return Date */}
-                    <div className="grid gap-2">
-                        <Label htmlFor="return_date">Return Date</Label>
-                        {/* <DatePicker
-                            disabled={selectedVanIds.length === 0}
-                            selected={data.return_date ? new Date(data.return_date) : null}
-                            onChange={(date: Date | null) => {
-                                if (date) {
-                                const isoDate = format(date, 'yyyy-MM-dd');
-                                setData("return_date", isoDate);
-                                }
-                            }}
-                            dateFormat="yyyy-MM-dd"
-                            minDate={data.departure_date ? new Date(data.departure_date) : (availableDates?.from ? new Date(availableDates.from) : undefined)}
-                            maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
-                            excludeDates={
-                                availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
-                            }
-                            placeholderText="Select a return date"
-                            className="w-full border px-3 py-2 rounded-md"
-                        /> */}
-                        <div className="w-full border-b border-b-red-500">
-                            <p>{handleReturnDate()}</p>
+                {packages.preferred_days != null && (
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="grid gap-2">
+                            <Label htmlFor="preferred_days" required>Select Preferred day/s for event</Label>
+                            <select
+                                id="preferred_days"
+                                name="preferred_days"
+                                value={data.preferred_day ?? ''}
+                                onChange={(e) => setData('preferred_day', Number(e.target.value))}
+                                className="w-full border rounded px-3 py-2"
+                            >
+                                <option value="">[ Select day/s ]</option>
+                                {Array.from({ length: packages.preferred_days }, (_, i) => i + 1).map((day) => (
+                                <option key={day} value={day}>
+                                    {day} {day === 1 ? "Day" : "Days"}
+                                </option>
+                                ))}
+                            </select>
                         </div>
-                        <InputError message={errors.return_date} className="mt-2" />
                     </div>
-                </div>
+                )}
+
+                {packages.preferred_days != null && (
+                    <NoteMessage
+                        type="note"
+                        message="Down payments are multiplied by the day/s you have selected. Please pay the remaining balance to the driver after dropping you off on your address (Applicable for each day)."
+                    />
+                )}
+
+                {/* Departure and Return Dates */}
+                {packages.package_type == 'normal' && (
+                    <div className="grid grid-cols-2 gap-6">
+                        {/* Departure Date */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="departure_date">Departure Date</Label>
+                            <DatePicker
+                                selected={data.departure_date ? new Date(data.departure_date) : null}
+                                onChange={(date: Date | null) => {
+                                    if (date) {
+                                        const isoDate = format(date, 'yyyy-MM-dd');
+                                        setData("departure_date", isoDate);
+
+                                        // Clear return_date if it becomes invalid
+                                        if (data.return_date && new Date(data.return_date) < date) {
+                                            setData("return_date", "");
+                                        }
+                                    }
+                                }}
+                                dateFormat="yyyy-MM-dd"
+                                minDate={
+                                    availableDates?.from
+                                        ? new Date(
+                                            Math.max(
+                                                new Date(availableDates.from).getTime(),
+                                                addDays(new Date(), 3).getTime() // 3 days from today
+                                            )
+                                        )
+                                        : addDays(new Date(), 3) // fallback: 3 days from today
+                                }
+                                maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
+                                excludeDates={
+                                    availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
+                                }
+                                placeholderText="Select a departure date"
+                                className="w-full border px-3 py-2 rounded-md"
+                            />
+                            <InputError message={errors.departure_date} className="mt-2" />
+                        </div>
+
+                        {/* Return Date */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="return_date">Return Date</Label>
+                            {/* <DatePicker
+                                disabled={selectedVanIds.length === 0}
+                                selected={data.return_date ? new Date(data.return_date) : null}
+                                onChange={(date: Date | null) => {
+                                    if (date) {
+                                    const isoDate = format(date, 'yyyy-MM-dd');
+                                    setData("return_date", isoDate);
+                                    }
+                                }}
+                                dateFormat="yyyy-MM-dd"
+                                minDate={data.departure_date ? new Date(data.departure_date) : (availableDates?.from ? new Date(availableDates.from) : undefined)}
+                                maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
+                                excludeDates={
+                                    availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
+                                }
+                                placeholderText="Select a return date"
+                                className="w-full border px-3 py-2 rounded-md"
+                            /> */}
+                            <div className="w-full border-b border-b-red-500">
+                                <p>{handleReturnDate()}</p>
+                            </div>
+                            <InputError message={errors.return_date} className="mt-2" />
+                        </div>
+                    </div>
+                )}
 
                 {/* Other Services */}
                 {/* <div className="grid gap-2">

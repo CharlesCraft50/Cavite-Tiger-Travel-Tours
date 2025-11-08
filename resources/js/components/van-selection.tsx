@@ -145,7 +145,7 @@ export default function VanSelection({
     action: "create",
     isNew: true,
     van_category_id: defaultCategory?.id || null,
-    category: defaultCategory || undefined,   // ✅ make sure it has a category object
+    category: defaultCategory || undefined,   // make sure it has a category object
     created_at: "",
     updated_at: ""
   };

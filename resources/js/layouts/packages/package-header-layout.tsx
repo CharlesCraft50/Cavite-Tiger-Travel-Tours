@@ -84,6 +84,7 @@ export default function PackagHeaderLayout({
         <PackageHeader
           id={id}
           title={packages.title}
+          subtitle={packages.subtitle}
           base_price={packages.base_price}
           imageBanner={packages.image_banner as string}
           created_at={packages.created_at}

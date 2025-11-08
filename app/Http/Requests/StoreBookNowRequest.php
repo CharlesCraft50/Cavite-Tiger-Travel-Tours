@@ -37,7 +37,12 @@ class StoreBookNowRequest extends FormRequest
             'tour_package_id' => ['required', 'exists:tour_packages,id'],
             'package_category_id' => ['nullable', 'integer', 'exists:package_categories,id'],
             'preferred_van_id' => ['nullable', 'integer', 'exists:preferred_vans,id'],
-            'preferred_preparation_id' => ['required', 'integer', 'exists:preferred_preparations,id'],
+
+            'preferred_preparation_id' => [
+                $this->package_type == 'normal' ? 'required' : 'nullable',
+                'integer',
+                'exists:preferred_preparations,id',
+            ],
 
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'first_name' => ['required', 'string', 'max:255'],
@@ -45,7 +50,10 @@ class StoreBookNowRequest extends FormRequest
             'contact_number' => ['required', 'string'],
             'email' => ['required', 'email'],
 
-            'departure_date' => ['required', 'date'],
+            'departure_date' => [
+                $this->package_type == 'normal' ? 'required' : 'nullable',
+                'date',
+            ],
             'pax_adult' => [
                 'required',
                 'integer',
@@ -72,6 +80,15 @@ class StoreBookNowRequest extends FormRequest
                 'image',
                 'mimes:jpg,jpeg,png',
                 'max:2048',
+            ],
+            'airport_transfer_type' => [
+                'nullable',
+                'in:going_airport,going_home,back_to_back',
+                'required_with:preferred_van_id',
+            ],
+            'preferred_day' => [
+                $this->preferred_days != null ? 'required' : 'nullable',
+                'integer',
             ],
         ];
     }

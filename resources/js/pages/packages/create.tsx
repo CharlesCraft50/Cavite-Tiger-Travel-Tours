@@ -39,6 +39,7 @@ export type PackageForm = {
     base_price: number | null;
     package_type: string;
     event_type?: string | null;
+    preferred_days?: string | null | undefined;
 };
 
 type PackagesCreateProps = {
@@ -110,6 +111,7 @@ export default function Index({
         base_price: null,
         package_type: 'normal',
         event_type: null,
+        preferred_days: null,
     });
 
     useEffect(() => {
@@ -589,46 +591,66 @@ export default function Index({
                 )}
 
                 {/* Duration */}
-                <div className="grid gap-2">
-                    <Label htmlFor="duration">Duration (Optional)</Label>
-                    
-                    {/* <InputSuggestions
-                        type="text"
-                        list="durations"
-                        name="duration"
-                        placeholder="e.g. 3 Days 2 Nights"
-                        value={data.duration}
-                        onChange={(e) => setData('duration', e.target.value)}
+                {data.package_type == 'normal' ? (
+                    <div className="grid gap-2">
+                        <Label htmlFor="duration">Duration (Optional)</Label>
+                        
+                        {/* <InputSuggestions
+                            type="text"
+                            list="durations"
+                            name="duration"
+                            placeholder="e.g. 3 Days 2 Nights"
+                            value={data.duration}
+                            onChange={(e) => setData('duration', e.target.value)}
+                            >
+                            <option value="2 Days 1 Night" />
+                            <option value="3 Days 2 Nights" />
+                            <option value="4 Days 3 Nights" />
+                            <option value="5 Days 4 Nights" />
+                            <option value="6 Days 5 Nights" />
+                            <option value="7 Days 6 Nights" />
+                            <option value="8 Days 7 Nights" />
+                            <option value="9 Days 8 Nights" />
+                            <option value="10 Days 9 Nights" />
+                        </InputSuggestions> */}
+                        <select
+                            id="duration"
+                            name="duration"
+                            value={data.duration}
+                            onChange={(e) => setData('duration', e.target.value)}
+                            className="w-full border rounded px-3 py-2"
                         >
-                        <option value="2 Days 1 Night" />
-                        <option value="3 Days 2 Nights" />
-                        <option value="4 Days 3 Nights" />
-                        <option value="5 Days 4 Nights" />
-                        <option value="6 Days 5 Nights" />
-                        <option value="7 Days 6 Nights" />
-                        <option value="8 Days 7 Nights" />
-                        <option value="9 Days 8 Nights" />
-                        <option value="10 Days 9 Nights" />
-                    </InputSuggestions> */}
-                    <select
-                        id="duration"
-                        name="duration"
-                        value={data.duration}
-                        onChange={(e) => setData('duration', e.target.value)}
-                        className="w-full border rounded px-3 py-2"
-                    >
-                        <option value="">[ Select duration ]</option>
-                        <option value="2 Day 1 Night">2 Day 1 Night</option>
-                        <option value="3 Days 2 Nights">3 Days 2 Nights</option>
-                        <option value="4 Days 3 Nights">4 Days 3 Nights</option>
-                        <option value="5 Days 4 Nights">5 Days 4 Nights</option>
-                        <option value="6 Days 5 Nights">6 Days 5 Nights</option>
-                        <option value="7 Days 6 Nights">7 Days 6 Nights</option>
-                        <option value="8 Days 7 Nights">8 Days 7 Nights</option>
-                        <option value="9 Days 8 Nights">9 Days 8 Nights</option>
-                        <option value="10 Days 9 Nights">10 Days 9 Nights</option>
-                    </select>
-                </div>
+                            <option value="">[ Select duration ]</option>
+                            <option value="2 Days 1 Night">2 Days 1 Night</option>
+                            <option value="3 Days 2 Nights">3 Days 2 Nights</option>
+                            <option value="4 Days 3 Nights">4 Days 3 Nights</option>
+                            <option value="5 Days 4 Nights">5 Days 4 Nights</option>
+                            <option value="6 Days 5 Nights">6 Days 5 Nights</option>
+                            <option value="7 Days 6 Nights">7 Days 6 Nights</option>
+                            <option value="8 Days 7 Nights">8 Days 7 Nights</option>
+                            <option value="9 Days 8 Nights">9 Days 8 Nights</option>
+                            <option value="10 Days 9 Nights">10 Days 9 Nights</option>
+                        </select>
+                    </div>
+                ) : (
+                    <div>
+                        <Label htmlFor="preferred_days" required>Select Preferred day/s for event</Label>
+                        <select
+                            id="preferred_days"
+                            name="preferred_days"
+                            value={data.preferred_days ?? ''}
+                            onChange={(e) => setData('preferred_days', e.target.value)}
+                            className="w-full border rounded px-3 py-2"
+                        >
+                            <option value="">[ Select day/s ]</option>
+                            {Array.from({ length: 4 }, (_, i) => i + 1).map((day) => (
+                            <option key={day} value={day}>
+                                {day} {day === 1 ? "Day" : "Days"}
+                            </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 <div className="grid gap-2">
                     <div className="gray-card">
@@ -664,7 +686,7 @@ export default function Index({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="base_price" required>Base Price / person</Label>
+                    <Label htmlFor="base_price" required>{data.package_type == 'normal' ? 'Base Price / person' : 'Fixed Down Payment Price/person'}</Label>
                     <div className="flex flex-row items-center">
                         <PriceSign />
                         <Input
@@ -679,19 +701,21 @@ export default function Index({
 
                 <hr />
 
-                <div className="grid gap-2 mb-12">
-                    <VanSelection
-                        preferredVans={vanList}
-                        drivers={drivers || []}
-                        selectedVanIds={selectedVanIds}
-                        onSelect={toggleVanSelection}
-                        onChange={handleSelectAllVan}
-                        textLabel={`Select vans users can book${data.package_type != 'normal' ? ' (Optional)' : ''}`}
-                        required={data.package_type == 'normal'}
-                        onSave={(newVans) => addPreferredVans(newVans)}
-                        vanCategories={vanCategories}
-                    />
-                </div>
+                {data.package_type == 'normal' && (
+                    <div className="grid gap-2 mb-12">
+                        <VanSelection
+                            preferredVans={vanList}
+                            drivers={drivers || []}
+                            selectedVanIds={selectedVanIds}
+                            onSelect={toggleVanSelection}
+                            onChange={handleSelectAllVan}
+                            textLabel={`Select vans users can book${data.package_type != 'normal' ? ' (Optional)' : ''}`}
+                            required={data.package_type == 'normal'}
+                            onSave={(newVans) => addPreferredVans(newVans)}
+                            vanCategories={vanCategories}
+                        />
+                    </div>
+                )}
 
                 <hr />
                 <div>

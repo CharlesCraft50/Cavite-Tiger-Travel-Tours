@@ -164,7 +164,7 @@ class BookingController extends Controller
             $booking->otherServices()->sync($request->input('other_services'));
         }
 
-        $fieldsToUpdate = collect(['preferred_van_id', 'departure_date', 'return_date', 'status', 'notes', 'pickup_address', 'total_amount', 'is_final_total', 'pax_adult', 'pax_kids'])
+        $fieldsToUpdate = collect(['preferred_van_id', 'departure_date', 'return_date', 'status', 'notes', 'pickup_address', 'total_amount', 'is_final_total', 'pax_adult', 'pax_kids', 'airport_transfer_type'])
             ->filter(fn ($field) => $request->has($field))
             ->mapWithKeys(fn ($field) => [$field => $request->input($field)])
             ->toArray();

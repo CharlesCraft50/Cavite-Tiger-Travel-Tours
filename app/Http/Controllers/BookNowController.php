@@ -86,13 +86,15 @@ class BookNowController extends Controller
     {
         $validated = $request->validated();
 
-        // Get package, category, van, other services
+        // Get the tour package with related data
         $package = TourPackage::with(['categories', 'otherServices'])->findOrFail($validated['tour_package_id']);
 
         $availability = null;
         $van = null;
+        $from = null;
+        $until = null;
 
-        // Only check van availability if user selected a van
+        // Check van availability only if selected
         if (! empty($validated['preferred_van_id'])) {
             $availability = $this->availabilityService->getAvailableDateRanges($validated['preferred_van_id']);
             if (empty($availability)) {
@@ -100,7 +102,7 @@ class BookNowController extends Controller
             }
         }
 
-        // Handle file uploads for valid IDs
+        // Handle valid ID uploads
         $validIdPaths = [];
         if ($request->hasFile('valid_id')) {
             foreach ($request->file('valid_id') as $index => $file) {
@@ -108,40 +110,47 @@ class BookNowController extends Controller
                 $path = $file->storeAs($request->user()->id.'/valid_id', $filename, 'public');
                 $validIdPaths[] = asset('storage/'.$path);
             }
-        }
-
-        if (! empty($validIdPaths)) {
             $validated['valid_id_paths'] = $validIdPaths;
         }
 
-        // Compute dates based on duration
-        $from = Carbon::parse($validated['departure_date']);
-
-        if (preg_match('/(\d+)\s*D(?:ays?)?\s*(\d+)\s*N(?:ights?)?/i', $package->duration, $matches)) {
-            $days = (int) $matches[1];
-            $nights = (int) $matches[2];
-        } else {
-            $days = (int) filter_var($package->duration, FILTER_SANITIZE_NUMBER_INT);
-            $nights = $days > 0 ? $days - 1 : 0;
+        // Parse departure date
+        if (! empty($validated['departure_date'])) {
+            $from = Carbon::parse($validated['departure_date']);
         }
 
-        $until = $from->copy()->addDays($nights);
-
-        // Only check date availability if van is selected
-        if (! empty($validated['preferred_van_id']) && $availability) {
-            if (in_array($from->toDateString(), $availability['fully_booked_dates']) ||
-                in_array($until->toDateString(), $availability['fully_booked_dates'])) {
-                return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
+        // Determine duration days and nights
+        $days = 1;
+        $nights = 0;
+        if ($package->duration) {
+            if (preg_match('/(\d+)\s*D(?:ays?)?\s*(\d+)\s*N(?:ights?)?/i', $package->duration, $matches)) {
+                $days = (int) $matches[1];
+                $nights = (int) $matches[2];
+            } else {
+                $days = (int) filter_var($package->duration, FILTER_SANITIZE_NUMBER_INT);
+                $nights = max(0, $days - 1);
             }
         }
 
-        // Per-person pricing
+        // Compute until date if from exists
+        if ($from) {
+            $until = $from->copy()->addDays($nights);
+
+            // Check if selected van is available for these dates
+            if (! empty($validated['preferred_van_id']) && $availability) {
+                $fullyBooked = collect($availability['fully_booked_dates'] ?? []);
+                if ($fullyBooked->contains($from->toDateString()) || $fullyBooked->contains($until->toDateString())) {
+                    return back()->withErrors(['departure_date' => 'Selected van is fully booked for your chosen dates.']);
+                }
+            }
+        }
+
+        // Calculate total amount
         $adults = (int) ($validated['pax_adult'] ?? 1);
         $kids = (int) ($validated['pax_kids'] ?? 0);
         $people = $adults + $kids;
         $totalAmount = $people * $package->base_price;
 
-        // Add category price if needed
+        // Add category price
         if (! empty($validated['package_category_id'])) {
             $category = $package->categories->firstWhere('id', $validated['package_category_id']);
             if ($category && $category->use_custom_price && $category->custom_price !== null) {
@@ -149,14 +158,16 @@ class BookNowController extends Controller
             }
         }
 
-        // Only add van fee if one was chosen
+        // Add van fee if selected
         if (! empty($validated['preferred_van_id'])) {
-            $van = PreferredVan::findOrFail($validated['preferred_van_id']);
-            $totalAmount += $van->additional_fee ?? 0;
+            $van = PreferredVan::find($validated['preferred_van_id']);
+            if ($van) {
+                $totalAmount += $van->additional_fee ?? 0;
+            }
         }
 
-        // Add other services
-        if ($request->has('other_services')) {
+        // Add other service prices
+        if ($request->filled('other_services')) {
             foreach ($request->input('other_services') as $serviceId) {
                 $service = $package->otherServices->firstWhere('id', $serviceId);
                 if ($service) {
@@ -165,54 +176,52 @@ class BookNowController extends Controller
             }
         }
 
-        $preferredPreparation = PreferredPreparation::findOrFail($validated['preferred_preparation_id']);
-
+        // Only check preparation if provided
+        $preferredPreparation = null;
         if (! empty($validated['preferred_preparation_id'])) {
-            if ($preferredPreparation->name == 'land') {
+            $preferredPreparation = PreferredPreparation::find($validated['preferred_preparation_id']);
+            if ($preferredPreparation && $preferredPreparation->name === 'land') {
                 $validated['is_final_total'] = true;
             }
         }
 
-        // Save booking
+        // Create the booking
         $userId = Auth::id();
         $booking = Booking::create([
             ...$validated,
-            'return_date' => $until->toDateString(),
+            'return_date' => $until ? $until->toDateString() : null,
             'total_amount' => $totalAmount,
             'driver_id' => $validated['driver_id'] ?? null,
             'user_id' => $userId,
         ]);
 
-        if ($request->has('other_services')) {
+        // Sync other services
+        if ($request->filled('other_services')) {
             $booking->otherServices()->sync($request->input('other_services'));
         }
 
-        // Send confirmation email (with error handling)
+        // Send confirmation email (safe)
         try {
-            Mail::to($booking->email)->send(new BookingCreated($booking, $preferredPreparation));
+            if ($preferredPreparation) {
+                Mail::to($booking->email)->send(new BookingCreated($booking, $preferredPreparation));
+            }
         } catch (\Exception $e) {
             \Log::error('Booking email failed: '.$e->getMessage());
-            if (! empty($validated['preferred_preparation_id'])) {
-                if ($preferredPreparation->name == 'all_in') {
-                    return Inertia::render('success-page', [
-                        'title' => 'Booking Submitted!',
-                        'description' => 'Await admin approval and final amount before payment. Your booking has been saved, but the confirmation email could not be sent. Please contact support if you need details.',
-                        'redirectUrl' => route('bookings.show', $booking->id),
-                    ]);
-                } else {
-                    return to_route('booking.payment', ['booking_id' => $booking->id]);
-                }
-            }
+
+            return Inertia::render('success-page', [
+                'title' => 'Booking Submitted!',
+                'description' => 'Your booking has been saved, but we couldn’t send the confirmation email. Please contact support for details.',
+                'redirectUrl' => route('bookings.show', $booking->id),
+            ]);
         }
 
-        if (! empty($validated['preferred_preparation_id'])) {
-            if ($preferredPreparation->name == 'all_in') {
-                return Inertia::render('success-page', [
-                    'title' => 'Booking Submitted!',
-                    'description' => 'Await admin approval and final amount before payment.',
-                    'redirectUrl' => route('bookings.show', $booking->id),
-                ]);
-            }
+        // Handle post-booking redirects
+        if ($preferredPreparation && $preferredPreparation->name === 'all_in') {
+            return Inertia::render('success-page', [
+                'title' => 'Booking Submitted!',
+                'description' => 'Await admin approval and final amount before payment.',
+                'redirectUrl' => route('bookings.show', $booking->id),
+            ]);
         }
 
         return to_route('booking.payment', ['booking_id' => $booking->id]);

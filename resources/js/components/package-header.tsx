@@ -14,6 +14,7 @@ import { isAdmin, isDriver, isStaff } from "@/lib/utils";
 type PackageBannerProps = {
   id?: number;
   title?: string;
+  subtitle?: string | null | undefined;
   imageBanner?: string | string[];
   base_price?: number;
   size?: Array<string>;
@@ -31,6 +32,7 @@ type PackageBannerProps = {
 export default function PackageHeader({
   id,
   title,
+  subtitle,
   imageBanner,
   base_price,
   size = ["h-64", "md:h-96"],
@@ -246,9 +248,9 @@ export default function PackageHeader({
         <div className="absolute inset-0 z-20 bg-black/40 flex items-center p-12 pointer-events-none">
           <div
             className={clsx(
-              textSize === "small" && "w-full md:w-[50%]",
-              textSize === "large" && "w-full md:w-[30%]",
-              textSize === "medium" && "w-full md:w-[40%]",
+              textSize === "small" && "w-full md:w-[80%]",
+              textSize === "large" && "w-full md:w-[60%]",
+              textSize === "medium" && "w-full md:w-[50%]",
               !["small", "medium", "large"].includes(textSize) && "w-full md:w-[40%]",
               "text-white"
             )}
@@ -263,7 +265,7 @@ export default function PackageHeader({
                 "font-bold leading-tight uppercase"
               )}
             >
-              Package Tours
+              {subtitle ? subtitle : "Package Tours"}
             </h1>
           </div>
         </div>

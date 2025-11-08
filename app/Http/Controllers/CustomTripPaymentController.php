@@ -45,7 +45,7 @@ class CustomTripPaymentController extends Controller
 
         if ($trip->payment && $trip->payment->status === 'pending') {
             return Inertia::render('success-page', [
-                'title' => '✅ Payment Submitted',
+                'title' => 'Payment Submitted',
                 'description' => 'We’ve received your payment and it’s now being reviewed. You’ll get a confirmation soon. Thank you!',
                 'redirectUrl' => route('customTrips.show', $trip->id),
             ]);

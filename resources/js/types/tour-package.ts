@@ -30,6 +30,7 @@ export interface TourPackage {
 
     package_type: string;
     event_type?: string | null;
+    preferred_days?: number | null | undefined;
 
     other_services: OtherService[];
     package_categories: PackageCategory[];

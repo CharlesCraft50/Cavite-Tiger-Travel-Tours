@@ -40,6 +40,8 @@ export interface Booking {
     is_final_total: boolean;
     is_completed: boolean;
     preferred_preparation_id: number;
+    airport_transfer_type: string;
+    preferred_days?: number | null | undefined;
     
     preferred_preparation: PreferredPreparation;
     valid_id_paths?: string[]; 

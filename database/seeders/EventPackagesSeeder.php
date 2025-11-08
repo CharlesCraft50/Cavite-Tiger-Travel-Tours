@@ -25,6 +25,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'exclusive',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Taylor Swift Eras Tour VIP',
@@ -39,6 +40,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'exclusive',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Formula 1 Singapore Grand Prix VIP',
@@ -53,6 +55,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'exclusive',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 1,
             ],
             [
                 'title' => 'Ed Sheeran Mathematics Tour',
@@ -67,6 +70,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'exclusive',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
 
             // FESTIVAL EVENTS (4)
@@ -83,6 +87,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'festival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 3,
             ],
             [
                 'title' => 'Ati-Atihan Festival Experience',
@@ -97,6 +102,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'festival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 3,
             ],
             [
                 'title' => 'Panagbenga Flower Festival',
@@ -111,6 +117,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'festival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 2,
             ],
             [
                 'title' => 'MassKara Festival Bacolod',
@@ -125,6 +132,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'festival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 3,
             ],
 
             // SEASONAL EVENTS (4)
@@ -141,6 +149,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'seasonal',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 2,
             ],
             [
                 'title' => 'Valentine\'s Day Romantic Cruise',
@@ -155,6 +164,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'seasonal',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 3,
             ],
             [
                 'title' => 'Halloween Horror Nights',
@@ -169,6 +179,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'seasonal',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 2,
             ],
             [
                 'title' => 'Easter Island Hopping Adventure',
@@ -183,6 +194,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'seasonal',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 3,
             ],
 
             // POPULAR EVENTS (4)
@@ -199,6 +211,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'popular',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 1,
             ],
             [
                 'title' => 'Wanderland Music & Arts Festival',
@@ -213,6 +226,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'popular',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 3,
             ],
             [
                 'title' => 'Ultra Philippines EDM Festival',
@@ -227,6 +241,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'popular',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 2,
             ],
             [
                 'title' => 'Manila International Book Fair',
@@ -241,6 +256,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'popular',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 3,
             ],
 
             // LIMITED TIME EVENTS (4)
@@ -257,6 +273,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'limited_time',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 2,
             ],
             [
                 'title' => 'Black Friday Shopping Spree',
@@ -271,6 +288,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'limited_time',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => '24-Hour Food Festival',
@@ -285,6 +303,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'limited_time',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Weekend Art Market Special',
@@ -299,6 +318,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'limited_time',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
 
             // NEW ARRIVAL EVENTS (4)
@@ -315,6 +335,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'new_arrival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Gaming Expo Asia 2025',
@@ -329,6 +350,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'new_arrival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Virtual Reality Experience Center',
@@ -343,6 +365,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'new_arrival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 2,
             ],
             [
                 'title' => 'K-Pop Fan Meeting 2025',
@@ -357,6 +380,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'new_arrival',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 2,
             ],
 
             // FLASH SALE EVENTS (4)
@@ -373,6 +397,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'flash_sale',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Flash Deal: Water Park Day Pass',
@@ -387,6 +412,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'flash_sale',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Lightning Deal: Spa & Wellness Day',
@@ -401,6 +427,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'flash_sale',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
             [
                 'title' => 'Flash Sale: Theme Park Adventure',
@@ -415,6 +442,7 @@ class EventPackagesSeeder extends Seeder
                 'event_type' => 'flash_sale',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'preferred_days' => 4,
             ],
         ]);
     }

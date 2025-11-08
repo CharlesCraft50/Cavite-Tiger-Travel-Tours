@@ -638,7 +638,7 @@ export default function CustomTripDetails({
                             {data.payment.status === 'accepted' && (
                                 <>
                                     <p className="text-sm">
-                                        ✅ Payment <strong>accepted</strong> via <strong>{data.payment.payment_method}</strong>.
+                                        Payment <strong>accepted</strong> via <strong>{data.payment.payment_method}</strong>.
                                     </p>
                                     <p className="text-sm">
                                         Reference: <strong>{data.payment.reference_number}</strong>

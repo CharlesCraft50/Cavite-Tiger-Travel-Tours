@@ -24,6 +24,8 @@ class UpdateBookingRequest extends FormRequest
             'pax_adult' => ['nullable', 'numeric'],
             'pax_kids' => ['nullable', 'numeric'],
             'payment_status' => ['nullable', 'string'],
+            'airport_transfer_type' => ['nullable', 'in:going_airport,going_home,back_to_back', 'required_with:preferred_van_id'],
+            'preferred_day' => ['nullable', 'integer'],
             'pickup_address' => ['sometimes', 'string', 'max:255'],
         ];
     }

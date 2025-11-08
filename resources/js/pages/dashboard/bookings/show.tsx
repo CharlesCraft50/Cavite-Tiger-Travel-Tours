@@ -22,7 +22,7 @@ export default function Show({ booking, otherServices, packages, vans, isAdmin, 
         <DashboardLayout title="Bookings" href="/bookings">
             <div className="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold">Booking Details</h1>
+                    <h1 className="text-2xl font-bold">{packages.package_type == 'normal' ? 'Booking' : 'Event'} Details</h1>
                 </div>
         
                 <Link

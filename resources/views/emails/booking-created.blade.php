@@ -21,7 +21,7 @@ Your booking **#{{ $booking->booking_number }}** has been **submitted**.
 Our team will contact you shortly with the total cost and details for payment confirmation.
 
 @else
-**✅ Next Step:** To confirm your booking, please pay using GCash and submit your reference number and proof of payment.
+**Next Step:** To confirm your booking, please pay using GCash and submit your reference number and proof of payment.
 
 @component('mail::panel')
 - Gcash payment method only  

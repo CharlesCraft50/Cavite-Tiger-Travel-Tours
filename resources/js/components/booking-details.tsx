@@ -20,6 +20,7 @@ import FadePopup from './ui/fade-popup';
 import { AnimatePresence } from 'framer-motion';
 import UserReview from './user-review';
 import NoteMessage from './ui/note-message';
+import { airportTransferTypes } from '@/pages/book-now/create';
 
 type BookingDetailsProp = {
     booking: Booking;
@@ -162,6 +163,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         pax_adult: number;
         pax_kids: number;
         payment_status: string;
+        airport_transfer_type?: string | null | undefined;
     }
 
     const { data, setData, processing, errors } = useForm<BookingDetailForm>({
@@ -177,6 +179,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         pax_adult: booking.pax_adult,
         pax_kids: booking.pax_kids,
         payment_status: booking.payment?.status,
+        airport_transfer_type: booking.airport_transfer_type,
     });
 
     const toggleVanSelection = (vanId: number) => {
@@ -257,7 +260,8 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             (data.pax_adult) !== (booking.pax_adult) ||
             (data.pax_kids) !== (booking.pax_kids) ||
             (data.total_amount) !== (booking.total_amount) ||
-            (data.is_final_total) !== (booking.is_final_total);
+            (data.is_final_total) !== (booking.is_final_total) ||
+            (data.airport_transfer_type) !== (booking.airport_transfer_type);
 
         setHasChanges(changed);
     }, [data, booking]);
@@ -296,6 +300,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         formData.append('pax_adult', data.pax_adult.toString());
         formData.append('total_amount', Math.floor(data.total_amount).toString());
         formData.append('is_final_total', data.is_final_total ? '1' : '0');
+        formData.append('airport_transfer_type', data.airport_transfer_type ?? '');
 
         if (data.payment_status && data.payment_status !== '') {
             formData.append('payment_status', data.payment_status);
@@ -349,11 +354,11 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
         const otherServiceIds = booking.other_services?.map((s) => s.id) ?? [];
         setData('other_services', otherServiceIds);
-        setSelectedOtherServiceIds(otherServiceIds); // ✅ sync UI state
+        setSelectedOtherServiceIds(otherServiceIds); // sync UI state
 
         const preferredVanId = booking.preferred_van?.id ?? null;
         setData('preferred_van_id', preferredVanId);
-        setSelectedVanIds(preferredVanId ? [preferredVanId] : []); // ✅ sync UI state
+        setSelectedVanIds(preferredVanId ? [preferredVanId] : []); // sync UI state
 
         toggleIsEditing();
     }
@@ -540,11 +545,28 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                         <div>
                             <p className="text-sm text-gray-600">Tour Package</p>
                             <p className="text-base font-medium">{booking.tour_package?.title}</p>
+                            {booking.preferred_days && (
+                                <>
+                                    <p className="text-sm text-gray-600 mt-2">Selected Preferred Day/s</p>
+                                    <p className="text-base font-medium">{booking.preferred_days} {booking.preferred_days > 1 ? 'Days' : 'Day'}</p>
+                                </>
+                            )}
+
+                            {booking.tour_package?.package_type == 'event' && (
+                                <>
+                                    <p className="text-sm text-gray-600 mt-2">Trip Type</p>
+                                    <p className="text-base font-medium">Round Trip</p>
+                                </>
+                            )}
 
                             {/* <p className="text-sm text-gray-600 mt-2">Selected Option</p>
                             <p className="text-base font-medium">{booking.package_category?.name}</p> */}
-                            <p className="text-sm text-gray-600 mt-2">Selected Preferred Preparation</p>
-                            <p className="text-base font-medium">{booking.preferred_preparation?.label}</p>
+                            {booking.preferred_preparation && (
+                                <>
+                                    <p className="text-sm text-gray-600 mt-2">Selected Preferred Preparation</p>
+                                    <p className="text-base font-medium">{booking.preferred_preparation?.label}</p>
+                                </>
+                            )}
 
                             {!!booking.preferred_preparation?.requires_valid_id && (booking.valid_id_paths || []).length > 0 && (
                                 <>
@@ -585,140 +607,185 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
                         <hr />
 
-                        <div>
-                            {booking.preferred_van && (<p className="text-sm text-gray-600">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({booking.pax_adult} Pax)</span>)}</p>)}
-                            {editable && isEditing ? (
-                                <>
-                                    <VanSelection 
-                                        preferredVans={vans || []}
-                                        selectedVanIds={selectedVanIds}
-                                        onSelect={toggleVanSelection}
-                                        vanCategories={vanCategories}
-                                        small
-                                    />
-
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="pax_adult">No. of Pax</Label>
-                                        <Input
-                                            id="pax_adult"
-                                            type="number"
-                                            required
-                                            className="w-full p-2 border-1 border-gray-200 rounded-lg"
-                                            value={selectedVanIds.length === 0 ? '' : data.pax_adult}
-                                            disabled={processing || selectedVanIds.length === 0}
-                                            placeholder="1"
-                                            max={vans?.find(v => v.id === selectedVanIds[0])?.pax_adult}
-                                            min={1}
-                                            onChange={(e) => {
-                                                const value = e.target.value;
-                                                // If cleared, always reset to 1
-                                                setData('pax_adult', value === '' ? 1 : Number(value));
-                                            }}
+                        {booking.tour_package?.package_type == 'normal' && (
+                            <>
+                                <div>
+                                    {booking.preferred_van && (<p className="text-sm text-gray-600">Preferred Van {!(editable && isEditing) && (<span className="text-sm text-gray-800">({booking.pax_adult} Pax)</span>)}</p>)}
+                                    {editable && isEditing ? (
+                                        <>
+                                            <VanSelection 
+                                                preferredVans={vans || []}
+                                                selectedVanIds={selectedVanIds}
+                                                onSelect={toggleVanSelection}
+                                                vanCategories={vanCategories}
+                                                small
                                             />
-                                        <InputError message={errors.pax_adult} className="mt-2" />
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    {booking.preferred_van && (<div className="flex justify-between border-1 border-t-0 border-r-0 border-l-0 border-b-gray-200">
-                                        <p className="text-base font-medium">{booking.preferred_van?.name}</p>
-                                        <span className="flex flex-row items-center text-sm text-gray-600">
-                                            <PriceSign />
-                                            <p>{booking.preferred_van?.additional_fee}</p>
-                                        </span>
-                                    </div>)}
-                                    
-                                    {booking.preferred_van?.plate_number != null && (
+
+                                            <div className="grid gap-2 mt-2">
+                                                <Label htmlFor="pax_adult">No. of Pax</Label>
+                                                <Input
+                                                    id="pax_adult"
+                                                    type="number"
+                                                    required
+                                                    className="w-full p-2 border-1 border-gray-200 rounded-lg"
+                                                    value={selectedVanIds.length === 0 ? '' : data.pax_adult}
+                                                    disabled={processing || selectedVanIds.length === 0}
+                                                    placeholder="1"
+                                                    max={vans?.find(v => v.id === selectedVanIds[0])?.pax_adult}
+                                                    min={1}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        // If cleared, always reset to 1
+                                                        setData('pax_adult', value === '' ? 1 : Number(value));
+                                                    }}
+                                                    />
+                                                <InputError message={errors.pax_adult} className="mt-2" />
+                                            </div>
+
+                                            {selectedVanIds && (
+                                                <div className="grid grid-cols-1 gap-6 mt-4">
+                                                    <Label htmlFor="airport_transfer_type" required>Airport Transfer Type</Label>
+                                                    <select
+                                                        id="airport_transfer_type"
+                                                        value={data.airport_transfer_type ?? ''}
+                                                        onChange={(e) => setData('airport_transfer_type', e.target.value)}
+                                                        className="border p-2 rounded cursor-pointer"
+                                                    >
+                                                        <option value="">Select transfer type...</option>
+                                                        {airportTransferTypes.map((opt) => (
+                                                            <option key={opt.value} value={opt.value}>
+                                                                {opt.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            {data.airport_transfer_type && (
+                                                <div className="mt-2">
+                                                    <NoteMessage
+                                                        type="note"
+                                                        message={airportTransferTypes.find((opt) => opt.value === data.airport_transfer_type)?.note ?? ''}
+                                                    />
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
                                         <>
-                                            <p className="text-sm text-gray-800">Plate Number</p>
-                                            <span className="text-black font-semibold">{booking.preferred_van?.plate_number}</span>
+                                            {booking.preferred_van && (<div className="flex justify-between border-1 border-t-0 border-r-0 border-l-0 border-b-gray-200">
+                                                <p className="text-base font-medium">{booking.preferred_van?.name}</p>
+                                                <span className="flex flex-row items-center text-sm text-gray-600">
+                                                    <PriceSign />
+                                                    <p>{booking.preferred_van?.additional_fee}</p>
+                                                </span>
+                                            </div>)}
+                                            
+                                            {booking.preferred_van?.plate_number != null && (
+                                                <>
+                                                    <p className="text-sm text-gray-800">Plate Number</p>
+                                                    <span className="text-black font-semibold">{booking.preferred_van?.plate_number}</span>
+                                                </>
+                                            )}
+
+                                            {booking.preferred_van && (
+                                                <>
+                                                    <p className="text-sm text-gray-800">Assigned Driver</p>
+                                                    <span className="text-black font-semibold">{booking?.preferred_van.driver?.first_name} {booking?.preferred_van.driver?.last_name}</span>
+                                                </>
+                                            )}
+
+                                            {booking.airport_transfer_type && (
+                                                <>
+                                                    <p className="text-sm text-gray-800">Airport Transfer Type</p>
+                                                    <span className="text-black font-semibold">
+                                                    {{
+                                                        going_airport: "Going Airport",
+                                                        going_home: "Going Home",
+                                                        back_to_back: "Back to Back",
+                                                    }[booking.airport_transfer_type] || booking.airport_transfer_type}
+                                                    </span>
+                                                </>
+                                            )}
+
                                         </>
                                     )}
+                                </div>
 
-                                    {booking.preferred_van && (
-                                        <>
-                                            <p className="text-sm text-gray-800">Assigned Driver</p>
-                                            <span className="text-black font-semibold">{booking?.preferred_van.driver?.first_name} {booking?.preferred_van.driver?.last_name}</span>
-                                        </>
-                                    )}
-
-                                </>
-                            )}
-                        </div>
-
-                        <hr />
-                        
-                        <div>
-                            {/* Departure Date */}
-                            <p className="text-sm text-gray-600">Departure Date</p>
-                            {editable && isEditing ? (
-                                <div className="flex flex-row items-center p-2">
-                                    <DatePicker
-                                        disabled={processing}
-                                        selected={data.departure_date ? new Date(data.departure_date) : null}
-                                        onChange={(date: Date | null) => {
-                                            if (date) {
-                                                const isoDate = format(date, 'yyyy-MM-dd');
-                                                setData("departure_date", isoDate);
-            
-                                                // Clear return_date if it becomes invalid
-                                                if (data.return_date && new Date(data.return_date) < date) {
-                                                    setData("return_date", "");
+                                <hr />
+                                
+                                <div>
+                                    {/* Departure Date */}
+                                    <p className="text-sm text-gray-600">Departure Date</p>
+                                    {editable && isEditing ? (
+                                        <div className="flex flex-row items-center p-2">
+                                            <DatePicker
+                                                disabled={processing}
+                                                selected={data.departure_date ? new Date(data.departure_date) : null}
+                                                onChange={(date: Date | null) => {
+                                                    if (date) {
+                                                        const isoDate = format(date, 'yyyy-MM-dd');
+                                                        setData("departure_date", isoDate);
+                    
+                                                        // Clear return_date if it becomes invalid
+                                                        if (data.return_date && new Date(data.return_date) < date) {
+                                                            setData("return_date", "");
+                                                        }
+                                                    }
+                                                }}
+                                                dateFormat="yyyy-MM-dd"
+                                                minDate={
+                                                    availableDates?.from
+                                                        ? new Date(
+                                                            Math.max(
+                                                                new Date(availableDates.from).getTime(),
+                                                                addDays(new Date(), 3).getTime() // 3 days from today
+                                                            )
+                                                        )
+                                                        : addDays(new Date(), 3) // fallback: 3 days from today
                                                 }
-                                            }
-                                        }}
-                                        dateFormat="yyyy-MM-dd"
-                                        minDate={
-                                            availableDates?.from
-                                                ? new Date(
-                                                    Math.max(
-                                                        new Date(availableDates.from).getTime(),
-                                                        addDays(new Date(), 3).getTime() // 3 days from today
-                                                    )
-                                                )
-                                                : addDays(new Date(), 3) // fallback: 3 days from today
-                                        }
-                                        maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
-                                        excludeDates={
-                                            availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
-                                        }
-                                        placeholderText="Select a departure date"
-                                        className="w-full border px-3 py-2 rounded-md"
-                                    />
-                                    <InputError message={errors.departure_date} className="mt-2" />
-                                </div>
-                            ) : (
-                                <p className="text-base font-medium">{formatDate(booking.departure_date)}</p>
-                            )}
+                                                maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
+                                                excludeDates={
+                                                    availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
+                                                }
+                                                placeholderText="Select a departure date"
+                                                className="w-full border px-3 py-2 rounded-md"
+                                            />
+                                            <InputError message={errors.departure_date} className="mt-2" />
+                                        </div>
+                                    ) : (
+                                        <p className="text-base font-medium">{formatDate(booking.departure_date)}</p>
+                                    )}
 
-                            {/* Return Date */}
-                            <p className="text-sm text-gray-600 mt-2">Return Date</p>
-                            {editable && isEditing ? (
-                                <div className="flex flex-row items-center p-2">
-                                    <DatePicker
-                                        disabled={processing}
-                                        selected={data.return_date ? new Date(data.return_date) : null}
-                                        onChange={(date: Date | null) => {
-                                            if (date) {
-                                            const isoDate = format(date, 'yyyy-MM-dd');
-                                                setData("return_date", isoDate);
-                                            }
-                                        }}
-                                        dateFormat="yyyy-MM-dd"
-                                        minDate={data.departure_date ? new Date(data.departure_date) : (availableDates?.from ? new Date(availableDates.from) : undefined)}
-                                        maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
-                                        excludeDates={
-                                            availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
-                                        }
-                                        placeholderText="Select a return date"
-                                        className="w-full border px-3 py-2 rounded-md"
-                                    />
-                                    <InputError message={errors.departure_date} className="mt-2" />
+                                    {/* Return Date */}
+                                    <p className="text-sm text-gray-600 mt-2">Return Date</p>
+                                    {editable && isEditing ? (
+                                        <div className="flex flex-row items-center p-2">
+                                            <DatePicker
+                                                disabled={processing}
+                                                selected={data.return_date ? new Date(data.return_date) : null}
+                                                onChange={(date: Date | null) => {
+                                                    if (date) {
+                                                    const isoDate = format(date, 'yyyy-MM-dd');
+                                                        setData("return_date", isoDate);
+                                                    }
+                                                }}
+                                                dateFormat="yyyy-MM-dd"
+                                                minDate={data.departure_date ? new Date(data.departure_date) : (availableDates?.from ? new Date(availableDates.from) : undefined)}
+                                                maxDate={availableDates?.until ? new Date(availableDates.until) : undefined}
+                                                excludeDates={
+                                                    availableDates?.fully_booked_dates?.map(date => new Date(date)) ?? []
+                                                }
+                                                placeholderText="Select a return date"
+                                                className="w-full border px-3 py-2 rounded-md"
+                                            />
+                                            <InputError message={errors.departure_date} className="mt-2" />
+                                        </div>
+                                    ) : (
+                                        <p className="text-base font-medium">{formatDate(booking.return_date)}</p>
+                                    )}
                                 </div>
-                            ) : (
-                                <p className="text-base font-medium">{formatDate(booking.return_date)}</p>
-                            )}
-                        </div>
+                            </>
+                        )}
 
                         <hr />
 
@@ -893,7 +960,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                                     {booking.payment.status === 'accepted' && (
                                                         <>
                                                             <p className="text-sm">
-                                                                ✅ Payment <strong>accepted</strong> via <strong>{booking.payment.payment_method}</strong>.
+                                                                Payment <strong>accepted</strong> via <strong>{booking.payment.payment_method}</strong>.
                                                             </p>
                                                             <p className="text-sm">
                                                                 Reference: <strong>{booking.payment.reference_number}</strong>

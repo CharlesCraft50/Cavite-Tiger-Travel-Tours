@@ -34,7 +34,7 @@ export default function TermsAndConditions({disableNav} : {disableNav?: boolean;
                             Cavite Tiger Travel and Tours.
                         </li>
 
-                        {/* ✅ Extra Professional Clauses Below */}
+                        {/* Extra Professional Clauses Below */}
                         <li>
                             <strong>Payment Terms:</strong> Full payment must be settled before the day of departure unless otherwise agreed upon in writing. Failure to pay the remaining balance may result in the cancellation of the booking.
                         </li>

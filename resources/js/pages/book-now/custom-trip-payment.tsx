@@ -99,7 +99,7 @@ export default function Payment({
                         </>
                     ) : (
                         <>
-                            <p className="font-semibold text-base">✅ Booking Created! Payment Needed to Confirm</p>
+                            <p className="font-semibold text-base">Booking Created! Payment Needed to Confirm</p>
                             <p>Your booking has been successfully created, but it's <strong>not confirmed yet</strong>.</p>
                             <p>
                                 You can also view it here:{" "}

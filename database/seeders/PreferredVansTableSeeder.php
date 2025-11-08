@@ -122,6 +122,6 @@ class PreferredVansTableSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('✅ Preferred vans seeded successfully with random plate numbers and assigned drivers.');
+        $this->command->info('Preferred vans seeded successfully with random plate numbers and assigned drivers.');
     }
 }

@@ -34,6 +34,8 @@ class Booking extends Model
         'driver_id',
         'preferred_preparation_id',
         'valid_id_paths',
+        'airport_transfer_type',
+        'preferred_days',
     ];
 
     protected $casts = [

@@ -59,7 +59,7 @@ class BookingPaymentController extends Controller
         if ($booking->payment) {
             if ($booking->payment->status == 'pending') {
                 return Inertia::render('success-page', [
-                    'title' => '✅ Payment Submitted',
+                    'title' => 'Payment Submitted',
                     'description' => 'We’ve received your payment and it’s now being reviewed. You’ll get a confirmation soon. Thank you!',
                     'redirectUrl' => route('bookings.show', $booking->id),
                 ]);
