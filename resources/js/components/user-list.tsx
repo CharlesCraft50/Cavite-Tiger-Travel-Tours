@@ -2,7 +2,7 @@ import { isAdmin, isDriver } from '@/lib/utils';
 import { User } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -19,10 +19,21 @@ interface UserListProps {
 
 export default function UserList({ users }: UserListProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'rank'>('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const itemsPerPage = 10;
+
+  // Get sort parameter from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const sortParam = (urlParams.get('sort') || 'newest') as 'newest' | 'oldest' | 'rank';
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'rank'>(sortParam);
+
+  // Sync sortBy state with URL parameter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const currentSort = params.get('sort') || 'newest';
+    setSortBy(currentSort as 'newest' | 'oldest' | 'rank');
+  }, []);
 
   // Define rank order for sorting
   const rankOrder = {
@@ -55,6 +66,20 @@ export default function UserList({ users }: UserListProps) {
     setUserToDelete(null);
   };
 
+  const handleSortChange = (newSort: string) => {
+    setSortBy(newSort as 'newest' | 'oldest' | 'rank');
+    // Update URL without page reload
+    router.get(
+      route('users.index'),
+      { sort: newSort },
+      { 
+        preserveState: true,
+        preserveScroll: true,
+        replace: true
+      }
+    );
+  };
+
   return (
     <div className="rounded-lg border overflow-x-auto overflow-y-hidden">
       <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -68,7 +93,7 @@ export default function UserList({ users }: UserListProps) {
 
         <select
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as any)}
+          onChange={(e) => handleSortChange(e.target.value)}
           className="rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none"
         >
           <option value="newest">Sort by Newest</option>
