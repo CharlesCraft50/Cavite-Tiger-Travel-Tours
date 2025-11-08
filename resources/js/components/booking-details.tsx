@@ -871,7 +871,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
                         <div className="flex justify-between items-center bg-gray-50 dark:bg-accent px-4 py-3 rounded-md">
                             <div>
-                                {!booking.payment?.status && (
+                                {(
                                     <>
                                         <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
                                         {editable && isEditing ? (
