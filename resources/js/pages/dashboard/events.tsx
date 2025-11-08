@@ -292,7 +292,7 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
 
                           {/* Display average rating */}
                           {pkg.reviews && pkg.reviews.length > 0 && (
-                            <div className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 rounded-md flex items-center text-sm font-medium shadow">
+                            <div className="absolute bottom-2 left-2 bg-white/90 dark:bg-neutral-800 px-2 py-1 rounded-md flex items-center text-sm font-medium shadow">
                               <span className="text-yellow-400 mr-1">★</span>
                               <span>{roundedAvg} / 5</span>
                               <span className="ml-2 text-gray-500">({pkg.reviews.length})</span>
