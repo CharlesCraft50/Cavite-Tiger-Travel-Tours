@@ -128,7 +128,9 @@ export default function UserList({ users }: UserListProps) {
             paginatedUsers.map((user) => (
               <tr key={user.id}>
                 <td className="px-4 py-2">{user.first_name}</td>
-                <td className="px-4 py-2">{user.email}</td>
+                <td className="px-4 py-2 max-w-[180px] truncate whitespace-nowrap" title={user.email}>
+                  {user.email}
+                </td>
                 <td className="px-4 py-2">
                   <span className={clsx(
                     'inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize',
