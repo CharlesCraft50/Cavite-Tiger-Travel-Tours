@@ -489,7 +489,7 @@ export default function Create({
                         <Label htmlFor="trip_type" required>Trip Type</Label>
                         <select
                             id="trip_type"
-                            className="border p-2 rounded cursor-not-allowed bg-gray-100 text-gray-500 appearance-none"
+                            className="border p-2 rounded cursor-not-allowed dark:bg-accent bg-gray-100 text-gray-500 appearance-none"
                             value={'round_trip'}
                             disabled={true}
                         >
