@@ -340,7 +340,7 @@ export default function Create({
         }
 
         if (data.preferred_days != null && data.preferred_days > 0) {
-            total += data.preferred_days * people * 250;
+            total *= data.preferred_days;
         }
 
         setTotalAmount(total);
