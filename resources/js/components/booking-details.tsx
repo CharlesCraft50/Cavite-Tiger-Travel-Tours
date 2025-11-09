@@ -469,7 +469,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                     <div>
                         {booking.status == 'completed' && <div className="card text-sm p-3 bg-green-100 dark:bg-accent border-green-400">{booking.is_completed ? 'Confirmed Completed' : 'Completed'}</div>}
                     </div>
-                    {booking.is_completed == false && booking.status == 'completed' && isAdmins && (
+                    {booking.is_completed == false && booking.status == 'completed' && isAdmins && isStaffs && (
                         <Button className="btn-primary cursor-pointer" onClick={handleMarkCompletion}>
                             Mark Completion
                         </Button>

@@ -197,7 +197,7 @@ export default function CustomTripDetails({
             <div>
                 {trip.status == 'completed' && <div className="card text-sm p-3 bg-green-100 border-green-400">{trip.is_completed ? 'Confirmed Completed' : 'Completed'}</div>}
             </div>
-            {trip.is_completed == false && trip.status == 'completed' && isAdmins && (
+            {trip.is_completed == false && trip.status == 'completed' && isAdmins && isStaffs && (
                 <Button className="btn-primary cursor-pointer" onClick={handleMarkCompletion}>
                     Mark Completion
                 </Button>
