@@ -49,6 +49,7 @@ export default function CustomTripDetails({
     pickup_address: trip.pickup_address ?? '',
     destination: trip.destination ?? '',
     preferred_van_id: trip.preferred_van_id ?? null,
+    driver_id: trip.driver_id ?? null,
     status: trip.status ?? '',
     notes: trip.notes ?? '',
     payment_status: trip.payment?.status ?? 'pending',
@@ -63,11 +64,24 @@ export default function CustomTripDetails({
 
   const toggleVanSelection = (vanId: number) => {
     if (selectedVanIds.includes(vanId)) {
+      // Deselect van
       setSelectedVanIds([]);
-      setData({ ...data, preferred_van_id: null, pax_adult: 0 });
+      setData({ 
+        ...data, 
+        preferred_van_id: null, 
+        driver_id: null,
+        pax_adult: 0 
+      });
     } else {
+      // Select new van
+      const selectedVan = preferredVans.find(v => v.id === vanId);
       setSelectedVanIds([vanId]);
-      setData({ ...data, preferred_van_id: vanId });
+      setData({ 
+        ...data, 
+        preferred_van_id: vanId,
+        driver_id: selectedVan?.user_id || null,
+        pax_adult: data.pax_adult || 1 // Ensure pax_adult has a default value
+      });
     }
   };
 
@@ -97,6 +111,7 @@ export default function CustomTripDetails({
       ...data,
       pickup_time: data.pickup_time ? data.pickup_time.slice(0, 5) : '',
       is_final_total: data.is_final_total ? '1' : '0',
+      driver_id: data.driver_id,
     };
 
     const formData = new FormData();

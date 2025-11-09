@@ -63,7 +63,7 @@ class CustomTripController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $vans = PreferredVan::with(['availabilities', 'category'])->get();
+        $vans = PreferredVan::with(['availabilities', 'driver', 'category'])->get();
         $packages = TourPackage::with(['package_categories', 'other_services'])
             ->find($customTrip->tour_package_id);
         $vanCategories = VanCategory::all();
@@ -131,6 +131,7 @@ class CustomTripController extends Controller
             'trip_type',
             'costing_type',
             'duration',
+            'driver_id',
         ];
 
         $fieldsToUpdate = [];
