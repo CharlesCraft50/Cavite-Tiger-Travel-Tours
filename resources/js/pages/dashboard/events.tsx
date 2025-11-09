@@ -263,6 +263,11 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
               const allAreEvents = pkgs.every(pkg => pkg.package_type === 'event');
               if (!allAreEvents) return null;
 
+              const sorted = [...pkgs].sort((a, b) => {
+                const diff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                return sortOption === 'newest' ? diff : -diff;
+              });
+
               return (
                 <div key={eventType} className="mb-12">
                   <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
@@ -270,7 +275,7 @@ export default function Events({ packages: initialPackages, cities, selectedCoun
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {pkgs.map(pkg => {
+                    {sorted.map(pkg => {
                       // Compute average rating for this package
                       const avgRating =
                         pkg.reviews && pkg.reviews.length > 0
