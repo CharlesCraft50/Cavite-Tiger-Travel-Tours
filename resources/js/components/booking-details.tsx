@@ -1086,9 +1086,9 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 </div>
             )}
 
-            {(booking.user_id === auth.user.id || isAdmins) && (
+            {(booking.user_id === auth.user.id || isAdmins || isStaffs) && (
                 <>
-                    {(!hasReview && booking.status )=== 'completed' ? (
+                    {(!hasReview && booking.status) === 'completed' ? (
                         <div className="mt-10 p-6 bg-white dark:bg-accent shadow rounded-2xl border">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
                                 Share your experience
