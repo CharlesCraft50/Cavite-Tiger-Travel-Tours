@@ -15,6 +15,7 @@ class UpdateBookingRequest extends FormRequest
     {
         return [
             'preferred_van_id' => ['nullable', 'exists:preferred_vans,id'],
+            'driver_id' => ['nullable', 'integer', 'exists:users,id'],
             'departure_date' => ['nullable', 'date'],
             'return_date' => ['nullable', 'date', 'after_or_equal:departure_date'],
             'status' => ['sometimes', 'nullable', 'string'],
