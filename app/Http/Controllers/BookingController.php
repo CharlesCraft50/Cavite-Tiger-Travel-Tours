@@ -155,7 +155,6 @@ class BookingController extends Controller
      */
     public function update(UpdateBookingRequest $request, string $id)
     {
-        //
         $validated = $request->validated();
 
         $booking = Booking::findOrFail($id);
@@ -173,6 +172,19 @@ class BookingController extends Controller
             ->filter(fn ($field) => $request->has($field))
             ->mapWithKeys(fn ($field) => [$field => $request->input($field)])
             ->toArray();
+
+        // NEW: Automatically assign driver when preferred_van_id is set
+        if ($request->has('preferred_van_id') && $request->preferred_van_id) {
+            $van = PreferredVan::find($request->preferred_van_id);
+            if ($van && $van->driver_id) {
+                $fieldsToUpdate['driver_id'] = $van->driver_id;
+            }
+        }
+
+        // NEW: Clear driver_id if van is removed
+        if ($request->has('preferred_van_id') && ! $request->preferred_van_id) {
+            $fieldsToUpdate['driver_id'] = null;
+        }
 
         if (empty($fieldsToUpdate['status'])) {
             $fieldsToUpdate['status'] = $booking->status;
