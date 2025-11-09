@@ -39,6 +39,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     const [ comment, setComment ] = useState<string | null>(null);
     const userReview = packages?.reviews?.[0] ?? null;
     const [hasReview, setHasReview] = useState<boolean>(!!userReview?.id);
+    const [selectedVan, setSelectedVan] = useState<PreferredVan | null>(null);
     const [selectedOtherServiceIds, setSelectedOtherServiceIds] = useState<number[]>(
         booking.other_services?.map((s) => s.id) ?? []
     );
@@ -152,6 +153,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
     type BookingDetailForm = {
         preferred_van_id: number | null | undefined;
+        driver_id?: number | null | undefined;
         departure_date: string;
         return_date: string;
         status: string;
@@ -168,6 +170,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
     const { data, setData, processing, errors } = useForm<BookingDetailForm>({
         preferred_van_id: booking.preferred_van?.id,
+        driver_id: booking.preferred_van?.driver?.id ?? null,
         departure_date: booking.departure_date,
         return_date: booking.return_date,
         status: booking.status ?? '',
@@ -183,19 +186,62 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
     });
 
     const toggleVanSelection = (vanId: number) => {
+        console.log('Toggle van selection:', vanId, 'Current selected:', selectedVanIds);
+        
         if (selectedVanIds.includes(vanId)) {
+            // Deselect van
             setSelectedVanIds([]);
+            setSelectedVan(null);
             setData('preferred_van_id', null);
+            setData('driver_id', null); // Clear driver_id
             setAvailableDates(null);
-            setData('pax_adult', 0);
+            setData('pax_adult', 1);
             setData('pax_kids', 0);
-            // Reset total when van is deselected
-            setData('total_amount', booking.total_amount);
+            setData('airport_transfer_type', null);
+            
+            // Recalculate total without van
+            let total = 0;
+            const adults = 1;
+            const kids = 0;
+            const people = adults + kids;
+
+            total += people * (packages?.base_price ?? 0);
+
+            const selectedCategory = packages?.package_categories?.find(cat => cat.id === booking.package_category_id);
+            if (selectedCategory?.use_custom_price && selectedCategory.custom_price) {
+                total += Number(selectedCategory.custom_price);
+            }
+
+            for (const serviceId of selectedOtherServiceIds) {
+                const service = mergedOtherServices.find(s => s.id === serviceId);
+                if (service) {
+                    const price =
+                        service.pivot?.package_specific_price && service.pivot.package_specific_price > 0
+                            ? service.pivot.package_specific_price
+                            : service.price ?? 0;
+                    total += Number(price);
+                }
+            }
+
+            setData('total_amount', total);
         } else {
-            setSelectedVanIds([vanId]);
-            setData('preferred_van_id', vanId);
-            // Recalculate total based on the new van selection
+            // Select new van
             const selectedVan = vans?.find(v => v.id === vanId);
+            setSelectedVanIds([vanId]);
+            setSelectedVan(selectedVan || null);
+            setData('preferred_van_id', vanId);
+            
+            // Set driver_id from the selected van
+            if (selectedVan) {
+                setData('driver_id', selectedVan.user_id); // user_id is the driver_id in your data
+            }
+            
+            // Set a default airport transfer type when van is selected
+            if (!data.airport_transfer_type) {
+                setData('airport_transfer_type', 'going_airport');
+            }
+            
+            // Recalculate total with the new van
             let total = 0;
             const adults = Number(data.pax_adult) || 1;
             const kids = Number(data.pax_kids) || 0;
@@ -224,8 +270,19 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             }
 
             setData('total_amount', total);
+            
+            console.log('Van selected:', vanId, 'Driver assigned:', selectedVan?.user_id);
         }
     }
+
+
+    useEffect(() => {
+        if (selectedVan) {
+            setData('driver_id', selectedVan.user_id);
+        } else {
+            setData('driver_id', null);
+        }
+    }, [selectedVan]);
 
     const toggleServiceSelection = (serviceId: number) => {
         let updatedIds: number[];
@@ -300,6 +357,9 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
         }
         if (data.return_date != null) {
             formData.append('return_date', data.return_date);
+        }
+        if (data.driver_id) {
+            formData.append('driver_id', String(data.driver_id));
         }
         formData.append('status', data.status);
         formData.append('notes', data.notes);
@@ -458,6 +518,12 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
             console.log(e);
         }
     };
+
+    useEffect(() => {
+        if (selectedVan) {
+            setData('driver_id', selectedVan.user_id ? selectedVan.user_id : null);
+        }
+    }, [selectedVan]);
 
   return (
     <form className={clsx("flex flex-col gap-6 p-4", booking.status == 'past_due' && "bg-red-200 dark:bg-red-900 rounded-2xl", booking.status == 'completed' && "bg-green-200 dark:bg-green-900 rounded-2xl")} onSubmit={submit}>

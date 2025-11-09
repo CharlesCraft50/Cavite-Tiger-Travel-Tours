@@ -168,25 +168,16 @@ class BookingController extends Controller
             $booking->otherServices()->sync($request->input('other_services'));
         }
 
-        $fieldsToUpdate = collect(['preferred_van_id', 'departure_date', 'return_date', 'status', 'notes', 'pickup_address', 'total_amount', 'is_final_total', 'pax_adult', 'pax_kids', 'airport_transfer_type'])
+        $fieldsToUpdate = collect(['preferred_van_id', 'departure_date', 'return_date', 'status', 'notes', 'pickup_address', 'total_amount', 'is_final_total', 'pax_adult', 'pax_kids', 'airport_transfer_type', 'driver_id'])
             ->filter(fn ($field) => $request->has($field))
             ->mapWithKeys(fn ($field) => [$field => $request->input($field)])
             ->toArray();
 
         // NEW: Automatically assign driver when preferred_van_id is set
-        if (array_key_exists('preferred_van_id', $fieldsToUpdate)) {
-            if ($fieldsToUpdate['preferred_van_id']) {
-                // Van is being assigned
-                $van = PreferredVan::with('driver')->find($fieldsToUpdate['preferred_van_id']);
-                if ($van && $van->driver_id) {
-                    $fieldsToUpdate['driver_id'] = $van->driver_id;
-                } else {
-                    // If van has no driver, clear driver_id
-                    $fieldsToUpdate['driver_id'] = null;
-                }
-            } else {
-                // Van is being removed
-                $fieldsToUpdate['driver_id'] = null;
+        if ($request->has('preferred_van_id') && $request->preferred_van_id) {
+            $van = PreferredVan::find($request->preferred_van_id);
+            if ($van && $van->driver_id) {
+                $fieldsToUpdate['driver_id'] = $van->driver_id;
             }
         }
 
