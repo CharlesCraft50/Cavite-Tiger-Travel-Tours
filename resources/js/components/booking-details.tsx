@@ -1086,7 +1086,7 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                 </div>
             )}
 
-            {(booking.user_id === auth.user.id || (isAdmins || isStaffs)) && (
+            {((booking.user_id === auth.user.id) || (isAdmins || isStaffs)) && (
                 <>
                     {(!hasReview && booking.status) === 'completed' ? (
                         <div className="mt-10 p-6 bg-white dark:bg-accent shadow rounded-2xl border">
