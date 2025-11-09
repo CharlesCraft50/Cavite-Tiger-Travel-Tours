@@ -704,7 +704,6 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                                     <span className="text-black font-semibold dark:text-white">
                                                     {{
                                                         going_airport: "Going Airport",
-                                                        going_home: "Going Home",
                                                         back_to_back: "Back to Back",
                                                     }[booking.airport_transfer_type] || booking.airport_transfer_type}
                                                     </span>

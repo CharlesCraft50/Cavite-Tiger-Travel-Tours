@@ -46,11 +46,6 @@ export const airportTransferTypes = [
         note: "Van will pick you up at your address and drop you off at the airport.",
     },
     {
-        value: "going_home",
-        label: "Going Home",
-        note: "Van will pick you up at the airport and drop you off at your address.",
-    },
-    {
         value: "back_to_back",
         label: "Back to Back",
         note: "Applies to both transfers. Pick-up from your address to the airport, and from the airport back to your address.",
