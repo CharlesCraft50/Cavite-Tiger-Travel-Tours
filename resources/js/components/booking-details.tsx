@@ -290,7 +290,11 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
 
         const formData = new FormData();
 
-        formData.append('preferred_van_id', String(data.preferred_van_id ?? ''));
+        if (data.preferred_van_id) {
+            formData.append('preferred_van_id', String(data.preferred_van_id));
+        } else {
+            formData.append('preferred_van_id', '');
+        }
         if (data.departure_date != null) {
             formData.append('departure_date', data.departure_date);
         }
