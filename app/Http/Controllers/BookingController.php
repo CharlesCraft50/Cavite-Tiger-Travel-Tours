@@ -117,9 +117,14 @@ class BookingController extends Controller
             'otherServices' => function ($query) {
                 $query->withPivot(['package_specific_price', 'is_recommended', 'sort_order']);
             },
-            'reviews' => function ($query) use ($userId) {
-                if ($userId) {
-                    $query->where('user_id', $userId);
+            'reviews' => function ($query) use ($user) {
+                // If user is admin or staff, show ALL reviews
+                if ($user->isAdmin() || $user->isStaff()) {
+                    // No filter - show all reviews
+                }
+                // If regular user, only show their own reviews
+                else {
+                    $query->where('user_id', $user->id);
                 }
                 $query->with('user');
             },
