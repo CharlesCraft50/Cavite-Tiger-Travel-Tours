@@ -509,8 +509,8 @@ export default function CustomTripDetails({
                       <>
                         {trip.preferred_van?.plate_number != null && (
                           <>
-                            <p className="text-sm text-gray-800 mt-2">Plate Number</p>
-                            <span className="text-black font-semibold">
+                            <p className="text-sm text-gray-800 mt-2 dark:text-gray-400">Plate Number</p>
+                            <span className="text-black font-semibold dark:text-white">
                               {trip.preferred_van?.plate_number}
                             </span>
                           </>
@@ -519,8 +519,8 @@ export default function CustomTripDetails({
                         {(trip.preferred_van?.driver?.first_name != null ||
                           trip.preferred_van?.driver?.last_name != null) && (
                           <>
-                            <p className="text-sm text-gray-800 mt-2">Assigned Driver</p>
-                            <span className="text-black font-semibold">
+                            <p className="text-sm text-gray-800 mt-2 dark:text-gray-400">Assigned Driver</p>
+                            <span className="text-black font-semibold dark:text-white">
                               {trip.preferred_van?.driver?.first_name}{' '}
                               {trip.preferred_van?.driver?.last_name}
                             </span>
