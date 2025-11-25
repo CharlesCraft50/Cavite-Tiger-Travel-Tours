@@ -581,40 +581,56 @@ export default function CustomTripDetails({
                   )}
                 </div>
                 <div className="text-right">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Amount</p>
-                    {editable && isEditing ? (
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                            <PriceSign />
-                            <Input
-                                type="number"
-                                className="w-32 border border-gray-300 rounded-md px-2 py-1"
-                                value={data.total_amount ?? ''}
-                                min={0}
-                                step="0.01"
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    setData({
-                                    ...data,
-                                        total_amount: value === '' ? undefined : Number(value),
-                                    });
-                                }}
-                                disabled={data.is_final_total}
-                            />
-                          </div>
-                          {!(data.total_amount === null || data.total_amount === undefined || Number(data.total_amount) === 0) && (
-                            <Button type="button" onClick={() => setData({...data, is_final_total: !data.is_final_total})}>{data.is_final_total == true ? 'Unset Final' : 'Set as Final'}</Button>
-                          )}
-                        </div>
-                    ) : (
-                        <div className="flex flex-row items-center text-primary">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Amount</p>
+                  {editable && isEditing ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
                         <PriceSign />
-                        <p className="text-base font-medium">
-                            {Number(totalAmount).toLocaleString()}
-                        </p>
-                        </div>
-                    )}
+                        <Input
+                          type="text" // Change from "number" to "text"
+                          className="w-32 border border-gray-300 rounded-md px-2 py-1"
+                          value={data.total_amount !== null && data.total_amount !== undefined ? data.total_amount.toLocaleString() : ''} // Format with commas, allow blank
+                          onChange={(e) => {
+                            // Remove all non-digit characters except decimal point
+                            const raw = e.target.value.replace(/[^\d.]/g, '');
+                            
+                            // Allow blank/empty value
+                            if (raw === '') {
+                              setData({
+                                ...data,
+                                total_amount: undefined, // or null, depending on your preference
+                              });
+                              return;
+                            }
+                            
+                            // Parse as number
+                            const num = Number(raw);
+                            
+                            if (!isNaN(num)) {
+                              setData({
+                                ...data,
+                                total_amount: num,
+                              });
+                            }
+                          }}
+                          disabled={data.is_final_total}
+                        />
+                      </div>
+                      {!(data.total_amount === null || data.total_amount === undefined || Number(data.total_amount) === 0) && (
+                        <Button type="button" onClick={() => setData({...data, is_final_total: !data.is_final_total})}>
+                          {data.is_final_total == true ? 'Unset Final' : 'Set as Final'}
+                        </Button>
+                      )}
                     </div>
+                  ) : (
+                    <div className="flex flex-row items-center text-primary">
+                      <PriceSign />
+                      <p className="text-base font-medium">
+                        {data.total_amount !== null && data.total_amount !== undefined ? Number(data.total_amount).toLocaleString() : '-'}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Payment Status */}

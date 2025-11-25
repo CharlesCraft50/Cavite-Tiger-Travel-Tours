@@ -13,6 +13,7 @@ import { Input } from "./ui/input";
 import ImageSimpleBox from "./ui/image-simple-box";
 import PriceSign from "./price-sign";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { formatNumber } from "@/lib/utils";
 
 type VanSelectionProps = {
     preferredVans: PreferredVan[];
@@ -566,15 +567,23 @@ export default function VanSelection({
                                     <PriceSign />
                                     <Input
                                         type="text"
-                                        value={van.additional_fee}
-                                        onChange={(e) => handleChange(van.id, 'additional_fee', e.target.value)}
+                                        value={formatNumber(van.additional_fee)}
+                                        onChange={(e) => {
+                                            handleChange(van.id, 'additional_fee', e.target.value)
+                                            const raw = e.target.value.replace(/,/g, "");   // remove commas
+                                            const num = raw === "" ? null : Number(raw);
+
+                                            if (!isNaN(num!)) {
+                                                handleChange(van.id, 'additional_fee', num)
+                                            }
+                                        }}
                                         className="p-0 outline-none px-2 w-full"
                                     />
                                 </span>
                             ) : (
                                 <>
                                     <PriceSign />
-                                    {van.additional_fee.toLocaleString()}
+                                    {Number(van.additional_fee).toLocaleString()}
                                 </>
                             )}
                         </p>

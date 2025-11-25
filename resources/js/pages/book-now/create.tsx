@@ -902,7 +902,7 @@ export default function Create({
                         <p className="text-lg font-semibold">Total Amount</p>
                         <div className="flex flex-row items-center font-semibold text-primary text-2xl">
                             <PriceSign />
-                            <p>{totalAmount}</p>
+                            <p>{Number(totalAmount).toLocaleString()}</p>
                         </div>
                     </div>
                 </div>

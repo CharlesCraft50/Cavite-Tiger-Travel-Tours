@@ -247,7 +247,7 @@ class BookingController extends Controller
     {
 
         return Inertia::render('dashboard/analytics/index', [
-            'bookings' => Booking::with('payment')->get(),
+            'bookings' => Booking::with(['payment', 'tourPackage'])->get(),
             'customTrips' => CustomTrip::with('payment')->get(),
             'userCount' => User::count(),
         ]);

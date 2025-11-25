@@ -12,7 +12,7 @@ import { Input, Textarea } from '@headlessui/react';
 import OtherServiceSelection from './other-service-selection';
 import PriceSign from './price-sign';
 import VanSelection from './van-selection';
-import { formatStatus, isAdmin, isDriver, isStaff } from '@/lib/utils';
+import { formatNumber, formatStatus, isAdmin, isDriver, isStaff } from '@/lib/utils';
 import { Label } from './ui/label';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import StarRating from './star-rating';
@@ -972,26 +972,38 @@ export default function BookingDetails({ booking, otherServices, packages, vans,
                                 
                                 <div className="flex flex-row items-center text-primary">
                                     {editable && isEditing ? (
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-2">
-                                                <PriceSign />
-                                                <Input
-                                                    type="number"
-                                                    className="w-32 border border-gray-300 rounded-md px-2 py-1"
-                                                    value={data.total_amount ?? ''}
-                                                    min={0}
-                                                    step="0.01"
-                                                    onChange={(e) => {
-                                                        const value = e.target.value;
-                                                        setData('total_amount', Number(value));
-                                                    }}
-                                                    disabled={data.is_final_total}
-                                                />
-                                            </div>
-                                            <Button type="button" onClick={() => setData('is_final_total', !data.is_final_total)}>{data.is_final_total == true ? 'Unset Final' : 'Set as Final'}</Button>
+                                        <div className="flex items-center gap-2">
+                                            <PriceSign />
+                                            <Input
+                                                type="text" // Change from "number" to "text"
+                                                className="w-32 border border-gray-300 rounded-md px-2 py-1"
+                                                value={data.total_amount.toLocaleString()} // Format with commas for display
+                                                onChange={(e) => {
+                                                    // Remove all non-digit characters except decimal point
+                                                    const raw = e.target.value.replace(/[^\d.]/g, '');
+                                                    
+                                                    // Parse as number
+                                                    const num = raw === "" ? 0 : Number(raw);
+                                                    
+                                                    if (!isNaN(num)) {
+                                                        setData('total_amount', num);
+                                                    }
+                                                }}
+                                                onBlur={(e) => {
+                                                    // Format with commas when field loses focus
+                                                    const num = Number(e.target.value.replace(/[^\d.]/g, ''));
+                                                    if (!isNaN(num)) {
+                                                        e.target.value = num.toLocaleString();
+                                                    }
+                                                }}
+                                                onFocus={(e) => {
+                                                    // Remove commas when field is focused for editing
+                                                    e.target.value = e.target.value.replace(/,/g, '');
+                                                }}
+                                                disabled={data.is_final_total}
+                                            />
                                         </div>
-                                    ) 
-                                    : (
+                                    ) : (
                                         <div className="flex flex-row">
                                             <PriceSign />
                                             <p className="text-base font-medium">{Number(booking.total_amount).toLocaleString()}</p>

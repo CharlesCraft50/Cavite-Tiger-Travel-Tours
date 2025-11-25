@@ -64,3 +64,8 @@ export function normalizePHNumber(number: string) {
 
   return digits; // e.g., '+639954609624'
 }
+
+export const formatNumber = (val: number | null) => {
+  if (!val) return "";
+  return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};

@@ -23,6 +23,7 @@ import CityList from "@/components/city-list";
 import CardImageBackground from "@/components/ui/card-image-bg";
 import 'swiper/css';
 import 'swiper/css/pagination';
+import { formatNumber } from "@/lib/utils";
 
 export type PackageForm = {
     title: string;
@@ -695,8 +696,15 @@ export default function Index({
                         <Input
                             type="text"
                             id="base_price"
-                            value={data.base_price || ''}
-                            onChange={(e) => setData('base_price', Number(e.target.value))}
+                            value={formatNumber(data.base_price) || ''}
+                            onChange={(e) => {
+                                const raw = e.target.value.replace(/,/g, "");   // remove commas
+                                const num = raw === "" ? null : Number(raw);
+
+                                if (!isNaN(num!)) {
+                                    setData("base_price", num);
+                                }
+                            }}
                             className="w-full border rounded"
                         />
                     </div>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\PackageApiController;
+use App\Http\Controllers\Api\SalesReportController;
 use App\Http\Controllers\Api\VanApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,3 +19,7 @@ Route::get('/events', [PackageApiController::class, 'indexEvents'])->name('api.e
 
 Route::get('/notifications/{userId}', [NotificationApiController::class, 'index']);
 Route::get('/notifications/{userId}/read', [NotificationApiController::class, 'markAllAsRead']);
+
+// Sales report
+Route::post('/sales-reports', [SalesReportController::class, 'store']);
+Route::post('/generate-sales-pdf', [SalesReportController::class, 'generatePDF']);
